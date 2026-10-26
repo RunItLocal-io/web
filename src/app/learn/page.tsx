@@ -23,11 +23,11 @@ export default function Learn() {
   const start = START.map(article).filter(a => a !== null);
   const tracks = TRACKS.map(t => ({ ...t, list: inTrack(t.id) })).filter(t => t.list.length);
   return (
-    <Page className="learn-home">
-      <header className="head page-head learn-welcome">
-        <span className="kicker">Learn · {articles().length} guides</span>
+    <Page className="docs-page learn-home">
+      <header className="docs-head">
+        <ol className="docs-crumbs" aria-label="Breadcrumb"><li>Learn</li><li>{articles().length} guides</li></ol>
         <h1>Welcome. Let&apos;s get AI running on <span className="grad">your own hardware.</span></h1>
-        <p className="lede">Plain-English guides from the people who run a rack of 90 used GPUs. Start with your first model on the computer you already own, and go as far as a server for your whole team. No account, no cloud, no monthly bill.</p>
+        <p className="docs-lede">Plain-English guides from the people who run a rack of 90 used GPUs. Start with your first model on the computer you already own, and go as far as a server for your whole team. No account, no cloud, no monthly bill.</p>
       </header>
 
       <section aria-labelledby="start-h">
