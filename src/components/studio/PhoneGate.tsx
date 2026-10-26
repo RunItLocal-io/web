@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
+import Signup from "@/components/Signup";
 import { copyText } from "@/lib/copy";
 import { SITE } from "@/lib/share";
 
@@ -35,6 +36,11 @@ export default function PhoneGate() {
         <button className={canShare ? "btn alt" : "btn"} type="button" onClick={copy}>{copied ?? "Copy link"}</button>
       </div>
       <code ref={ref} className="phone-url">{URL_TO_SEND}</code>
+      <div className="phone-join">
+        <b>Join the podcast list</b>
+        <p>New episodes, guides, and what we&apos;re running on the rack. One email when there&apos;s something new, no spam.</p>
+        <Signup source="studio-phone" cta="Join" />
+      </div>
       <div className="phone-meanwhile">
         <b>On your phone meanwhile</b>
         <Link href="/gpu">What can my computer run?</Link>

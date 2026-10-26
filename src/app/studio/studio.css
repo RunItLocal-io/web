@@ -357,3 +357,7 @@ html.studio-open .site > nav, html.studio-open .site > footer { display: none; }
 .phone-meanwhile { display: grid; gap: 4px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--rule); font-size: 15px; }
 .phone-meanwhile b { font-size: 12px; font-family: var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; margin-bottom: 4px; }
 .phone-meanwhile a { padding: 8px 0; text-decoration: none; }
+.phone-join { display: grid; gap: 8px; margin-top: 16px; padding: 18px; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface); }
+.phone-join b { font-family: var(--font-display); font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
+.phone-join p { font-size: 14px; }
+.phone-join .signup { max-width: none; }
