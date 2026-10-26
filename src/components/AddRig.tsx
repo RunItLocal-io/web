@@ -36,7 +36,7 @@ export default function AddRig() {
           <ol className="steps3">
             <li>Copy the prompt.</li>
             <li>Paste it into Claude Code, Codex, OpenClaw, Hermes or whatever agent runs on your machine.</li>
-            <li>Paste the JSON it prints into the box on the right.</li>
+            <li>Paste the JSON it prints into the benchmark box.</li>
           </ol>
           <div className="btns"><button className="btn" type="button" onClick={onCopy}>Copy the prompt</button><span className="small" role="status">{copyMsg}</span></div>
           <pre className="prompt" ref={promptRef} tabIndex={0}>{BENCH_PROMPT}</pre>

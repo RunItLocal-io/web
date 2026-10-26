@@ -6,7 +6,6 @@
 .people-page .lede { font-size: clamp(17px, 2vw, 19px); max-width: 58ch; }
 .people-page .led { width: 10px; height: 10px; }
 .people-page header { display: grid; gap: 14px; }
-.people-page footer { justify-content: flex-start; }
 
 .people { display: grid; gap: 24px; }
 .person { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px 36px; padding: 28px; background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; }

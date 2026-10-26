@@ -1,24 +1,23 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { Bricolage_Grotesque, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Unbounded } from "next/font/google";
+import Spotlight from "@/components/Spotlight";
 import "./globals.css";
+import "./sections.css";
 
-const display = Bricolage_Grotesque({
+const display = Unbounded({
   variable: "--font-display-face",
   subsets: ["latin"],
-  weight: ["600", "800"],
 });
 
-const body = IBM_Plex_Sans({
+const body = Geist({
   variable: "--font-body-face",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
 });
 
-const mono = JetBrains_Mono({
+const mono = Geist_Mono({
   variable: "--font-mono-face",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -29,6 +28,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   viewportFit: "cover",
+  themeColor: "#050608",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -36,6 +36,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body>
         {children}
+        <Spotlight />
         {/* Umami, website runitlocal.io (darkcompute-fleet deploy/analytics/sites.yaml) */}
         <Script
           src="https://a.darkcompute.io/assets/app.js"

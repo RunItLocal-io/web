@@ -1,0 +1,3 @@
+# unrs-resolver's postinstall only fetches a native binary when the platform package is missing; pnpm installs that package anyway.
+allowBuilds:
+  unrs-resolver: false

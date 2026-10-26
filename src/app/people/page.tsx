@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { SiteFooter, SiteNav } from "@/components/SiteNav";
 import "./people.css";
 
 export const metadata: Metadata = {
@@ -41,10 +42,7 @@ const PEOPLE: Person[] = [
 export default function People() {
   return (
     <div className="wrap people-page">
-      <nav aria-label="Main">
-        <Link className="brand" href="/"><span className="led" aria-hidden="true" />run it local</Link>
-        <Link className="back" href="/">← Home</Link>
-      </nav>
+      <SiteNav />
 
       <header>
         <span className="kicker">People</span>
@@ -74,10 +72,10 @@ export default function People() {
         <span className="kicker">Contribute</span>
         <h2>Run tests with us</h2>
         <p>Have hardware we haven&apos;t tested, or want to write up a build? Run the benchmark prompt on your machine and send us the result. Good write-ups get published here with your name on them.</p>
-        <Link className="btn outline" href="/#rigs">Get the benchmark prompt</Link>
+        <Link className="btn outline" href="/leaderboard">Get the benchmark prompt</Link>
       </section>
 
-      <footer><span className="tagline"><span className="led" aria-hidden="true" />Run It Local · run it yourself, own your data</span></footer>
+      <SiteFooter />
     </div>
   );
 }

@@ -1,24 +1,27 @@
 # runitlocal.io
 
-Website for Run It Local. Next.js (App Router), TypeScript, plain CSS.
+Website for Run It Local. Next.js (App Router), TypeScript, plain CSS, pnpm. Pushing to `main` deploys (see `deploy/follow.sh`).
 
 ## Develop
 
 ```bash
-npm install
-npm run dev     # http://localhost:3000
-npm run build   # production build; both pages prerender as static
-npm run lint
+pnpm install
+pnpm dev        # http://localhost:3737
+pnpm build      # production build; every page prerenders as static
+pnpm lint
 ```
 
 ## Layout
 
-- `src/app/page.tsx`: homepage (build finder, add your rig, live demo, learn, lab notes, about)
-- `src/app/people/page.tsx`: people page; edit the `PEOPLE` list to add someone, and put photos in `public/people/`
-- `src/app/globals.css`: color tokens (light and dark) and shared styles; `home.css` and `people/people.css` hold page styles
-- `src/lib/builds.ts`: reference builds, models and prices for the finder
-- `src/lib/bench.ts`: the benchmark prompt and the validator for submitted JSON
-- `src/components/`: the interactive pieces (client components)
+- `src/app/page.tsx`: homepage. Detects the visitor's GPU, says what it can run and how fast, and offers to run a model in the tab
+- `src/app/{builds,learn,notes,leaderboard,try,people}/`: subpages
+- `src/lib/gpus.ts`: GPU table (VRAM, bandwidth) and matching against the browser's renderer string
+- `src/lib/detect.ts`: browser-side detection (WebGL renderer string, WebGPU adapter, phone check). Nothing is sent anywhere
+- `src/lib/estimate.ts`: Ollama model list and the speed estimate (bandwidth ÷ active weights × efficiency)
+- `src/components/RunInBrowser.tsx`: WebLLM demo; Llama 3.2 1B/3B from Hugging Face, cached by the browser after the first load
+- `src/lib/builds.ts`, `src/lib/bench.ts`: reference builds, the benchmark prompt and its validator
+- `src/components/DieField.tsx`: the animated cell field behind the hero; call `pulse()` to send a ripple through it
+- `src/app/globals.css` (tokens, shared), `sections.css` (subpage sections), `home.css`, `people/people.css`
 - `design/`: the original single-file HTML designs, kept for reference
 
 ## Not wired up yet
