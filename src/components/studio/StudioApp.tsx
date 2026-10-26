@@ -34,8 +34,8 @@ type Pic = { id: string; url: string; prompt: string; seed: number };
 
 type Msg =
   | { id: number; role: "user"; text: string; model: StudioModel; files?: string[] }
-  | { id: number; role: "bot"; kind: "text"; model: StudioModel; text: string; chunks: string[]; done: boolean; tps?: number }
-  | { id: number; role: "bot"; kind: "image"; model: StudioModel; prompt: string; url?: string; pic?: string; seed?: number; ms?: number; done: boolean }
+  | { id: number; role: "bot"; kind: "text"; model: StudioModel; text: string; chunks: string[]; done: boolean; tps?: number; warm?: boolean }
+  | { id: number; role: "bot"; kind: "image"; model: StudioModel; prompt: string; url?: string; pic?: string; seed?: number; ms?: number; done: boolean; warm?: boolean }
   | { id: number; role: "bot"; kind: "run"; model: StudioModel; code: string; ok?: boolean; out: string; error?: string; images?: string[]; done: boolean }
   | { id: number; role: "note"; text: string; err?: boolean };
 
@@ -132,6 +132,11 @@ export default function StudioApp() {
   const [attached, setAttached] = useState<string[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const current = useRef<Loaded | null>(null);
+  /**
+   * Models that have answered since they were loaded. A freshly loaded model's first answer is much slower while
+   * the browser prepares it for the GPU, so that answer says it's warming up instead of looking stuck.
+   */
+  const warmed = useRef(new Set<string>());
   const pending = useRef<{ id: string; p: Promise<Loaded | null> } | null>(null);
   const started = useRef(false);
   const dirty = useRef(false);
@@ -157,6 +162,7 @@ export default function StudioApp() {
       try {
         const l = await loadModel(m, gpu, pr => { mark(); setLoading({ model: m, ...pr }); });
         current.current = l; setLive(m.id);
+        warmed.current.delete(m.id);
         pulse(2, .5, .5);
         refreshStored();
         return l;
@@ -285,9 +291,10 @@ export default function StudioApp() {
 
   async function paint(engine: Extract<Loaded, { kind: "image" }>["engine"], m: StudioModel, prompt: string) {
     const id = nextId++;
-    add({ id, role: "bot", kind: "image", model: m, prompt, done: false });
+    add({ id, role: "bot", kind: "image", model: m, prompt, done: false, warm: !warmed.current.has(m.id) });
     try {
       const g = await engine.generate(prompt);
+      warmed.current.add(m.id);
       pulse(1.6);
       const picId = `${g.at}-${g.seed}`;
       patch(id, { url: g.url, pic: picId, seed: g.seed, ms: g.ms, done: true });
@@ -318,7 +325,7 @@ export default function StudioApp() {
   /** Streams one answer into the thread and returns its full text. */
   async function stream(engine: Extract<Loaded, { kind: "chat" }>["engine"], m: StudioModel, system: string, turns: ChatCompletionMessageParam[]) {
     const id = nextId++;
-    add({ id, role: "bot", kind: "text", model: m, text: "", chunks: [], done: false });
+    add({ id, role: "bot", kind: "text", model: m, text: "", chunks: [], done: false, warm: !warmed.current.has(m.id) });
     const chunks: string[] = [];
     let first = 0;
     try {
@@ -344,6 +351,7 @@ export default function StudioApp() {
       chunks.push("\n\n[Stopped: " + (err instanceof Error ? err.message : "the GPU gave up") + "]");
       patch(id, { text: chunks.join(""), chunks: chunks.slice() });
     }
+    warmed.current.add(m.id);
     patch(id, { done: true });
     return chunks.join("");
   }
@@ -569,7 +577,7 @@ export default function StudioApp() {
                           {m.url
                             // eslint-disable-next-line @next/next/no-img-element -- blob: URL of an image made on this device
                             ? <img src={m.url} alt={m.prompt} width={512} height={512} />
-                            : <span className="painting">{m.done ? "This image was deleted." : `Painting on ${where}…`}</span>}
+                            : <span className="painting">{m.done ? "This image was deleted." : m.warm ? `Warming up ${where} · the first picture is slower…` : `Painting on ${where}…`}</span>}
                           {!m.done && <span className="scan" aria-hidden="true" />}
                           {m.done && m.url && (
                             <div className="shot-acts">
@@ -600,13 +608,13 @@ export default function StudioApp() {
                       {!t.thinking && (
                         <div className={"msg-text" + (!m.text ? " wait" : "")}>
                           {m.text.includes("```") ? <RichText text={t.think !== undefined ? t.answer : m.text} />
-                            : t.think !== undefined || !m.chunks.length ? (t.think !== undefined ? t.answer : m.text || "Thinking on your GPU…")
+                            : t.think !== undefined || !m.chunks.length ? (t.think !== undefined ? t.answer : m.text || (m.warm ? "Warming up your GPU · the first answer is slower…" : "Thinking on your GPU…"))
                             : m.chunks.map((c, j) => <span key={j} className="tok">{c}</span>)}
                           {!m.done && <span className="caret" aria-hidden="true" />}
                         </div>
                       )}
                       <div className="msg-meta">
-                        <span className="tps">{m.tps ? `${Math.round(m.tps)} tok/s` : "––"}</span>
+                        <span className="tps">{m.warm && !m.done ? "warming up" : m.tps ? `${Math.round(m.tps)} tok/s` : "––"}</span>
                         {m.done && m.text && (
                           <button className="icon-btn sm" type="button" onClick={() => copy(m.id, splitThink(m.text).answer)} aria-label="Copy answer" title="Copy">
                             <Icon name={copied === m.id ? "check" : "copy"} />
