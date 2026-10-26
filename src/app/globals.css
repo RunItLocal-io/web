@@ -111,7 +111,9 @@ nav ul a[aria-current="page"] { color: var(--ink); background: var(--accent-soft
 @media (max-width: 640px) {
   nav { flex-wrap: nowrap; padding: 8px 8px 8px 14px; gap: 8px; }
   .brand { flex: none; font-size: 15px; }
-  nav ul { flex-wrap: nowrap; overflow-x: auto; min-width: 0; scrollbar-width: none; font-size: 13px; mask-image: linear-gradient(90deg, transparent, #000 12px, #000 calc(100% - 16px), transparent); }
+  nav ul { flex-wrap: nowrap; overflow-x: auto; min-width: 0; scrollbar-width: none; font-size: 13px; mask-image: linear-gradient(90deg, #000 calc(100% - 16px), transparent); }
+  /* The logo already goes home, and a link pressed up against it reads as covered. */
+  .site-nav li:has(> a[href="/"]) { display: none; }
   nav ul::-webkit-scrollbar { display: none; }
   nav ul a { padding: 6px 9px; white-space: nowrap; }
 }

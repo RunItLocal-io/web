@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
+import Analytics from "@/components/Analytics";
 import { Geist, Geist_Mono, Unbounded } from "next/font/google";
 import { SiteFooter, SiteNav } from "@/components/SiteNav";
 import Spotlight from "@/components/Spotlight";
@@ -47,12 +48,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </div>
         <Spotlight />
         <StudioTabs />
-        {/* Umami, website runitlocal.io (darkcompute-fleet deploy/analytics/sites.yaml) */}
+        <Analytics />
+        {/* Umami, website runitlocal.io (darkcompute-fleet deploy/analytics/sites.yaml). Custom events: lib/analytics.ts.
+            before-send drops repeat pageviews of the same path; /notrack turns it off for one browser. */}
         <Script
           src="https://a.darkcompute.io/assets/app.js"
           data-website-id="5ff26a63-3965-4186-9fdb-1cf7f036e494"
           data-host-url="https://a.darkcompute.io"
           data-domains="runitlocal.io,www.runitlocal.io"
+          data-before-send="umamiBeforeSend"
         />
       </body>
     </html>

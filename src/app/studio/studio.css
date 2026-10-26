@@ -1,7 +1,9 @@
 /* Studio: a full-window app. Sidebar of models and saved images; a thread where the chosen model answers. */
-/* .studio-open is set by StudioChrome only while the Studio is showing; Next keeps hidden pages in the DOM. */
-html.studio-open body { overflow: hidden; }
-html.studio-open .site > nav, html.studio-open .site > footer { display: none; }
+/* .studio-open is set by StudioChrome only while the Studio is showing; Next keeps hidden pages in the DOM.
+   On phones the Studio is just a page saying it needs a computer (.phone-gate), so it keeps the site's nav,
+   footer and scrolling. */
+html.studio-open:not(:has(.phone-gate)) body { overflow: hidden; }
+html.studio-open:not(:has(.phone-gate)) .site > nav, html.studio-open:not(:has(.phone-gate)) .site > footer { display: none; }
 
 .app {
   --side-w: 268px; --r-sm: 8px; --r-md: 12px; --r-lg: 18px;
@@ -343,10 +345,7 @@ html.studio-open .site > nav, html.studio-open .site > footer { display: none; }
 @media (max-width: 820px) { .app .preset, .app .tool-btn { font-size: 12px; } }
 
 /* ---------- Phones and tablets: the Studio needs a computer ---------- */
-.phone-gate {
-  min-height: 100dvh; max-width: 480px; margin: 0 auto; display: grid; align-content: center; gap: 16px;
-  padding: calc(32px + env(safe-area-inset-top, 0px)) 20px calc(32px + env(safe-area-inset-bottom, 0px));
-}
+.phone-gate { max-width: 480px; margin: 0 auto; display: grid; gap: 16px; padding: 24px 0 8px; }
 .phone-gate .led { width: 12px; height: 12px; }
 .phone-gate h1 { font-size: clamp(32px, 9vw, 44px); line-height: 1.05; }
 .phone-gate p { color: var(--ink-2); font-size: 16px; }
@@ -361,3 +360,13 @@ html.studio-open .site > nav, html.studio-open .site > footer { display: none; }
 .phone-join b { font-family: var(--font-display); font-size: 18px; font-weight: 600; letter-spacing: -.02em; }
 .phone-join p { font-size: 14px; }
 .phone-join .signup { max-width: none; }
+
+/* ---------- Before anything downloads: blocked browsers, a download to confirm, a load to retry ---------- */
+.app .blocked-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; }
+.app .ask-text { font-size: 14px; color: var(--ink-2); }
+.app .ask-acts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.app .load-cache { margin-left: 8px; font-size: 11px; font-family: var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--cyan); }
+.app .note-retry { display: flex; margin: 8px auto 2px; padding: 6px 14px; font-size: 13px; }
+.phone-gate .in-app { display: grid; gap: 6px; padding: 14px 16px; border: 1px solid rgba(255, 176, 32, .35); border-radius: var(--radius); background: var(--surface); }
+.phone-gate .in-app b { font-size: 16px; }
+.phone-gate .in-app p { font-size: 14px; }

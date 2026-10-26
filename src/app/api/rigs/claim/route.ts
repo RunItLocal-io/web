@@ -18,6 +18,6 @@ function allowed(ip: string) {
 export async function POST(req: Request) {
   const ip = req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
   if (!allowed(ip)) return Response.json({ error: "Too many prompts from here. Try again in an hour." }, { status: 429 });
-  const body = await req.json().catch(() => ({})) as { handle?: unknown; use?: unknown; tier?: unknown };
-  return Response.json({ token: await createClaim(body.handle, body.use, body.tier) });
+  const body = await req.json().catch(() => ({})) as { handle?: unknown; use?: unknown; tier?: unknown; utm?: unknown };
+  return Response.json({ token: await createClaim(body.handle, body.use, body.tier, body.utm) });
 }

@@ -86,7 +86,7 @@ export default function Sidebar(p: Props) {
           {p.webgpu ? (p.webgpu.available ? "WebGPU" + (p.webgpu.f16 ? " · f16" : "") : "WebGPU off") : "checking…"} · {p.online ? "online" : "offline, still working"}
         </span>
         {p.installed ? <span className="gpu-sub">Installed as an app</span>
-          : p.canInstall && <button className="gpu-install" type="button" onClick={p.onInstall}><Icon name="down" />Install app</button>}
+          : p.canInstall && <button className="gpu-install" type="button" onClick={p.onInstall} data-umami-event="studio_install_app"><Icon name="down" />Install app</button>}
       </div>
     </aside>
   );

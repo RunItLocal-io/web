@@ -11,6 +11,8 @@ import { SITE } from "@/lib/share";
 import ModelChip from "@/components/studio/ModelChip";
 import ModelsView, { type Stored } from "@/components/studio/ModelsView";
 import Sidebar, { type View } from "@/components/studio/Sidebar";
+import { track } from "@/lib/analytics";
+import { copyText } from "@/lib/copy";
 import { detectGpu, type WebGpuInfo } from "@/lib/detect";
 import { usableGb } from "@/lib/estimate";
 import { INTEGRATED, MAC_UNKNOWN } from "@/lib/gpus";
@@ -20,6 +22,7 @@ import {
   STUDIO_MODELS, cantRun, examplesFor, loadModel, storedModels, studioModel, unload, type Loaded, type Progress, type StudioModel,
 } from "@/lib/studio/models";
 import { PRESETS, loadInstructions, saveInstructions, systemPrompt } from "@/lib/studio/presets";
+import { inAppBrowser, metered, sizeMb, uaFamily } from "@/lib/studio/gate";
 import { dropSandbox, pythonBlock, sandboxFor } from "@/lib/studio/python";
 import InstructionsDialog from "@/components/studio/InstructionsDialog";
 import RichText from "@/components/studio/RichText";
@@ -37,7 +40,7 @@ type Msg =
   | { id: number; role: "bot"; kind: "text"; model: StudioModel; text: string; chunks: string[]; done: boolean; tps?: number; warm?: boolean }
   | { id: number; role: "bot"; kind: "image"; model: StudioModel; prompt: string; url?: string; pic?: string; seed?: number; ms?: number; done: boolean; warm?: boolean }
   | { id: number; role: "bot"; kind: "run"; model: StudioModel; code: string; ok?: boolean; out: string; error?: string; images?: string[]; done: boolean }
-  | { id: number; role: "note"; text: string; err?: boolean };
+  | { id: number; role: "note"; text: string; err?: boolean; retry?: StudioModel };
 
 const LAST = "runitlocal:studio-model";
 /**
@@ -48,6 +51,9 @@ const LAST = "runitlocal:studio-model";
 const LOADING = "runitlocal:studio-loading";
 const CRASH_WINDOW_MS = 60_000;
 const MAX_FILE = 25e6;
+/** A load still at 0% after this long has stalled: say so and offer a retry instead of an endless 0%. */
+const STALL_MS = 20_000;
+const STALLED = "stalled";
 /** Examples for a chat model with the Python sandbox on. */
 const AGENT_EXAMPLES = [
   "Simulate 10,000 rolls of two dice and plot how often each total comes up",
@@ -107,6 +113,12 @@ export default function StudioApp() {
   const [gpuName, setGpuName] = useState<string | null>(null);
   const [usable, setUsable] = useState(8);
   const [phone, setPhone] = useState(false);
+  const [inApp, setInApp] = useState(false);
+  /** A download waiting for a yes, on Data Saver or a cellular connection. */
+  const [asking, setAsking] = useState<{ model: StudioModel; resolve: (ok: boolean) => void } | null>(null);
+  /** The live model, when it opened from this device's cache instead of downloading. */
+  const [fromCache, setFromCache] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState<string | null>(null);
   const [install, setInstall] = useState<InstallPrompt | null>(null);
   const [installed, setInstalled] = useState(false);
   const [online, setOnline] = useState(true);
@@ -139,13 +151,15 @@ export default function StudioApp() {
   const warmed = useRef(new Set<string>());
   const pending = useRef<{ id: string; p: Promise<Loaded | null> } | null>(null);
   const started = useRef(false);
+  const storedRef = useRef<Stored[]>([]);
+  const allowed = useRef(new Set<string>());
   const dirty = useRef(false);
   const whereRef = useRef("your GPU");
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const where = gpuName ? "your " + gpuName : "your GPU";
-  const refreshStored = useCallback(async () => { const s = await storedModels(); setStored(s); return s; }, []);
+  const refreshStored = useCallback(async () => { const s = await storedModels(); storedRef.current = s; setStored(s); return s; }, []);
   const add = useCallback((m: Msg) => setMsgs(ms => [...ms, m]), []);
   const patch = (id: number, p: Partial<Msg>) => setMsgs(ms => ms.map(m => (m.id === id ? { ...m, ...p } as Msg : m)));
 
@@ -154,22 +168,55 @@ export default function StudioApp() {
     if (current.current?.model.id === m.id) return Promise.resolve(current.current);
     if (pending.current?.id === m.id) return pending.current.p;
     const p = (async () => {
+      const cached = storedRef.current.some(s => s.model.id === m.id);
+      // On Data Saver or a cellular connection, a download waits for a yes. Once per model per visit.
+      if (!cached && metered() && !allowed.current.has(m.id)) {
+        setView("chat");
+        const ok = await new Promise<boolean>(resolve => setAsking({ model: m, resolve }));
+        setAsking(null);
+        if (!ok) {
+          if (pending.current?.id === m.id) pending.current = null;
+          add({ id: nextId++, role: "note", text: `Didn't download ${m.label}. Pick one that's already on this device, or download it on Wi-Fi.` });
+          return null;
+        }
+        allowed.current.add(m.id);
+      }
       if (current.current) { unload(current.current); current.current = null; setLive(null); }
-      setLoading({ model: m, p: 0, text: "" });
+      setLoading({ model: m, p: 0, text: cached ? "Loading from cache" : "" });
+      setFromCache(null);
       let marked = 0;
       const mark = () => { const now = Date.now(); if (now - marked < 1000) return; marked = now; try { localStorage.setItem(LOADING, JSON.stringify({ id: m.id, at: now })); } catch {} };
       mark();
+      const t0 = performance.now(), ms = () => Math.round(performance.now() - t0);
+      track("studio_model_load_start", { model: m.id, size_mb: sizeMb(m.size), cached });
+      // A stalled load can't be cancelled, so it's abandoned: if it ever finishes, it's unloaded again.
+      let moved = false, abandoned = false, timer = 0;
+      const load = loadModel(m, gpu, pr => { if (abandoned) return; if (pr.p > 0) moved = true; mark(); setLoading({ model: m, ...pr }); });
+      load.then(l => { if (abandoned) unload(l); }, () => {});
       try {
-        const l = await loadModel(m, gpu, pr => { mark(); setLoading({ model: m, ...pr }); });
+        const stall = new Promise<never>((_, no) => { timer = window.setTimeout(() => { if (!moved) no(new Error(STALLED)); }, STALL_MS); });
+        const l = await Promise.race([load, stall]);
         current.current = l; setLive(m.id);
         warmed.current.delete(m.id);
+        setFromCache(cached ? m.id : null);
+        track("studio_model_load_done", { model: m.id, ms: ms(), cached });
         pulse(2, .5, .5);
+        // Ask the browser not to clear gigabytes of weights when it's short on space.
+        if (!cached) navigator.storage?.persist?.().catch(() => {});
         refreshStored();
         return l;
       } catch (err) {
-        add({ id: nextId++, role: "note", err: true, text: `Couldn't start ${m.label} on ${whereRef.current}: ${err instanceof Error ? err.message : String(err)}. Close other GPU-heavy tabs and try again, or pick a smaller model.` });
+        abandoned = true;
+        const msg = err instanceof Error ? err.message : String(err);
+        track("studio_model_load_fail", { model: m.id, error: msg.slice(0, 200), ms: ms() });
+        // The error and its Retry button live in the thread, so show it even if this started from the library.
+        setView("chat");
+        add({ id: nextId++, role: "note", err: true, retry: m, text: msg === STALLED
+          ? `${m.label} is stuck at 0%: nothing has arrived in ${STALL_MS / 1000} seconds. Check your connection and retry, or pick a smaller model.`
+          : `Couldn't start ${m.label} on ${whereRef.current}: ${msg}. Close other GPU-heavy tabs and try again, or pick a smaller model.` });
         return null;
       } finally {
+        clearTimeout(timer);
         try { localStorage.removeItem(LOADING); } catch {}
         setLoading(null);
         if (pending.current?.id === m.id) pending.current = null;
@@ -181,6 +228,7 @@ export default function StudioApp() {
 
   /** Make m the current model and start loading it. */
   function pick(m: StudioModel, toChat = true) {
+    if (m.id !== model.id) track("studio_change_model", { from: model.id, to: m.id });
     setModel(m); setSide(false);
     try { localStorage.setItem(LAST, m.id); } catch {}
     if (webgpu) ensure(m, webgpu);
@@ -191,7 +239,13 @@ export default function StudioApp() {
     detectGpu().then(async ({ detection, webgpu }) => {
       setWebgpu(webgpu);
       let gb = 8;
-      if (detection.status === "mobile") { setPhone(true); return; }
+      // Nothing downloads in an in-app browser, on a phone, or without WebGPU. Each is counted once per visit.
+      const app = inAppBrowser();
+      setInApp(app);
+      const unsupported = (reason: "no_webgpu" | "in_app_browser" | "low_memory") => track("studio_unsupported", { reason, ua_family: uaFamily() });
+      if (detection.status === "mobile") { setPhone(true); unsupported(app ? "in_app_browser" : "low_memory"); return; }
+      if (app) { unsupported("in_app_browser"); return; }
+      if (!webgpu.available) unsupported("no_webgpu");
       if (detection.status === "found" || detection.status === "guess") {
         const g = detection.gpu;
         if (g !== INTEGRATED && g !== MAC_UNKNOWN) { setGpuName(g.name); whereRef.current = "your " + g.name; }
@@ -221,7 +275,7 @@ export default function StudioApp() {
       let last: StudioModel | null = null;
       try { last = studioModel(localStorage.getItem(LAST)); } catch {}
       const first = last && !cantRun(last, webgpu, gb) ? last : STUDIO_MODELS.find(m => !cantRun(m, webgpu, gb));
-      if (!first) return;
+      if (!first) { unsupported("low_memory"); return; }
       setModel(first);
       if (s.some(x => x.model.id === first.id)) ensure(first, webgpu);
     });
@@ -273,8 +327,9 @@ export default function StudioApp() {
   }, [viewing]);
 
   async function run(text: string) {
-    if (!webgpu?.available || busy || !text.trim()) return;
+    if (!webgpu?.available || inApp || busy || !text.trim()) return;
     const m = model, prompt = text.trim();
+    track("studio_prompt_submit", { model: m.id, prompt_length: prompt.length });
     const history = msgs;
     const id = chatId ?? crypto.randomUUID();
     if (!chatId) setChatId(id);
@@ -441,13 +496,21 @@ export default function StudioApp() {
     navigator.clipboard?.writeText(text).then(() => { setCopied(id); setTimeout(() => setCopied(c => (c === id ? null : c)), 1400); }, () => {});
   }
 
+  function retry(note: number, m: StudioModel) {
+    setMsgs(ms => ms.filter(x => x.id !== note));
+    pick(m);
+  }
+
+  const copyLink = () => copyText(location.href, null, () => setLinkCopied("Copied"), () => setLinkCopied("Copy it from the address bar"));
+
   const isImage = model.kind === "image";
   const here = stored.some(s => s.model.id === model.id);
   const noGpu = webgpu && !webgpu.available;
+  const blocked = !!noGpu || inApp;
   const isLive = live === model.id;
   const ready = STUDIO_MODELS.filter(m => live === m.id || stored.some(s => s.model.id === m.id));
   const status = loading?.model.id === model.id ? `Loading ${model.label} · ${Math.round(loading.p * 100)}%`
-    : isLive ? `${model.label} · running on ${where}` : here ? `${model.label} · ready on this device` : `${model.label} · ${model.size}, downloads on first use`;
+    : isLive ? `${model.label} · ${fromCache === model.id ? "loaded from cache, " : ""}running on ${where}` : here ? `${model.label} · ready on this device` : `${model.label} · ${model.size}, downloads on first use`;
   const title = view === "models" ? "Local models" : view === "images" ? "Images" : chats.find(c => c.id === chatId)?.title ?? "New chat";
 
   // Installed, the app window is only the Studio, so links to the website open in the browser.
@@ -456,7 +519,7 @@ export default function StudioApp() {
   /** Avatar beside each answer: the model's kind, lit while it works. */
   const avatar = (m: StudioModel, working: boolean) => <span className={"avatar" + (working ? " working" : "")}><Icon name={kindIcon(m.group)} /></span>;
 
-  if (phone) return <PhoneGate />;
+  if (phone) return <PhoneGate inApp={inApp} />;
 
   return (
     <div className="app">
@@ -518,11 +581,19 @@ export default function StudioApp() {
         ) : (
           <div className="thread" ref={threadRef} aria-live="polite">
             <div className="thread-in">
-              {noGpu ? (
-                <div className="hello">
+              {inApp ? (
+                <div className="hello" role="alert">
+                  <span className="hello-orb"><Icon name="share" /></span>
+                  <h1>Open in Safari or Chrome to run models on this device</h1>
+                  <p>Browsers built into apps, like Facebook and Instagram, can&apos;t load AI models. Copy the link, then open it in your browser.</p>
+                  <button className="btn" type="button" onClick={copyLink}><Icon name="copy" />{linkCopied ?? "Copy link"}</button>
+                </div>
+              ) : noGpu ? (
+                <div className="hello" role="alert">
                   <span className="hello-orb"><Icon name="chip" /></span>
-                  <h1>This browser can&apos;t reach your GPU.</h1>
-                  <p>WebGPU is off or unsupported here. The Studio runs in current Chrome and Edge on desktop, and Safari 26 on a Mac.</p>
+                  <h1>This browser can&apos;t run local models</h1>
+                  <p>It doesn&apos;t let web pages use your graphics card (WebGPU is off or unsupported), so nothing can load here. The Studio runs in current Chrome and Edge on a computer, and Safari 26 on a Mac.</p>
+                  <p className="blocked-links"><Link href="/gpu" {...out}>What can my GPU run?</Link><Link href="/learn" {...out}>Learn to run AI locally</Link></p>
                 </div>
               ) : !msgs.some(m => m.role === "user") ? (
                 <div className="hello">
@@ -532,7 +603,7 @@ export default function StudioApp() {
                   {!here && !isLive && webgpu && <p className="hello-note"><Icon name="down" />{model.size}, downloaded once on your first prompt. After that it opens in seconds, even offline.</p>}
                   <div className="examples">
                     {(agentOn && !isImage ? AGENT_EXAMPLES : examplesFor(model)).map(x => (
-                      <button key={x} type="button" disabled={!webgpu || busy} onClick={() => run(x)}>
+                      <button key={x} type="button" disabled={!webgpu || busy} onClick={() => { track("studio_example_click", { prompt: x }); run(x); }}>
                         <span>{x}</span><Icon name="up" />
                       </button>
                     ))}
@@ -566,7 +637,12 @@ export default function StudioApp() {
                     </div>
                   </div>
                 );
-                if (m.role === "note") return <p key={m.id} className={"note" + (m.err ? " err" : "")}>{m.text}</p>;
+                if (m.role === "note") return (
+                  <p key={m.id} className={"note" + (m.err ? " err" : "")}>
+                    {m.text}
+                    {m.retry && <button className="btn alt note-retry" type="button" disabled={busy || !!loading} onClick={() => retry(m.id, m.retry!)}><Icon name="again" />Retry</button>}
+                  </p>
+                );
                 if (m.kind === "image") return (
                   <div key={m.id} className="msg-bot">
                     {avatar(m.model, !m.done)}
@@ -626,12 +702,26 @@ export default function StudioApp() {
                 );
               })}
 
+              {asking && (
+                <div className="msg-bot">
+                  {avatar(asking.model, false)}
+                  <div className="msg-body loading" role="alertdialog" aria-labelledby="ask-h">
+                    <div className="load-top"><span id="ask-h"><b>Download {asking.model.label}?</b></span></div>
+                    <p className="ask-text">This downloads about {asking.model.size}. You look to be on Data Saver or a cellular connection, so we&apos;re checking first. After that it stays on this device.</p>
+                    <div className="ask-acts">
+                      <button className="btn" type="button" onClick={() => asking.resolve(true)}><Icon name="down" />Download</button>
+                      <button className="btn alt" type="button" onClick={() => asking.resolve(false)}>Not now</button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {loading && (
                 <div className="msg-bot">
                   {avatar(loading.model, true)}
                   <div className="msg-body loading" role="status">
                     <div className="load-top">
-                      <span><b>{stored.some(s => s.model.id === loading.model.id) ? "Opening" : "Downloading"} {loading.model.label}</b> onto {where}</span>
+                      <span><b>{stored.some(s => s.model.id === loading.model.id) ? "Opening" : "Downloading"} {loading.model.label}</b> onto {where}{stored.some(s => s.model.id === loading.model.id) && <span className="load-cache">from cache</span>}</span>
                       <span className="load-pct">{Math.round(loading.p * 100)}<small>%</small></span>
                     </div>
                     <div className="bar"><span style={{ width: `${Math.max(2, Math.round(loading.p * 100))}%` }} /></div>
@@ -656,10 +746,10 @@ export default function StudioApp() {
                 </div>
               )}
               <label htmlFor="studio-in" className="sr">{isImage ? "Describe an image" : "Your message"}</label>
-              <textarea id="studio-in" ref={inputRef} rows={1} maxLength={2000} autoFocus autoComplete="off" disabled={!!noGpu}
+              <textarea id="studio-in" ref={inputRef} rows={1} maxLength={2000} autoFocus autoComplete="off" disabled={blocked}
                 placeholder={isImage ? "Describe an image…" : `Message ${model.label}…`} value={input} onChange={e => setInput(e.target.value)} onKeyDown={onKey} />
               <div className="composer-row">
-                <ModelChip model={model} ready={ready} live={live} disabled={busy || !!loading || !!noGpu} onPick={m => pick(m)} onAll={() => setView("models")} />
+                <ModelChip model={model} ready={ready} live={live} disabled={busy || !!loading || blocked} onPick={m => pick(m)} onAll={() => setView("models")} />
                 {!isImage && (
                   <>
                     <label className="preset">
@@ -679,7 +769,7 @@ export default function StudioApp() {
                   </>
                 )}
                 <span className="hint">Enter to {isImage ? "paint" : "send"} · Shift+Enter for a new line</span>
-                <button className="send" type="submit" disabled={busy || !webgpu || !!noGpu || !input.trim()} aria-label={isImage ? "Paint" : "Send"}>
+                <button className="send" type="submit" disabled={busy || !webgpu || blocked || !input.trim()} aria-label={isImage ? "Paint" : "Send"}>
                   {busy ? <span className="spin" aria-hidden="true" /> : <Icon name="up" />}
                 </button>
               </div>

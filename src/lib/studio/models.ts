@@ -86,13 +86,48 @@ export type Loaded =
 
 export type Progress = { p: number; text: string };
 
+/**
+ * Turns bytes downloaded so far into "320 / 711 MB · 12 MB/s · about 30 s left". The speed is the average since
+ * the download started, which is steady enough once a second has passed.
+ */
+function downloadMeter() {
+  let t0 = 0, b0 = 0;
+  return (done: number, total: number) => {
+    const now = performance.now();
+    if (!t0) { t0 = now; b0 = done; }
+    const secs = (now - t0) / 1000, rate = secs > 1 ? (done - b0) / secs : 0;
+    const parts = [`${Math.round(done / 1e6)} / ${Math.round(total / 1e6)} MB`];
+    if (rate > 0 && done < total) {
+      const left = (total - done) / rate;
+      parts.push(`${(rate / 1e6).toFixed(rate < 1e7 ? 1 : 0)} MB/s`, left < 60 ? `about ${Math.max(1, Math.round(left))} s left` : `about ${Math.round(left / 60)} min left`);
+    }
+    return parts.join(" · ");
+  };
+}
+
 export async function loadModel(m: StudioModel, webgpu: WebGpuInfo, onProgress: (p: Progress) => void): Promise<Loaded> {
+  const meter = downloadMeter();
   if (m.kind === "image") {
-    const engine = await loadImageEngine(r => onProgress({ p: r.total ? r.loaded / r.total : 0, text: `${r.text} · ${(r.loaded / 1e6).toFixed(0)} / ${(r.total / 1e6).toFixed(0)} MB` }));
+    const engine = await loadImageEngine(r => onProgress({
+      p: r.total ? r.loaded / r.total : 0,
+      text: r.text.startsWith("Downloading") ? `${r.text} · ${meter(r.loaded, r.total)}` : r.text,
+    }));
     return { kind: "image", model: m, engine };
   }
+  // WebLLM reports each phase in its own words; keep the useful part. While fetching, its text carries the MB
+  // fetched so far (in MiB) and progress is that share of the total.
   const { CreateMLCEngine } = await import("@mlc-ai/web-llm");
-  const engine = await CreateMLCEngine(chatModelId(m.id, webgpu.f16), { initProgressCallback: r => onProgress({ p: r.progress, text: r.text }) }, m.chatOpts);
+  const engine = await CreateMLCEngine(chatModelId(m.id, webgpu.f16), {
+    initProgressCallback: r => {
+      let text = r.text;
+      if (r.text.startsWith("Start to fetch")) { meter(0, 0); text = "Starting download"; }
+      else if (r.text.startsWith("Fetching param cache") && r.progress > 0) {
+        const done = Number(r.text.match(/(\d+)MB fetched/)?.[1] ?? 0) * 1048576;
+        text = `Downloading · ${meter(done, done / r.progress)}`;
+      } else if (r.text.startsWith("Loading model from cache")) text = "Loading onto the GPU";
+      onProgress({ p: r.progress, text });
+    },
+  }, m.chatOpts);
   return { kind: "chat", model: m, engine };
 }
 

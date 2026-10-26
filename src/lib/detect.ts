@@ -34,7 +34,8 @@ export async function webGpu(): Promise<WebGpuInfo & { description: string }> {
   const gpu = (navigator as Navigator & { gpu?: NavGpu }).gpu;
   if (!gpu) return { available: false, f16: false, description: "" };
   try {
-    const a = await gpu.requestAdapter({ powerPreference: "high-performance" });
+    // Some browsers expose navigator.gpu but never answer requestAdapter. Treat no answer in 5 s as no adapter.
+    const a = await Promise.race([gpu.requestAdapter({ powerPreference: "high-performance" }), new Promise<null>(r => setTimeout(() => r(null), 5000))]);
     if (!a) return { available: false, f16: false, description: "" };
     return { available: true, f16: a.features.has("shader-f16"), description: a.info?.description || "" };
   } catch {

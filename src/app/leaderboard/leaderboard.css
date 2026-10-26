@@ -22,3 +22,8 @@
 .pick.on { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 14px rgba(200, 255, 46, .2); }
 .pick:has(input:focus-visible) { box-shadow: 0 0 0 3px var(--accent-soft); }
 .waiting { margin: 0; display: flex; gap: 10px; align-items: center; color: var(--ink-2); font-size: 15px; }
+
+/* Our own run, so a tier never looks empty. Not ranked against community runs. */
+.board .ref-run td { color: var(--ink-2); }
+.board .ref-run .rank { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; color: var(--ink-3); }
+.board .ref-tag { margin-left: 8px; padding: 2px 7px; border: 1px solid var(--rule-2); border-radius: 999px; font-family: var(--font-mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); vertical-align: 2px; }

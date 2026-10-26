@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { TESTS, benchPrompt, validate, type Tier } from "@/lib/bench";
+import { utm } from "@/lib/analytics";
 import { copyText } from "@/lib/copy";
 
 type Msg = { kind: "ok" | "err"; text: string; list?: string[] } | null;
@@ -64,7 +65,7 @@ export default function AddRig() {
     const f = new FormData(e.currentTarget);
     setBusy(true); setMsg(null); setCopyMsg("");
     const res = await fetch("/api/rigs/claim", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ handle: f.get("righandle"), use: f.get("riguse"), tier }) }).catch(() => null);
+      body: JSON.stringify({ handle: f.get("righandle"), use: f.get("riguse"), tier, utm: utm() }) }).catch(() => null);
     const j = await res?.json().catch(() => null) as { token?: string; error?: string } | null;
     setBusy(false);
     if (!j?.token) return setMsg({ kind: "err", text: j?.error ?? "Couldn't reach the board. Try again in a minute." });
@@ -109,12 +110,12 @@ export default function AddRig() {
       <fieldset className="picks">
         <legend>1. Pick a test</legend>
         <label className={"pick" + (tier === "auto" ? " on" : "")}>
-          <input type="radio" name="tier" checked={tier === "auto"} onChange={() => setTier("auto")} />
+          <input type="radio" name="tier" checked={tier === "auto"} onChange={() => setTier("auto")} data-umami-event="leaderboard_test_select" data-umami-event-tier="auto" />
           <b>Let my agent pick</b><span className="small">The biggest test that fits your GPUs</span>
         </label>
         {TESTS.map(t => (
           <label key={t.tier} className={"pick" + (tier === t.tier ? " on" : "")}>
-            <input type="radio" name="tier" checked={tier === t.tier} onChange={() => setTier(t.tier)} />
+            <input type="radio" name="tier" checked={tier === t.tier} onChange={() => setTier(t.tier)} data-umami-event="leaderboard_test_select" data-umami-event-tier={t.tier} />
             <b>Tier {t.tier} · {t.model}</b><span className="small">{t.fits}</span>
           </label>
         ))}
@@ -123,7 +124,7 @@ export default function AddRig() {
         <label htmlFor="righandle">2. Your name or handle<input id="righandle" name="righandle" maxLength={40} placeholder="Shown on the board" /></label>
         <label htmlFor="riguse">What you use it for, optional<input id="riguse" name="riguse" maxLength={80} placeholder="Coding, home lab, video…" /></label>
       </div>
-      <div className="btns"><button className="btn" type="submit" disabled={busy}>{busy ? "Getting your prompt…" : "Get my prompt"}</button></div>
+      <div className="btns"><button className="btn" type="submit" disabled={busy} data-umami-event="leaderboard_join_click" data-umami-event-location="footer">{busy ? "Getting your prompt…" : "Get my prompt"}</button></div>
       {status}
     </form>
   );

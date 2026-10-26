@@ -2,6 +2,8 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
+import { pageName } from "@/lib/analytics";
 import { brandedImage, shareTargets } from "@/lib/share";
 import "./share.css";
 
@@ -21,6 +23,7 @@ export default function ShareButton({ url, text, image, className, children, lab
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [native, setNative] = useState(false);
+  const page = pageName(usePathname());
 
   useEffect(() => {
     if (!open) return;
@@ -53,7 +56,8 @@ export default function ShareButton({ url, text, image, className, children, lab
 
   return (
     <>
-      <button type="button" className={className} onClick={() => { setOpen(true); setNative(!image && typeof navigator.share === "function"); }} aria-label={label} title={label}>
+      <button type="button" className={className} onClick={() => { setOpen(true); setNative(!image && typeof navigator.share === "function"); }} aria-label={label} title={label}
+        data-umami-event="share_click" data-umami-event-page={page}>
         {children ?? label}
       </button>
       {open && createPortal(

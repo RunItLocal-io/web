@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Page from "@/components/Page";
+import TrackLink from "@/components/TrackLink";
 import YourGpu from "@/components/YourGpu";
 import { tabFor } from "@/lib/studio/links";
 import "./home.css";
@@ -29,11 +30,12 @@ export default function Home() {
         </div>
         <div className="deeper">
           {DEEPER.map((d, i) => (
-            <Link key={d.href} className="card reveal" href={d.href} transitionTypes={["nav-forward"]} {...tabFor(d.href)}>
+            <TrackLink key={d.href} className="card reveal" href={d.href} transitionTypes={["nav-forward"]} {...tabFor(d.href)}
+              event="home_card_click" data={{ target: d.href.slice(1) }}>
               <span className="num">0{i + 1}</span>
               <b>{d.title}</b>
               <span>{d.text}</span>
-            </Link>
+            </TrackLink>
           ))}
         </div>
       </section>

@@ -12,7 +12,7 @@ import { SITE } from "@/lib/share";
 
 const URL_TO_SEND = `${SITE}/studio`;
 
-export default function PhoneGate() {
+export default function PhoneGate({ inApp = false }: { inApp?: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const canShare = typeof navigator !== "undefined" && !!navigator.share;
@@ -26,6 +26,12 @@ export default function PhoneGate() {
 
   return (
     <main className="phone-gate">
+      {inApp && (
+        <div className="in-app" role="alert">
+          <b>Open in Safari or Chrome</b>
+          <p>You&apos;re in an app&apos;s built-in browser, which can&apos;t load models. Copy the link below, open it in your browser, and send it to your computer from there.</p>
+        </div>
+      )}
       <span className="led" aria-hidden="true" />
       <span className="kicker">Studio</span>
       <h1>The Studio runs on a computer.</h1>

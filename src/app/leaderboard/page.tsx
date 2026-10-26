@@ -22,7 +22,7 @@ export default function Leaderboard() {
           <li><span className="n">02</span><b>Submit your run</b><p>Your agent reads your specs, runs the test, shows you the result, then posts it here.</p></li>
           <li><span className="n">03</span><b>Test the newest</b><p>New model out? Run it again and see where every rig, including yours, lands.</p></li>
         </ol>
-        <p><a className="btn" href="#rigs">Join the leaderboard</a></p>
+        <p><a className="btn" href="#rigs" data-umami-event="leaderboard_join_click" data-umami-event-location="hero">Join the leaderboard</a></p>
         <Suspense fallback={<div className="card panel"><p className="small">Loading the board…</p></div>}>
           <Board />
         </Suspense>

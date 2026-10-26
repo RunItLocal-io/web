@@ -1,5 +1,4 @@
-import ShareButton from "@/components/ShareButton";
-import { SITE } from "@/lib/share";
+import QuickShare from "@/components/QuickShare";
 import { STUDIO, tabFor } from "@/lib/studio/links";
 
 // The homepage call to action: one button that opens the Studio, where models run on the visitor's GPU, in its own tab.
@@ -10,7 +9,7 @@ export default function RunInBrowser({ gpuName }: { gpuName: string | null }) {
       <a className="btn try-btn" href={STUDIO} {...tabFor(STUDIO)}>
         <span className="play" aria-hidden="true" />Test it out in the Studio{gpuName ? ` on your ${gpuName}` : ""}
       </a>
-      <ShareButton className="linkish" url={SITE} text={`My ${gpuName ?? "computer"} can run AI locally. See what yours can run:`} label="Share this with a friend" />
+      <QuickShare className="linkish" path="/" page="home" text={`My ${gpuName ?? "computer"} can run AI locally. See what yours can run:`} label="Share this with a friend" />
     </div>
   );
 }
