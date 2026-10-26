@@ -4,7 +4,7 @@ description: Which open models translate best on your own hardware, by memory si
 track: models
 order: 12
 date: 2026-10-26
-models: gemma-3-12b, gemma-3-27b, qwen3-14b, llama-3-3-70b
+models: gemma-3-12b, gemma-3-27b, qwen3-8b, qwen3-14b, llama-3-3-70b
 ---
 For translation, **Gemma 3 is the pick** on most hardware, with Qwen3 a close second. Both were trained on a wide range of languages and handle the common ones well. Running locally means contracts, medical letters and private messages never leave your machine.
 
