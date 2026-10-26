@@ -1,0 +1,8 @@
+[Unit]
+Description=Build and run runitlocal.io when origin/main moves
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/runitlocal-web/deploy/follow.sh
