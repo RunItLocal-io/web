@@ -30,7 +30,7 @@ Speed is the whole point here. Estimated from our calculator:
 | Hardware | Qwen3 4B | Qwen3 8B |
 |---|---|---|
 | [RTX 3060 12 GB](/gpu/rtx-3060) | ~79 tok/s | ~38 tok/s |
-| [RTX 4060](/gpu/rtx-4060) | ~58 tok/s | ~29 tok/s |
+| [RTX 4060](/gpu/rtx-4060) | ~60 tok/s | ~29 tok/s |
 | [RTX 3090](/gpu/rtx-3090) | ~206 tok/s | ~99 tok/s |
 | [Apple M4](/gpu/apple-m4), 16 GB | ~26 tok/s | ~13 tok/s |
 

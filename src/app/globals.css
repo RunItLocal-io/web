@@ -168,6 +168,7 @@ footer { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-
 footer ul { display: flex; flex-wrap: wrap; gap: 4px 18px; list-style: none; margin: 0; padding: 0; }
 footer a { color: var(--ink-2); text-decoration: none; transition: color .2s; }
 footer a:hover { color: var(--accent); }
+footer .community { flex-basis: 100%; }
 .tagline { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 13px; }
 
 /* Scroll reveal, no JS. Browsers without scroll-driven animations just show the content. */

@@ -7,7 +7,7 @@ import "./learn.css";
 // an "On this page" list on the right. It runs wider than the rest of the site.
 
 export default function LearnLayout({ children }: { children: ReactNode }) {
-  const tracks = TRACKS.map(t => ({ id: t.id, label: t.label, items: inTrack(t.id).map(a => ({ slug: a.slug, title: a.title })) }))
+  const tracks = TRACKS.map(t => ({ id: t.id, label: t.label, items: inTrack(t.id).map(a => ({ slug: a.slug, title: a.nav })) }))
     .filter(t => t.items.length);
   return (
     <div className="docs-shell">

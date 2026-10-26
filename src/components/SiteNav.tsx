@@ -16,6 +16,12 @@ export const SECTIONS = [
   { href: "/people", label: "People" },
 ];
 
+// Where the community talks. The Discord is Nexus Network's server, not ours; we hang out there.
+export const COMMUNITY = [
+  { href: "https://www.facebook.com/groups/runitlocal", label: "Facebook group" },
+  { href: "https://discord.gg/dBVCSQ4ee", label: "Discord · Nexus Network" },
+];
+
 const indexOf = (path: string) => SECTIONS.findIndex(s => s.href === path);
 
 /** Moving right along the nav slides content left, and back the other way. */
@@ -49,6 +55,9 @@ export function SiteFooter() {
       <span className="tagline"><span className="led" aria-hidden="true" />RunItLocal.io · run it yourself, own your data</span>
       <ul>
         {SECTIONS.map(s => <li key={s.href}><Link href={s.href} transitionTypes={direction(path, s.href)} {...tabFor(s.href)}>{s.label}</Link></li>)}
+      </ul>
+      <ul className="community" aria-label="Community">
+        {COMMUNITY.map(c => <li key={c.href}><a href={c.href} target="_blank" rel="noopener noreferrer">{c.label} ↗</a></li>)}
       </ul>
     </footer>
   );

@@ -6,6 +6,7 @@
 //   date: 2026-10-26
 //   models: qwen3-32b, llama-3-3-70b   (optional, model slugs this article is about)
 //   order: 2                           (optional, position within the track)
+//   nav: VRAM needs                    (optional, sidebar label; defaults to the title up to any colon)
 //   ---
 // Files starting with "_" are drafts and planning notes, never published.
 
@@ -28,6 +29,8 @@ export type TrackId = (typeof TRACKS)[number]["id"];
 export type Article = {
   slug: string;
   title: string;
+  /** Short label for the sidebar. */
+  nav: string;
   description: string;
   track: TrackId;
   date: string;
@@ -49,7 +52,7 @@ function parse(slug: string, raw: string): Article {
     throw new Error(`content/learn/${slug}.md: needs title, description, track (${TRACKS.map(t => t.id).join("|")}) and date (YYYY-MM-DD)`);
   }
   return {
-    slug, title: meta.title, description: meta.description, track, date: meta.date,
+    slug, title: meta.title, nav: meta.nav || meta.title.split(":")[0].trim(), description: meta.description, track, date: meta.date,
     models: meta.models ? meta.models.split(",").map(s => s.trim()).filter(Boolean) : [],
     order: Number(meta.order) || 99,
     body: m[2].trim(),

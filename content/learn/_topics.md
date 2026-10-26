@@ -7,118 +7,118 @@ a rack measurement, a calculator embed ({{lineup gpu-slug}}), a real parts list,
 ## start: Get started
 - [x] how-to-run-ai-locally: how to run an LLM locally
 - [x] is-local-ai-worth-it: local LLM vs ChatGPT, cost and privacy
-- [ ] ollama-commands-cheat-sheet: ollama commands list
-- [ ] run-ai-on-a-laptop-without-a-gpu: run llm on cpu only
-- [ ] run-ai-locally-on-windows: local llm windows setup
-- [ ] run-ai-locally-on-linux: ollama linux nvidia drivers
-- [ ] run-ai-locally-on-a-mac: ollama mac setup
-- [ ] first-week-with-local-ai: what to actually do with a local model
-- [ ] local-ai-glossary: tokens, context, quant, GGUF in plain English
-- [ ] how-to-update-and-delete-models: free up disk space ollama
-- [ ] where-ollama-stores-models: ollama model location change
-- [ ] local-ai-privacy-what-stays-on-your-machine: does ollama send data
-- [ ] run-ai-in-your-browser-webgpu: WebLLM, no install (link the Studio)
+- [x] ollama-commands-cheat-sheet: ollama commands list
+- [x] run-ai-on-a-laptop-without-a-gpu: run llm on cpu only
+- [x] run-ai-locally-on-windows: local llm windows setup
+- [x] run-ai-locally-on-linux: ollama linux nvidia drivers
+- [x] run-ai-locally-on-a-mac: ollama mac setup
+- [x] first-week-with-local-ai: what to actually do with a local model
+- [x] local-ai-glossary: tokens, context, quant, GGUF in plain English
+- [x] how-to-update-and-delete-models: free up disk space ollama
+- [x] where-ollama-stores-models: ollama model location change
+- [x] local-ai-privacy-what-stays-on-your-machine: does ollama send data
+- [x] run-ai-in-your-browser-webgpu: WebLLM, no install (link the Studio)
 
 ## basics: Know what matters
 - [x] how-much-vram-do-you-need: how much vram for llm
 - [x] quantization-explained: Q4_K_M vs Q8 vs FP16
 - [x] memory-bandwidth-and-llm-speed: why is my llm slow / tokens per second
 - [x] mixture-of-experts-explained: what is MoE, active parameters
-- [ ] context-length-and-kv-cache: why long context uses more vram
-- [ ] gguf-vs-safetensors-vs-mlx: model file formats
-- [ ] tokens-per-second-explained: what is a good tok/s
-- [ ] prompt-processing-vs-generation-speed: prefill vs decode
-- [ ] cpu-offloading-explained: model bigger than vram partial offload
-- [ ] multi-gpu-explained: two GPUs, layer split vs tensor parallel
-- [ ] does-pcie-bandwidth-matter-for-llms: PCIe x1 risers, x4 slots
-- [ ] system-ram-for-local-ai: how much RAM do I need
-- [ ] thinking-models-explained: reasoning mode, /think, effort levels
-- [ ] what-is-a-system-prompt: and how to set one locally
-- [ ] temperature-and-sampling: settings that matter
-- [ ] power-and-heat-of-local-ai: watts, electricity cost per million tokens (rack data)
-- [ ] what-the-leaderboard-measures: how we benchmark
+- [x] context-length-and-kv-cache: why long context uses more vram
+- [x] gguf-vs-safetensors-vs-mlx: model file formats
+- [x] tokens-per-second-explained: what is a good tok/s
+- [x] prompt-processing-vs-generation-speed: prefill vs decode
+- [x] cpu-offloading-explained: model bigger than vram partial offload
+- [x] multi-gpu-explained: two GPUs, layer split vs tensor parallel
+- [x] does-pcie-bandwidth-matter-for-llms: PCIe x1 risers, x4 slots
+- [x] system-ram-for-local-ai: how much RAM do I need
+- [x] thinking-models-explained: reasoning mode, /think, effort levels
+- [x] what-is-a-system-prompt: and how to set one locally
+- [x] temperature-and-sampling: settings that matter
+- [x] power-and-heat-of-local-ai: watts, electricity cost per million tokens (rack data)
+- [x] what-the-leaderboard-measures: how we benchmark
 
 ## models: Pick a model
 - [x] best-local-llm-for-8gb-vram
-- [ ] best-local-llm-for-12gb-vram
-- [ ] best-local-llm-for-16gb-vram
+- [x] best-local-llm-for-12gb-vram
+- [x] best-local-llm-for-16gb-vram
 - [x] best-local-llm-for-24gb-vram
-- [ ] best-local-llm-for-32gb-and-up
-- [ ] best-local-llm-for-mac-16gb
-- [ ] best-local-llm-for-mac-64gb-and-up
+- [x] best-local-llm-for-32gb-and-up
+- [x] best-local-llm-for-mac-16gb
+- [x] best-local-llm-for-mac-64gb-and-up
 - [x] best-local-llm-for-coding
-- [ ] best-local-llm-for-writing
-- [ ] best-local-llm-for-reasoning-and-math
-- [ ] best-local-vision-model: read images and screenshots
-- [ ] best-local-model-for-translation
-- [ ] best-small-model-for-scripts: classify, extract, JSON
-- [ ] best-local-model-for-agents-and-tool-calling
-- [ ] best-uncensored-local-model: what "abliterated" means and the tradeoffs
-- [ ] qwen3-vs-gemma-3
-- [ ] gpt-oss-20b-vs-qwen3-30b
-- [ ] qwen3-32b-vs-llama-3-3-70b
-- [ ] gpt-oss-120b-on-a-mac
-- [ ] llama-3-3-70b-hardware-guide
-- [ ] new-model-checklist: how to judge a new release in an evening
-- [ ] how-to-read-a-model-card
-- [ ] open-model-licenses-explained: Apache, Llama, Gemma terms
-- [ ] local-embedding-models: nomic-embed-text and friends
-- [ ] local-speech-to-text-models: Whisper sizes and speeds
-- [ ] local-text-to-speech-models
-- [ ] local-image-generation-models: SDXL, Flux, VRAM needs
+- [x] best-local-llm-for-writing
+- [x] best-local-llm-for-reasoning-and-math
+- [x] best-local-vision-model: read images and screenshots
+- [x] best-local-model-for-translation
+- [x] best-small-model-for-scripts: classify, extract, JSON
+- [x] best-local-model-for-agents-and-tool-calling
+- [x] best-uncensored-local-model: what "abliterated" means and the tradeoffs
+- [x] qwen3-vs-gemma-3
+- [x] gpt-oss-20b-vs-qwen3-30b
+- [x] qwen3-32b-vs-llama-3-3-70b
+- [x] gpt-oss-120b-on-a-mac
+- [x] llama-3-3-70b-hardware-guide
+- [x] new-model-checklist: how to judge a new release in an evening
+- [x] how-to-read-a-model-card
+- [x] open-model-licenses-explained: Apache, Llama, Gemma terms
+- [x] local-embedding-models: nomic-embed-text and friends
+- [x] local-speech-to-text-models: Whisper sizes and speeds
+- [x] local-text-to-speech-models
+- [x] local-image-generation-models: SDXL, Flux, VRAM needs
 
 ## hardware: Pick your hardware
 - [x] used-rtx-3090-buying-guide
 - [x] tesla-p100-for-local-llms (rack data)
 - [x] mac-for-local-llms
-- [ ] tesla-p40-for-local-llms
-- [ ] rtx-3060-12gb-for-ai: the starter card
-- [ ] rtx-4090-vs-two-3090s
-- [ ] rtx-5090-for-local-ai
-- [ ] amd-gpus-for-local-ai: ROCm and Vulkan in practice
-- [ ] intel-arc-for-local-ai
-- [ ] used-workstation-builds: T7810, Z840 and friends
-- [ ] cooling-passive-data-center-cards: shrouds and fans (rack data)
-- [ ] power-supplies-for-multi-gpu
-- [ ] mining-cards-for-ai: CMP cards, what works (rack data)
-- [ ] best-gpu-under-300
-- [ ] best-gpu-under-1000
-- [ ] laptop-for-local-ai
-- [ ] mini-pc-and-strix-halo-for-ai: unified memory x86
-- [ ] how-to-check-a-used-gpu: stress test, VRAM test, what to look for
-- [ ] home-ai-server-build: quiet, always-on
-- [ ] the-90-gpu-rack: what we learned (lab note)
+- [x] tesla-p40-for-local-llms
+- [x] rtx-3060-12gb-for-ai: the starter card
+- [x] rtx-4090-vs-two-3090s
+- [x] rtx-5090-for-local-ai
+- [x] amd-gpus-for-local-ai: ROCm and Vulkan in practice
+- [x] intel-arc-for-local-ai
+- [x] used-workstation-builds: T7810, Z840 and friends
+- [x] cooling-passive-data-center-cards: shrouds and fans (rack data)
+- [x] power-supplies-for-multi-gpu
+- [x] mining-cards-for-ai: CMP cards, what works (rack data)
+- [x] best-gpu-under-300
+- [x] best-gpu-under-1000
+- [x] laptop-for-local-ai
+- [x] mini-pc-and-strix-halo-for-ai: unified memory x86
+- [x] how-to-check-a-used-gpu: stress test, VRAM test, what to look for
+- [x] home-ai-server-build: quiet, always-on
+- [x] the-90-gpu-rack: what we learned (lab note)
 
 ## serve: Run and serve it
 - [x] ollama-vs-llama-cpp-vs-lm-studio
 - [x] open-webui-setup
-- [ ] llama-cpp-server-guide
-- [ ] lm-studio-guide
-- [ ] ollama-api-guide: OpenAI-compatible endpoint
-- [ ] ollama-on-your-network: OLLAMA_HOST, phones, other PCs
-- [ ] increase-ollama-context-length
-- [ ] import-gguf-into-ollama: Modelfile
-- [ ] run-ollama-in-docker
-- [ ] vllm-for-a-team: when to move beyond Ollama
-- [ ] serve-a-team-on-used-gpus (rack data)
-- [ ] secure-your-local-ai-server: auth, tunnels, don't expose 11434
-- [ ] remote-access-with-tailscale-or-cloudflare
-- [ ] speculative-decoding: faster with a draft model
-- [ ] fix-ollama-using-cpu-instead-of-gpu
-- [ ] fix-out-of-memory-errors
+- [x] llama-cpp-server-guide
+- [x] lm-studio-guide
+- [x] ollama-api-guide: OpenAI-compatible endpoint
+- [x] ollama-on-your-network: OLLAMA_HOST, phones, other PCs
+- [x] increase-ollama-context-length
+- [x] import-gguf-into-ollama: Modelfile
+- [x] run-ollama-in-docker
+- [x] vllm-for-a-team: when to move beyond Ollama
+- [x] serve-a-team-on-used-gpus (rack data)
+- [x] secure-your-local-ai-server: auth, tunnels, don't expose 11434
+- [x] remote-access-with-tailscale-or-cloudflare
+- [x] speculative-decoding: faster with a draft model
+- [x] fix-ollama-using-cpu-instead-of-gpu
+- [x] fix-out-of-memory-errors
 
 ## use: Make it useful
 - [x] chat-with-your-documents-locally
-- [ ] local-coding-assistant-in-vs-code: Continue, Cline and friends
-- [ ] local-ai-for-obsidian-notes
-- [ ] local-voice-assistant: Whisper + model + TTS
-- [ ] local-ai-agents: tools, MCP, what works on small models
-- [ ] local-ai-for-home-assistant
-- [ ] summarize-meetings-locally
-- [ ] local-ai-for-email
-- [ ] batch-jobs-with-a-local-model: process a folder of files
-- [ ] local-ai-for-small-business
-- [ ] local-ai-for-families-and-kids
-- [ ] local-image-generation-guide: link the Studio
-- [ ] structured-output-json-with-ollama
-- [ ] local-rag-that-actually-works: chunking, embeddings, reranking
+- [x] local-coding-assistant-in-vs-code: Continue, Cline and friends
+- [x] local-ai-for-obsidian-notes
+- [x] local-voice-assistant: Whisper + model + TTS
+- [x] local-ai-agents: tools, MCP, what works on small models
+- [x] local-ai-for-home-assistant
+- [x] summarize-meetings-locally
+- [x] local-ai-for-email
+- [x] batch-jobs-with-a-local-model: process a folder of files
+- [x] local-ai-for-small-business
+- [x] local-ai-for-families-and-kids
+- [x] local-image-generation-guide: link the Studio
+- [x] structured-output-json-with-ollama
+- [x] local-rag-that-actually-works: chunking, embeddings, reranking

@@ -1,5 +1,5 @@
 ---
-title: "Qwen3 32B vs Llama 3.3 70B: is the bigger model worth twice the memory?"
+title: "Qwen3 32B vs Llama 3.3 70B: is the bigger model worth it?"
 description: Qwen3 32B fits one 24 GB card. Llama 3.3 70B needs about 45 GB. What you gain and lose with each, with estimated speeds and hardware costs.
 track: models
 order: 18
