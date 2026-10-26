@@ -3,13 +3,13 @@
 
 import { BUILDS } from "@/lib/builds";
 import { LOCAL_MODELS, rateAll, usableGb } from "@/lib/estimate";
-import { GPUS } from "@/lib/gpus";
+import { GPUS, gpuSlug } from "@/lib/gpus";
 
 export function GET() {
   const gpus = GPUS.filter(g => g.kind !== "integrated").flatMap(g => g.vram.map(mem => {
     const usable = usableGb(g, mem);
     return {
-      gpu: g.name, vendor: g.vendor, kind: g.kind, memory_gb: mem, usable_gb: Math.round(usable * 10) / 10, bandwidth_gbs: g.bw,
+      gpu: g.name, link: `https://runitlocal.io/?gpu=${gpuSlug(g)}&mem=${mem}`, vendor: g.vendor, kind: g.kind, memory_gb: mem, usable_gb: Math.round(usable * 10) / 10, bandwidth_gbs: g.bw,
       runs: rateAll(g.bw, usable).filter(r => r.fits).map(r => ({ model: r.name, ollama: r.tag, est_tps: Math.round(r.tps), verdict: r.verdict })),
     };
   }));

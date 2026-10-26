@@ -1,0 +1,74 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import Markdown from "@/components/Markdown";
+import Page, { PageHead } from "@/components/Page";
+import Signup from "@/components/Signup";
+import { LOCAL_MODELS, modelSlug } from "@/lib/estimate";
+import { TRACKS, article, articles, fmtDate, sequence } from "@/lib/learn";
+import { SITE } from "@/lib/share";
+
+export function generateStaticParams() {
+  return articles().map(a => ({ slug: a.slug }));
+}
+
+export async function generateMetadata({ params }: PageProps<"/learn/[slug]">): Promise<Metadata> {
+  const a = article((await params).slug);
+  if (!a) return {};
+  return {
+    title: a.title,
+    description: a.description,
+    alternates: { canonical: `/learn/${a.slug}` },
+    openGraph: { type: "article", title: a.title, description: a.description, publishedTime: a.date },
+  };
+}
+
+export default async function LearnArticle({ params }: PageProps<"/learn/[slug]">) {
+  const a = article((await params).slug);
+  if (!a) notFound();
+  const track = TRACKS.find(t => t.id === a.track)!;
+  const all = sequence();
+  const at = all.findIndex(s => s.slug === a.slug);
+  const prev = all[at - 1] ?? null, next = all[at + 1] ?? null;
+  const models = LOCAL_MODELS.filter(m => a.models.includes(modelSlug(m)));
+  const ld = {
+    "@context": "https://schema.org", "@type": "Article",
+    headline: a.title, description: a.description, datePublished: a.date, dateModified: a.date,
+    mainEntityOfPage: `${SITE}/learn/${a.slug}`,
+    author: { "@type": "Organization", name: "RunItLocal.io", url: SITE },
+    publisher: { "@type": "Organization", name: "RunItLocal.io", url: SITE },
+  };
+
+  return (
+    <Page>
+      <article className="learn-article">
+        <PageHead kicker={`${track.label} · ${fmtDate(a.date)}`} title={a.title} back={{ href: "/learn", label: "Learn" }}>
+          {a.description}
+        </PageHead>
+        <Markdown source={a.body} />
+        {/* JSON-LD for search engines; the content is ours and < is escaped so it can't close the tag. */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />
+      </article>
+
+      {models.length > 0 && (
+        <section aria-labelledby="models-h">
+          <div className="head"><span className="kicker">In this guide</span><h2 id="models-h">The models, in detail</h2></div>
+          <ul className="article-list">
+            {models.map(m => <li key={m.tag}><Link href={`/model/${modelSlug(m)}`}><b>{m.name}</b><span>About {Math.ceil(m.file + 1.2)} GB · {m.blurb}</span></Link></li>)}
+          </ul>
+        </section>
+      )}
+
+      <section className="card panel learn-signup">
+        <b>New guides and lab notes, by email</b>
+        <p className="small">One email when there&apos;s a new guide, <Link href="/podcast">podcast</Link> episode, or result from the rack. No spam.</p>
+        <Signup source="learn" cta="Subscribe" />
+      </section>
+
+      <div className="pager" role="navigation" aria-label="Previous and next guide">
+        {prev ? <Link className="prev" href={`/learn/${prev.slug}`} transitionTypes={["nav-back"]}><span>Previous</span>{prev.title}</Link> : <span />}
+        {next ? <Link className="next" href={`/learn/${next.slug}`} transitionTypes={["nav-forward"]}><span>Next</span>{next.title}</Link> : <Link className="next" href="/learn" transitionTypes={["nav-back"]}><span>Done</span>Back to Learn</Link>}
+      </div>
+    </Page>
+  );
+}

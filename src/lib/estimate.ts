@@ -27,6 +27,9 @@ export const LOCAL_MODELS: LocalModel[] = [
   { name: "gpt-oss 120B", tag: "gpt-oss:120b", file: 65, active: 2.9, blurb: "OpenAI's largest open model" },
 ];
 
+/** URL form of a model, as in /model/qwen3-32b. */
+export const modelSlug = (m: Pick<LocalModel, "name">) => m.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
 const DENSE_EFF = 0.55;
 const MOE_EFF = 0.35;
 /** Context and runtime overhead on top of the weights. */

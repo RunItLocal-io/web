@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties } from "react";
-import Link from "next/link";
 import CopyCommand from "@/components/CopyCommand";
 import { Decode } from "@/components/Decode";
 import DieField, { pulse } from "@/components/DieField";
-import Gauge, { speedFrac } from "@/components/Gauge";
+import Gauge from "@/components/Gauge";
+import Lineup from "@/components/Lineup";
 import RunInBrowser from "@/components/RunInBrowser";
-import { usd } from "@/lib/builds";
 import { detectGpu, type Detection, type WebGpuInfo } from "@/lib/detect";
 import {
-  LOCAL_MODELS, VERDICT_LABEL, VERDICT_PHRASE, fmtTps, pickHero, pickUpgrade, rateAll, usableGb,
+  LOCAL_MODELS, VERDICT_PHRASE, fmtTps, pickHero, rateAll, usableGb,
 } from "@/lib/estimate";
-import { GPUS, GPU_GROUPS, INTEGRATED, MAC_UNKNOWN, type Gpu } from "@/lib/gpus";
+import { GPUS, GPU_GROUPS, INTEGRATED, MAC_UNKNOWN, gpuFromSlug, gpuSlug, type Gpu } from "@/lib/gpus";
 
 const PICK_INTEGRATED = "__integrated";
 const PICK_MAC = "__mac";
@@ -44,20 +43,55 @@ function GpuPicker({ value, onPick }: { value: Gpu | null; onPick: (g: Gpu) => v
   );
 }
 
+/** Survives client-side navigation, so coming back home shows the result instead of replaying the probe. */
+type Visit = { det: Detection | null; webgpu: WebGpuInfo | null; picked: Gpu | null; mem: number | null };
+const visit: Visit = { det: null, webgpu: null, picked: null, mem: null };
+const remember = (patch: Partial<Visit>) => { Object.assign(visit, patch); };
+
+// Browsers never reveal memory size, so a choice is kept across visits and written into the URL:
+// /?gpu=rtx-3090&mem=24 is shareable and lets an LLM send someone straight to their setup.
+const SAVED = "runitlocal:my-gpu";
+type Choice = { gpu: Gpu | null; mem: number | null };
+
+function initialChoice(): Choice {
+  const q = new URLSearchParams(location.search);
+  const fromUrl = gpuFromSlug(q.get("gpu"));
+  if (fromUrl || q.get("mem")) return { gpu: fromUrl, mem: Number(q.get("mem")) || null };
+  try {
+    const s = JSON.parse(localStorage.getItem(SAVED) ?? "null") as { gpu?: string; mem?: number; picked?: boolean } | null;
+    return { gpu: s?.picked ? gpuFromSlug(s.gpu) : null, mem: s?.mem ?? null };
+  } catch { return { gpu: null, mem: null }; }
+}
+
+function saveChoice(gpu: Gpu, mem: number, picked: boolean) {
+  try { localStorage.setItem(SAVED, JSON.stringify({ gpu: gpuSlug(gpu), mem, picked })); } catch {}
+  const url = new URL(location.href);
+  url.searchParams.set("gpu", gpuSlug(gpu));
+  url.searchParams.set("mem", String(mem));
+  history.replaceState(history.state, "", url);
+}
+
 export default function YourGpu() {
-  const [det, setDet] = useState<Detection | null>(null);
-  const [webgpu, setWebgpu] = useState<WebGpuInfo | null>(null);
-  const [booted, setBooted] = useState(false);
-  const [picked, setPicked] = useState<Gpu | null>(null);
-  const [mem, setMem] = useState<number | null>(null);
+  const [det, setDet] = useState<Detection | null>(visit.det);
+  const [webgpu, setWebgpu] = useState<WebGpuInfo | null>(visit.webgpu);
+  const [booted, setBooted] = useState(visit.det !== null);
+  const [picked, setPicked] = useState<Gpu | null>(visit.picked);
+  const [mem, setMem] = useState<number | null>(visit.mem);
   const [changing, setChanging] = useState(false);
 
   useEffect(() => {
+    if (visit.det) return;
     let timer = 0;
     detectGpu().then(r => {
+      const c = initialChoice();
+      remember({ picked: c.gpu, mem: c.mem });
+      setPicked(c.gpu); setMem(c.mem);
       setDet(r.detection); setWebgpu(r.webgpu);
       const wait = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : BOOT_MS;
-      timer = window.setTimeout(() => { setBooted(true); pulse(1.8, .3, .4); }, wait);
+      timer = window.setTimeout(() => {
+        remember({ det: r.detection, webgpu: r.webgpu });
+        setBooted(true); pulse(1.8, .3, .4);
+      }, wait);
     });
     return () => clearTimeout(timer);
   }, []);
@@ -68,12 +102,11 @@ export default function YourGpu() {
   const usable = gpu ? usableGb(gpu, memGb) : 0;
   const rated = gpu ? rateAll(gpu.bw, usable) : [];
   const hero = pickHero(rated);
-  const upgrade = gpu ? pickUpgrade(rated, usable) : null;
   const subject = !gpu ? "" : gpu === INTEGRATED ? "Your computer" : gpu === MAC_UNKNOWN ? "Your Mac" : "Your " + gpu.name;
   const gpuName = gpu && gpu !== INTEGRATED && gpu !== MAC_UNKNOWN ? gpu.name : null;
 
-  function pick(g: Gpu) { setPicked(g); setMem(null); setChanging(false); pulse(1.4, .3, .4); }
-  function chooseMem(v: number) { setMem(v); pulse(1, .3, .5); }
+  function pick(g: Gpu) { remember({ picked: g, mem: null }); setPicked(g); setMem(null); setChanging(false); saveChoice(g, g.vram[0], true); pulse(1.4, .3, .4); }
+  function chooseMem(v: number) { remember({ mem: v }); setMem(v); if (gpu) saveChoice(gpu, v, !!picked); pulse(1, .3, .5); }
 
   let kicker = "Local AI, from people who run it";
   if (picked) kicker = "Your pick";
@@ -106,7 +139,7 @@ export default function YourGpu() {
           ) : gpu ? (
             <>
               <h1>{subject} is tight on memory. You&apos;re not out.</h1>
-              <p className="lede">Most models won&apos;t fit in {memGb} GB. Run the tiny model below right in your browser, or <Link href="/try">chat with big models on our rack</Link>.</p>
+              <p className="lede">Most models won&apos;t fit in {memGb} GB. Try a small model right in your browser in the <a href="/studio" target="_blank" rel="noopener">Studio</a>.</p>
             </>
           ) : (
             <>
@@ -122,12 +155,12 @@ export default function YourGpu() {
           {gpu && (
             <div className="facts-row">
               {gpu.vram.length > 1 && (
-                <span className="seg small-seg" role="radiogroup" aria-label={gpu.kind === "discrete" ? "Card memory" : "Memory"}>
-                  <span className="seg-label">{gpu.kind === "discrete" ? "Version" : "Memory"}</span>
-                  {gpu.vram.slice().sort((a, b) => a - b).map(v => (
-                    <button key={v} type="button" role="radio" aria-checked={v === memGb} onClick={() => chooseMem(v)}>{v} GB</button>
-                  ))}
-                </span>
+                <label className="mem-pick">
+                  <span className="seg-label">{gpu.kind === "discrete" ? "Card memory" : "Memory"}</span>
+                  <select value={memGb} onChange={e => chooseMem(Number(e.target.value))}>
+                    {gpu.vram.slice().sort((a, b) => a - b).map(v => <option key={v} value={v}>{v} GB</option>)}
+                  </select>
+                </label>
               )}
               {!changing && <button className="linkish" type="button" onClick={() => setChanging(true)}>Not your GPU? Change it</button>}
             </div>
@@ -153,7 +186,7 @@ export default function YourGpu() {
         </aside>
       </section>
 
-      <RunInBrowser webgpu={webgpu} gpuName={gpuName} usableGb={usable || 4} />
+      <RunInBrowser gpuName={gpuName} />
 
       {gpu && (
         <section className="fits" aria-labelledby="fits-h">
@@ -162,40 +195,10 @@ export default function YourGpu() {
             <h2 id="fits-h">Everything {subject.replace(/^Your/, "your")} can run</h2>
             <p>With <a href="https://ollama.com/download" rel="noopener">Ollama</a>, at its default 4-bit size. Speeds are estimates from memory bandwidth, usually within about a third of real results.</p>
           </div>
-          <ul className="models">
-            {rated.map(r => (
-              <li key={r.tag} className={"reveal " + r.verdict}>
-                <div className="m-name"><b>{r.name}</b><span>{r.blurb}</span></div>
-                <div className="m-meter">
-                  <span className="m-num">{r.fits ? `~${fmtTps(r.tps)} tok/s` : `needs ${Math.ceil(r.file + 1.2)} GB`}</span>
-                  <span className="m-track"><span className="m-fill" style={{ "--w": r.fits ? speedFrac(r.tps) : 0 } as CSSProperties} /></span>
-                </div>
-                <div className="m-side">
-                  <span className={"verdict " + r.verdict}>{VERDICT_LABEL[r.verdict]}</span>
-                  <code className="m-tag">{r.tag}</code>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <Lineup rated={rated} />
         </section>
       )}
 
-      {gpu && upgrade && (
-        <section className="card upgrade reveal">
-          <span className="kicker">One upgrade away</span>
-          <h3>{upgrade.build.name}</h3>
-          <p>Used, about {usd(upgrade.build.lo)} to {usd(upgrade.build.hi)}. It runs <b>{upgrade.model.name}</b> at about {fmtTps(upgrade.model.tps)} tok/s, which won&apos;t fit on what you have now.</p>
-          <p><Link className="more" href="/builds">See the build and parts list</Link></p>
-        </section>
-      )}
-      {gpu && !upgrade && usable >= 40 && (
-        <section className="card upgrade reveal">
-          <span className="kicker">You&apos;re ahead of most people</span>
-          <h3>That&apos;s a serious machine.</h3>
-          <p>Help everyone else: run our benchmark and put your real numbers on the board.</p>
-          <p><Link className="more" href="/leaderboard">Add your rig</Link></p>
-        </section>
-      )}
     </>
   );
 }

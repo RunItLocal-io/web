@@ -27,5 +27,4 @@ pnpm lint
 ## Not wired up yet
 
 - **Rig submissions and email signup** validate in the browser but don't save anything; they need a backend.
-- **Live chat demo** posts to `/api/chat` (or `NEXT_PUBLIC_RIL_API_BASE` + `/chat`) and expects `{ reply, receipt? }`. No route exists yet, so it shows the "connects at launch" message.
 - The leaderboard and full-bench links still point to the Claude artifacts. Social links on the People page are placeholders (`#`).

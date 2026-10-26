@@ -174,6 +174,18 @@ export function isIntegrated(renderer: string) {
   return false;
 }
 
+/** URL form of a GPU, as in /?gpu=rtx-3090&mem=24. */
+export function gpuSlug(g: Gpu) {
+  return g === MAC_UNKNOWN ? "mac" : g === INTEGRATED ? "integrated" : g.key.replace(/\s+/g, "-");
+}
+
+export function gpuFromSlug(s: string | null | undefined): Gpu | null {
+  if (!s) return null;
+  if (s === "mac") return MAC_UNKNOWN;
+  if (s === "integrated") return INTEGRATED;
+  return GPUS.find(g => gpuSlug(g) === s.toLowerCase()) ?? null;
+}
+
 export const GPU_GROUPS: { label: string; gpus: Gpu[] }[] = [
   { label: "NVIDIA", gpus: GPUS.filter(g => g.vendor === "NVIDIA") },
   { label: "AMD", gpus: GPUS.filter(g => g.vendor === "AMD") },

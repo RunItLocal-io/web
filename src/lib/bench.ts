@@ -1,6 +1,38 @@
 // The benchmark prompt people paste into their local agent, and the validator for the JSON it prints back.
 
-export const BENCH_PROMPT = `You are running the Run It Local benchmark on this machine. Work step by step, show me each command before you run it, and do not install anything, download anything, or use sudo without asking me first. Do not change any system settings.
+/** The tests people can pick. Results are only ranked against runs of the same test. */
+export const TESTS = [
+  { tier: "S", model: "Qwen3-8B", quant: "Q4_K_M", fits: "Any GPU with 8 GB or more" },
+  { tier: "M", model: "Qwen3.6-35B-A3B", quant: "UD-Q4_K_M", fits: "24 GB or more in total" },
+] as const;
+
+export type Tier = (typeof TESTS)[number]["tier"];
+
+const STEP2_AUTO = `STEP 2: PICK THE TEST TIER
+Pick the largest tier that fits in total GPU memory (or unified memory on Apple Silicon), and tell me which one you picked before continuing:
+- Tier S (under 24 GB total): Qwen3-8B, Q4_K_M GGUF
+- Tier M (24 GB or more total): Qwen3.6-35B-A3B, unsloth UD-Q4_K_M GGUF
+If the model file is not already on disk, tell me the file name and size and ask before downloading it.`;
+
+const step2Fixed = (t: (typeof TESTS)[number]) => `STEP 2: THE TEST
+Use Tier ${t.tier}: ${t.model}, ${t.tier === "M" ? "unsloth " : ""}${t.quant} GGUF. If it does not fit in total GPU memory (or unified memory on Apple Silicon), stop and tell me.
+If the model file is not already on disk, tell me the file name and size and ask before downloading it.`;
+
+const FINISH_PASTE = "When you're done, tell me to paste the JSON at runitlocal.io under Submit.";
+
+const finishPost = (url: string) => `STEP 5: SUBMIT
+Save the JSON to a file, show it to me, and once I say yes, send it to the RunItLocal.io leaderboard:
+curl -sS -X POST "${url}" -H "Content-Type: application/json" --data-binary @<file>
+(On Windows without curl, use Invoke-RestMethod -Method Post -ContentType "application/json" -InFile <file> -Uri "${url}".)
+Show me the response. It says where my rig landed on the board. The link works once.`;
+
+/** The prompt for one run: a picked test or auto, and either a one-time submit link or the paste-it-back ending. */
+export function benchPrompt({ tier, submitUrl }: { tier?: Tier; submitUrl?: string } = {}) {
+  const t = TESTS.find(x => x.tier === tier);
+  return BASE.replace("{{STEP2}}", t ? step2Fixed(t) : STEP2_AUTO).replace("{{FINISH}}", submitUrl ? finishPost(submitUrl) : FINISH_PASTE);
+}
+
+const BASE = `You are running the RunItLocal.io benchmark on this machine. Work step by step, show me each command before you run it, and do not install anything, download anything, or use sudo without asking me first. Do not change any system settings.
 
 PRIVACY: Never include hostnames, usernames, IP or MAC addresses, serial numbers, UUIDs, file paths under my home folder, or anything from my environment variables in the output.
 
@@ -13,11 +45,7 @@ Detect, using only read-only commands that fit this OS (Linux, Windows or macOS)
 - Each GPU: model, VRAM in GB, driver version, CUDA/ROCm/Metal version, power limit in W, current PCIe generation and width under load (nvidia-smi, rocm-smi or system_profiler)
 - Inference engine and version: llama.cpp (commit hash), Ollama, vLLM, LM Studio or other
 
-STEP 2: PICK THE TEST TIER
-Pick the largest tier that fits in total GPU memory (or unified memory on Apple Silicon), and tell me which one you picked before continuing:
-- Tier S (under 24 GB total): Qwen3-8B, Q4_K_M GGUF
-- Tier M (24 GB or more total): Qwen3.6-35B-A3B, unsloth UD-Q4_K_M GGUF
-If the model file is not already on disk, tell me the file name and size and ask before downloading it.
+{{STEP2}}
 
 STEP 3: RUN THE TEST
 Use llama.cpp's llama-bench with all layers on GPU and flash attention on:
@@ -70,7 +98,9 @@ Print exactly one JSON code block in this shape, with null for anything you coul
 
 Compute joules_per_token as average GPU power during decode divided by decode tok/s. Compute kwh_per_million_tokens as joules_per_token times 1,000,000 divided by 3,600,000.
 
-When you're done, tell me to paste the JSON at runitlocal.io under Submit.`;
+{{FINISH}}`;
+
+export const BENCH_PROMPT = benchPrompt();
 
 type Obj = Record<string, unknown>;
 const str = (v: unknown, n = 120) => typeof v === "string" ? v.slice(0, n) : null;

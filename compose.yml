@@ -8,6 +8,8 @@ services:
     build: .
     restart: unless-stopped
     mem_limit: 512m
+    volumes:
+      - rigs:/app/data
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/"]
       interval: 30s
@@ -20,3 +22,6 @@ services:
     restart: unless-stopped
     depends_on: [web]
     profiles: [tunnel]
+
+volumes:
+  rigs:

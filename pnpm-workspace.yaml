@@ -1,3 +1,5 @@
-# unrs-resolver's postinstall only fetches a native binary when the platform package is missing; pnpm installs that package anyway.
+# Install scripts we skip. unrs-resolver's only fetches a native binary when the platform package is missing,
+# which pnpm installs anyway; protobufjs's only prints a version-scheme warning.
 allowBuilds:
   unrs-resolver: false
+  protobufjs: false

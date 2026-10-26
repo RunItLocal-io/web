@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono, Unbounded } from "next/font/google";
+import { SiteFooter, SiteNav } from "@/components/SiteNav";
 import Spotlight from "@/components/Spotlight";
 import "./globals.css";
 import "./sections.css";
@@ -22,8 +23,11 @@ const mono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://runitlocal.io"),
-  title: { default: "Run It Local", template: "%s · Run It Local" },
+  title: { default: "RunItLocal.io", template: "%s · RunItLocal.io" },
   description: "Run AI on your own hardware. Builds, parts lists with used prices, and measured benchmarks from people who run it.",
+  // The share card itself is app/opengraph-image.tsx.
+  openGraph: { siteName: "RunItLocal.io", type: "website" },
+  twitter: { card: "summary_large_image" },
 };
 
 export const viewport: Viewport = {
@@ -35,7 +39,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body>
-        {children}
+        <div className="site">
+          <SiteNav />
+          <main id="main">{children}</main>
+          <SiteFooter />
+        </div>
         <Spotlight />
         {/* Umami, website runitlocal.io (darkcompute-fleet deploy/analytics/sites.yaml) */}
         <Script

@@ -1,0 +1,16 @@
+/* Podcast: sign-up first, then lab notes and the getting-started path. */
+.pod-hero { gap: 22px; }
+.pod-signup { padding: 26px; display: grid; gap: 14px; max-width: 640px; border-color: rgba(200, 255, 46, .3); box-shadow: 0 30px 80px -40px rgba(200, 255, 46, .35); }
+.pod-signup .signup { max-width: none; }
+.pod-signup .signup input { font-size: 17px; padding: 14px 16px; }
+.pod-signup .signup .btn { min-height: 54px; padding: 12px 24px; font-size: 16px; }
+
+/* a little live waveform, the "on air" cue */
+.wave { display: flex; align-items: center; gap: 4px; height: 44px; }
+.wave span { flex: 1; height: 20%; border-radius: 3px; background: var(--grad); background-size: 1200% 100%; animation: talk 1.1s ease-in-out infinite alternate; }
+.wave span:nth-child(3n) { animation-duration: .8s; }
+.wave span:nth-child(4n+1) { animation-duration: 1.4s; }
+@keyframes talk { from { height: 12%; opacity: .5; } to { height: 100%; opacity: 1; } }
+
+.topics { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.topics li { font-size: 13px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--rule-2); color: var(--ink-2); }

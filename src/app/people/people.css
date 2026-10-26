@@ -1,6 +1,6 @@
 /* People: one card per person: photo, name, role, location, a short bio, what they work on, and links.
    Scoped under .people-page so these sizes don't leak into the homepage after client-side navigation. */
-.people-page { max-width: 1000px; gap: 64px; }
+.people-page { max-width: 1000px; width: 100%; margin: 0 auto; gap: 64px; }
 .people-page h1 { font-size: clamp(40px, 6.5vw, 72px); line-height: .98; }
 .people-page h2 { font-size: clamp(26px, 3.4vw, 34px); }
 .people-page .lede { font-size: clamp(17px, 2vw, 19px); max-width: 58ch; }
@@ -22,3 +22,6 @@
 
 .join { display: grid; gap: 12px; padding: 28px; border: 1px dashed var(--rule); border-radius: 16px; }
 .join p { color: var(--ink-2); max-width: 62ch; }
+.join .asks { display: grid; gap: 6px; margin: 0; padding-left: 1.2em; color: var(--ink-2); max-width: 62ch; }
+.join .asks strong { color: var(--ink); }
+.join-actions { display: flex; flex-wrap: wrap; gap: 10px; }

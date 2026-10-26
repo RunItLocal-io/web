@@ -1,21 +1,22 @@
 import Link from "next/link";
-import { SiteFooter, SiteNav } from "@/components/SiteNav";
+import Page from "@/components/Page";
 import YourGpu from "@/components/YourGpu";
+import { tabFor } from "@/lib/studio/links";
 import "./home.css";
 
 const DEEPER = [
+  { href: "/studio", title: "Studio", text: "Make images and chat on your own GPU. Install it; it works offline." },
+  { href: "/learn", title: "Learn", text: "Guides to VRAM, models, used GPUs and Ollama, from people who run it." },
+  { href: "/gpu", title: "Every GPU", text: "What any card or Mac can run, with speeds and the command to start." },
   { href: "/builds", title: "Builds", text: "Set a budget, get a parts list with used prices." },
-  { href: "/learn", title: "Learn", text: "From your first model to a server for your team, in six steps." },
-  { href: "/notes", title: "Lab notes", text: "What we tested on the rack this week, and what broke." },
-  { href: "/leaderboard", title: "Leaderboard", text: "Real speeds from real rigs. Add yours with one prompt." },
-  { href: "/try", title: "Try our rack", text: "No GPU? Chat with big models on our used data-center cards." },
+  { href: "/podcast", title: "Podcast", text: "All things AI, run it local. New episodes and lab notes by email." },
+  { href: "/leaderboard", title: "Join the leaderboard", text: "Test your rig on the newest models and see where you land." },
   { href: "/people", title: "People", text: "The engineers behind the rack." },
 ];
 
 export default function Home() {
   return (
-    <div className="wrap home">
-      <SiteNav />
+    <Page className="home">
 
       <YourGpu />
 
@@ -28,7 +29,7 @@ export default function Home() {
         </div>
         <div className="deeper">
           {DEEPER.map((d, i) => (
-            <Link key={d.href} className="card reveal" href={d.href}>
+            <Link key={d.href} className="card reveal" href={d.href} transitionTypes={["nav-forward"]} {...tabFor(d.href)}>
               <span className="num">0{i + 1}</span>
               <b>{d.title}</b>
               <span>{d.text}</span>
@@ -36,8 +37,6 @@ export default function Home() {
           ))}
         </div>
       </section>
-
-      <SiteFooter />
-    </div>
+    </Page>
   );
 }
