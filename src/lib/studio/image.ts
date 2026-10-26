@@ -147,6 +147,12 @@ export async function loadImageEngine(onProgress: (p: LoadProgress) => void): Pr
     const eps = out_sample.data as Float32Array, denoised = new Float32Array(eps.length);
     for (let i = 0; i < eps.length; i++) denoised[i] = (latent[i] - SIGMA * eps[i]) / VAE_SCALE;
     const { sample } = await sessions.vae_decoder.run({ latent_sample: new ort.Tensor(denoised, shape) });
+    // On some GPUs, often laptop and integrated chips, the 16-bit math overflows and the model returns NaN (or all
+    // black), which would draw as a solid black square. No real picture is 99% pure black. Say so instead of showing a blank picture as if it worked.
+    const px = sample.data as Float32Array;
+    let bad = 0, black = 0;
+    for (let i = 0; i < px.length; i++) { if (!Number.isFinite(px[i])) bad++; else if (px[i] <= -0.98) black++; }
+    if (bad > px.length * 0.01 || black > px.length * 0.99) throw new Error("this graphics chip's 16-bit math overflowed, so the picture came out blank. It happens on some laptop and older GPUs. Chat models usually still work here");
     const url = await toPngUrl(sample);
     return { url, prompt, seed, ms: performance.now() - t0, at: Date.now() };
   }
