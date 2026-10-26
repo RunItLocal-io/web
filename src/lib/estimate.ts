@@ -35,6 +35,9 @@ const MOE_EFF = 0.35;
 /** Context and runtime overhead on top of the weights. */
 const OVERHEAD_GB = 1.2;
 
+/** GB of memory a model needs to run: its download plus context, rounded up. */
+export const needGb = (m: Pick<LocalModel, "file">) => Math.ceil(m.file + OVERHEAD_GB);
+
 export type Verdict = "great" | "usable" | "slow" | "nofit";
 
 export const VERDICT_LABEL: Record<Verdict, string> = {

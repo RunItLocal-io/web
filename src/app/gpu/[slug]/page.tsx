@@ -4,11 +4,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import CopyCommand from "@/components/CopyCommand";
+import JsonLd, { crumbsLd, faqLd } from "@/components/JsonLd";
 import Lineup from "@/components/Lineup";
+import MeasuredRuns from "@/components/MeasuredRuns";
 import Page, { PageHead } from "@/components/Page";
 import { VERDICT_PHRASE, fmtTps, pickHero, pickUpgrade, rateAll, usableGb } from "@/lib/estimate";
 import { GPUS, gpuFromSlug, gpuSlug, type Gpu } from "@/lib/gpus";
+import { isShared as shared, matchupHref, matchupsFor, memWord, pairAnswer, pairHref, pairModels, pairQuestion } from "@/lib/pairs";
 import { STUDIO, tabFor } from "@/lib/studio/links";
 import "../../catalog.css";
 
@@ -26,9 +30,6 @@ function rate(g: Gpu, mem: number) {
   const rated = rateAll(g.bw, usable);
   return { mem, usable, rated, hero: pickHero(rated), fit: rated.filter(r => r.fits).length };
 }
-
-const shared = (g: Gpu) => g.kind !== "discrete";
-const memWord = (g: Gpu) => g.kind === "discrete" ? "VRAM" : g.kind === "integrated" ? "system memory" : "unified memory";
 
 export async function generateMetadata({ params }: PageProps<"/gpu/[slug]">): Promise<Metadata> {
   const g = lookup((await params).slug);
@@ -51,9 +52,13 @@ export default async function GpuPage({ params }: PageProps<"/gpu/[slug]">) {
   const upgrade = pickUpgrade(main.rated, main.usable);
   const peers = GPUS.filter(x => x.vendor === g.vendor && x !== g)
     .sort((a, b) => Math.abs(a.bw - g.bw) - Math.abs(b.bw - g.bw)).slice(0, 6);
+  const rivals = matchupsFor(g);
+  const qa = pairModels(g).map(m => ({ m, q: pairQuestion(g, m), a: pairAnswer(g, m) }));
 
   return (
     <Page>
+      <JsonLd data={faqLd(qa)} />
+      <JsonLd data={crumbsLd([["Home", "/"], ["GPUs", "/gpu"], [g.name, `/gpu/${slug}`]])} />
       <section className="hero">
         <PageHead kicker={`${g.vendor} · ${g.vram.join(" or ")} GB ${memWord(g)} · ${g.bw} GB/s`} title={`What can the ${g.name} run?`} back={{ href: "/gpu", label: "Every GPU" }}>
           {main.hero
@@ -78,6 +83,25 @@ export default async function GpuPage({ params }: PageProps<"/gpu/[slug]">) {
           <Lineup rated={s.rated} />
         </section>
       ))}
+
+      <section aria-labelledby="faq-h">
+        <div className="head"><span className="kicker">Common questions</span><h2 id="faq-h">Can the {g.name} run it?</h2></div>
+        <div className="faq">
+          {qa.map(x => (
+            <div key={x.m.tag} className="card panel">
+              <h3><Link href={pairHref(g, x.m)}>{x.q}</Link></h3>
+              <p className="small">{x.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section aria-labelledby="measured-h">
+        <div className="head"><span className="kicker">Measured, not estimated</span><h2 id="measured-h">Real runs on the {g.name}</h2></div>
+        <Suspense fallback={<div className="card panel"><p className="small">Loading measured runs…</p></div>}>
+          <MeasuredRuns gpu={g} />
+        </Suspense>
+      </section>
 
       <section className="gpu-notes">
         <div className="card panel">
@@ -106,6 +130,16 @@ export default async function GpuPage({ params }: PageProps<"/gpu/[slug]">) {
             {peers.map(p => <li key={p.key}><Link href={`/gpu/${gpuSlug(p)}`}><b>{p.name}</b><span>{p.vram.join(" / ")} GB · {p.bw} GB/s</span></Link></li>)}
           </ul>
           <p className="small"><Link href="/gpu">Every GPU we track</Link></p>
+        </section>
+      )}
+
+      {rivals.length > 0 && (
+        <section aria-labelledby="vs-h">
+          <div className="head"><span className="kicker">Head to head</span><h2 id="vs-h">The {g.name} against its rivals</h2></div>
+          <ul className="gpu-list">
+            {rivals.map(r => <li key={r.key}><Link href={matchupHref(g, r)}><b>{g.name} vs {r.name}</b><span>{r.vram.join(" / ")} GB · {r.bw} GB/s</span></Link></li>)}
+          </ul>
+          <p className="small"><Link href="/compare">Every comparison</Link></p>
         </section>
       )}
     </Page>

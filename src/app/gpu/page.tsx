@@ -18,7 +18,7 @@ export default function Gpus() {
     <Page>
       <section className="hero">
         <PageHead kicker="Every GPU" title="What can your GPU run?">
-          Pick your card or Mac. Each page lists every model it can run, how fast, and the command to start.
+          Pick your card or Mac. Each page lists every model it can run, how fast, and the command to start. Choosing between two? See the <Link href="/compare">head-to-head comparisons</Link>.
         </PageHead>
       </section>
       {GPU_GROUPS.map(group => (

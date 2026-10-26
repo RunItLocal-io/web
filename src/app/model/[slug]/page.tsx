@@ -6,34 +6,16 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import CopyCommand from "@/components/CopyCommand";
 import Page, { PageHead } from "@/components/Page";
-import { BUILDS } from "@/lib/builds";
-import { LOCAL_MODELS, VERDICT_LABEL, estimate, fmtTps, modelSlug, usableGb, type LocalModel, type Verdict } from "@/lib/estimate";
-import { GPUS, gpuSlug } from "@/lib/gpus";
+import { LOCAL_MODELS, VERDICT_LABEL, fmtTps, modelSlug, needGb, type Verdict } from "@/lib/estimate";
+import { gpuSlug } from "@/lib/gpus";
 import { aboutModel } from "@/lib/learn";
 import { MODEL_INFO, modelFromSlug } from "@/lib/models";
+import { cheapestBuild, hasPair, pairHref, runners } from "@/lib/pairs";
 import "@/components/lineup.css";
 import "../../catalog.css";
 
 export function generateStaticParams() {
   return LOCAL_MODELS.map(m => ({ slug: modelSlug(m) }));
-}
-
-const needGb = (m: LocalModel) => Math.ceil(m.file + 1.2);
-
-/** Each GPU at the smallest memory size that fits the model, fastest first. */
-function runners(m: LocalModel) {
-  return GPUS.flatMap(g => {
-    const mem = g.vram.slice().sort((a, b) => a - b).find(v => estimate(m, g.bw, usableGb(g, v)).fits);
-    if (mem === undefined) return [];
-    const e = estimate(m, g.bw, usableGb(g, mem));
-    return [{ g, mem, tps: e.tps, verdict: e.verdict }];
-  }).sort((a, b) => b.tps - a.tps);
-}
-
-function cheapestBuild(m: LocalModel) {
-  return BUILDS.slice().sort((a, b) => a.lo - b.lo)
-    .map(b => ({ b, e: estimate(m, b.bw, b.vram) }))
-    .find(x => x.e.fits && x.e.tps >= 10) ?? null;
 }
 
 export async function generateMetadata({ params }: PageProps<"/model/[slug]">): Promise<Metadata> {
@@ -96,7 +78,7 @@ export default async function ModelPage({ params }: PageProps<"/model/[slug]">) 
             <div key={v} className="runs-group">
               <h3><span className={"verdict " + v}>{VERDICT_LABEL[v]}</span> {rows.length} {rows.length === 1 ? "card" : "cards"}</h3>
               <ul className="gpu-list">
-                {rows.map(r => <li key={r.g.key}><Link href={`/gpu/${gpuSlug(r.g)}`}><b>{r.g.name}</b><span>{r.mem} GB · ~{fmtTps(r.tps)} tok/s</span></Link></li>)}
+                {rows.map(r => <li key={r.g.key}><Link href={hasPair(r.g, m) ? pairHref(r.g, m) : `/gpu/${gpuSlug(r.g)}`}><b>{r.g.name}</b><span>{r.mem} GB · ~{fmtTps(r.tps)} tok/s</span></Link></li>)}
               </ul>
             </div>
           );
