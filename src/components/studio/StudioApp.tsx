@@ -16,7 +16,7 @@ import { INTEGRATED, MAC_UNKNOWN } from "@/lib/gpus";
 import { deleteChat, listChats, saveChat, type Chat, type ChatFile, type SavedMsg } from "@/lib/studio/chats";
 import { deleteImage, listImages, saveImage } from "@/lib/studio/gallery";
 import {
-  STUDIO_MODELS, cantRun, examplesFor, loadModel, storedModels, studioModel, unload, type Loaded, type Progress, type StudioModel,
+  PHONE_GB, STUDIO_MODELS, cantRun, examplesFor, loadModel, storedModels, studioModel, unload, type Loaded, type Progress, type StudioModel,
 } from "@/lib/studio/models";
 import { PRESETS, loadInstructions, saveInstructions, systemPrompt } from "@/lib/studio/presets";
 import { dropSandbox, pythonBlock, sandboxFor } from "@/lib/studio/python";
@@ -39,6 +39,13 @@ type Msg =
   | { id: number; role: "note"; text: string; err?: boolean };
 
 const LAST = "runitlocal:studio-model";
+/**
+ * Set while a model loads, refreshed as it progresses, cleared when it finishes or fails cleanly. If the page starts
+ * and finds it fresh, the browser killed the tab mid-load (out of memory, usually on a phone) and reloaded it, so we
+ * must not load the same model again or the tab dies in a loop.
+ */
+const LOADING = "runitlocal:studio-loading";
+const CRASH_WINDOW_MS = 60_000;
 const MAX_FILE = 25e6;
 /** Examples for a chat model with the Python sandbox on. */
 const AGENT_EXAMPLES = [
@@ -46,7 +53,9 @@ const AGENT_EXAMPLES = [
   "If I save $300 a month at 5% a year, how much do I have after 10 years? Plot it",
   "Generate 200 random points, fit a straight line, and show me the plot",
 ];
-let nextId = 1;
+// Message ids. Seeded from the clock so a dev hot reload, which re-runs this module while messages stay on screen,
+// can never reuse an id that is already showing.
+let nextId = Date.now();
 
 /** What the model sees of a finished sandbox run. */
 function runReport(ok: boolean, out: string, error?: string, images = 0) {
@@ -140,8 +149,11 @@ export default function StudioApp() {
     const p = (async () => {
       if (current.current) { unload(current.current); current.current = null; setLive(null); }
       setLoading({ model: m, p: 0, text: "" });
+      let marked = 0;
+      const mark = () => { const now = Date.now(); if (now - marked < 1000) return; marked = now; try { localStorage.setItem(LOADING, JSON.stringify({ id: m.id, at: now })); } catch {} };
+      mark();
       try {
-        const l = await loadModel(m, gpu, pr => setLoading({ model: m, ...pr }));
+        const l = await loadModel(m, gpu, pr => { mark(); setLoading({ model: m, ...pr }); });
         current.current = l; setLive(m.id);
         pulse(2, .5, .5);
         refreshStored();
@@ -150,6 +162,7 @@ export default function StudioApp() {
         add({ id: nextId++, role: "note", err: true, text: `Couldn't start ${m.label} on ${whereRef.current}: ${err instanceof Error ? err.message : String(err)}. Close other GPU-heavy tabs and try again, or pick a smaller model.` });
         return null;
       } finally {
+        try { localStorage.removeItem(LOADING); } catch {}
         setLoading(null);
         if (pending.current?.id === m.id) pending.current = null;
       }
@@ -170,6 +183,7 @@ export default function StudioApp() {
     detectGpu().then(async ({ detection, webgpu }) => {
       setWebgpu(webgpu);
       let gb = 8;
+      if (detection.status === "mobile") { gb = PHONE_GB; setUsable(gb); }
       if (detection.status === "found" || detection.status === "guess") {
         const g = detection.gpu;
         if (g !== INTEGRATED && g !== MAC_UNKNOWN) { setGpuName(g.name); whereRef.current = "your " + g.name; }
@@ -184,6 +198,17 @@ export default function StudioApp() {
       const s = await refreshStored();
       if (started.current || !webgpu.available) return;
       started.current = true;
+      // A load that never finished means the browser killed this tab while loading. Say so, and don't retry it.
+      let crashed: StudioModel | null = null;
+      try {
+        const c = JSON.parse(localStorage.getItem(LOADING) ?? "null") as { id?: string; at?: number } | null;
+        localStorage.removeItem(LOADING);
+        if (c?.at && Date.now() - c.at < CRASH_WINDOW_MS) crashed = studioModel(c.id ?? null);
+      } catch {}
+      if (crashed) {
+        add({ id: nextId++, role: "note", err: true, text: `Loading ${crashed.label} closed the page last time: this device probably ran out of memory for it. ${gb <= PHONE_GB ? "Phones can only run the smallest models here; for the rest, open the Studio on a computer." : "Close other tabs and apps, or pick a smaller model."}` });
+        return;
+      }
       // Start on the last model used, else the first one this GPU can run. Reopen it now if it's already here.
       let last: StudioModel | null = null;
       try { last = studioModel(localStorage.getItem(LAST)); } catch {}
@@ -206,7 +231,7 @@ export default function StudioApp() {
       window.removeEventListener("online", onNet);
       window.removeEventListener("offline", onNet);
     };
-  }, [refreshStored, ensure]);
+  }, [refreshStored, ensure, add]);
 
   useEffect(() => () => { if (current.current) unload(current.current); }, []);
 

@@ -16,7 +16,7 @@ const START = ["how-to-run-ai-locally", "how-much-vram-do-you-need", "is-local-a
 const TOOLS = [
   { href: "/gpu", title: "What can my GPU run?", text: "Every card and Mac, with the models it runs and how fast." },
   { href: "/model", title: "Which model is for what?", text: "Every model we track, what it's good at, and the memory it needs." },
-  { href: "/builds", title: "What should I buy?", text: "Builds from $300 with used prices and parts lists." },
+  { href: "/builds", title: "What should I buy?", text: "Builds from free to a DGX Spark, with current prices and parts lists." },
 ];
 
 export default function Learn() {

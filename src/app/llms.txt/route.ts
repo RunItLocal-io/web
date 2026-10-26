@@ -19,7 +19,7 @@ If a user asks what they can run locally, fetch /models.json, find their GPU and
 - [Every GPU](https://runitlocal.io/gpu): one page per GPU and Mac (e.g. https://runitlocal.io/gpu/rtx-3090) listing every model it runs, with speeds
 - [Every model](https://runitlocal.io/model): one page per model (e.g. https://runitlocal.io/model/qwen3-32b) with what it's good for, memory needed, and every GPU that runs it
 - [Learn](https://runitlocal.io/learn): guides to running models locally, from VRAM and quantization to Ollama and used GPUs
-- [Builds](https://runitlocal.io/builds): used-market builds from $300, with parts lists and gotchas
+- [Builds](https://runitlocal.io/builds): builds from free (your browser) to a DGX Spark, with parts lists and gotchas
 - [Leaderboard](https://runitlocal.io/leaderboard): community benchmark results
 - [Podcast](https://runitlocal.io/podcast): the RunItLocal.io podcast, lab notes from our rack, and a getting-started guide
 - [Studio](https://runitlocal.io/studio): image generation and chat on the visitor's own GPU, in the browser

@@ -9,6 +9,7 @@ import Lineup from "@/components/Lineup";
 import Page, { PageHead } from "@/components/Page";
 import { VERDICT_PHRASE, fmtTps, pickHero, pickUpgrade, rateAll, usableGb } from "@/lib/estimate";
 import { GPUS, gpuFromSlug, gpuSlug, type Gpu } from "@/lib/gpus";
+import { STUDIO, tabFor } from "@/lib/studio/links";
 import "../../catalog.css";
 
 export function generateStaticParams() {
@@ -26,7 +27,8 @@ function rate(g: Gpu, mem: number) {
   return { mem, usable, rated, hero: pickHero(rated), fit: rated.filter(r => r.fits).length };
 }
 
-const memWord = (g: Gpu) => g.kind === "apple" ? "unified memory" : "VRAM";
+const shared = (g: Gpu) => g.kind !== "discrete";
+const memWord = (g: Gpu) => g.kind === "discrete" ? "VRAM" : g.kind === "integrated" ? "system memory" : "unified memory";
 
 export async function generateMetadata({ params }: PageProps<"/gpu/[slug]">): Promise<Metadata> {
   const g = lookup((await params).slug);
@@ -56,7 +58,7 @@ export default async function GpuPage({ params }: PageProps<"/gpu/[slug]">) {
         <PageHead kicker={`${g.vendor} · ${g.vram.join(" or ")} GB ${memWord(g)} · ${g.bw} GB/s`} title={`What can the ${g.name} run?`} back={{ href: "/gpu", label: "Every GPU" }}>
           {main.hero
             ? <>With {main.mem} GB, {main.fit} of {main.rated.length} popular open models fit. The best pick is <b>{main.hero.name}</b> at about <b className="hot">{fmtTps(main.hero.tps)} tok/s</b>, {VERDICT_PHRASE[main.hero.verdict as keyof typeof VERDICT_PHRASE]}.</>
-            : <>With {main.mem} GB, none of the models we track fit. You can still try a tiny model in the browser in the <Link href="/studio">Studio</Link>.</>}
+            : <>With {main.mem} GB, none of the models we track fit. You can still try a tiny model in the browser in the <Link href={STUDIO} {...tabFor(STUDIO)}>Studio</Link>.</>}
         </PageHead>
         {main.hero && (
           <div className="gpu-start">
@@ -69,7 +71,7 @@ export default async function GpuPage({ params }: PageProps<"/gpu/[slug]">) {
       {sizes.map(s => (
         <section key={s.mem} aria-labelledby={`fits-${s.mem}`}>
           <div className="head reveal">
-            <span className="kicker">{s.mem} GB {memWord(g)}{g.kind === "apple" ? ` · about ${Math.round(s.usable)} GB for models` : ""}</span>
+            <span className="kicker">{s.mem} GB {memWord(g)}{shared(g) ? ` · about ${Math.round(s.usable)} GB for models` : ""}</span>
             <h2 id={`fits-${s.mem}`}>Every model the {g.name}{sizes.length > 1 ? ` ${s.mem} GB` : ""} can run</h2>
             {sizes.length > 1 && <p>{s.fit} of {s.rated.length} fit{s.hero ? `. Best pick: ${s.hero.name}` : ""}.</p>}
           </div>
@@ -83,6 +85,8 @@ export default async function GpuPage({ params }: PageProps<"/gpu/[slug]">) {
           <p className="small">
             Generating a token reads the model&apos;s active weights from memory once, so speed is roughly memory bandwidth ({g.bw} GB/s) divided by the active weight size, with efficiency calibrated on our own rack. Sizes are Ollama&apos;s default 4-bit downloads plus about 1.2 GB for context.
             {g.kind === "apple" ? " macOS lets the GPU use about two thirds to three quarters of unified memory, so that is what we count." : ""}
+            {g.kind === "unified" ? " The GPU shares memory with the system, so we count about three quarters of it for models." : ""}
+            {g.kind === "integrated" ? " Built-in graphics share system memory, so we count about 60% of it. The easiest start is a small model in your browser in the Studio." : ""}
             {" "}Real results are usually within about a third. Measured runs are on the <Link href="/leaderboard">leaderboard</Link>.
           </p>
         </div>

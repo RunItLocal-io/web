@@ -4,6 +4,7 @@ import CopyCommand from "@/components/CopyCommand";
 import Page, { PageHead } from "@/components/Page";
 import Signup from "@/components/Signup";
 import { NEMOTRON_BOLT_GGUF } from "@/lib/builds";
+import { STUDIO, tabFor } from "@/lib/studio/links";
 import "./podcast.css";
 
 export const metadata: Metadata = {
@@ -79,7 +80,7 @@ export default function Podcast() {
           <li className="reveal"><span className="n">03</span><b><Link href="/learn#hardware">Pick your build</Link></b><p>Match a budget to the models you want. Use the <Link href="/builds">build finder</Link>.</p></li>
           <li className="reveal"><span className="n">04</span><b><Link href="/learn#hardware">Build it</Link></b><p>Parts, drivers, cooling, and the cables nobody tells you about.</p></li>
           <li className="reveal"><span className="n">05</span><b><Link href="/learn#serve">Serve it</Link></b><p>Ollama, then llama.cpp, then Open WebUI for a ChatGPT-style app.</p></li>
-          <li className="reveal"><span className="n">06</span><b><Link href="/learn#use">Make it useful</Link></b><p>Chat with your documents, run agents, add voice. Or try it now in the <Link href="/studio" target="_blank" rel="noopener">Studio</Link>.</p></li>
+          <li className="reveal"><span className="n">06</span><b><Link href="/learn#use">Make it useful</Link></b><p>Chat with your documents, run agents, add voice. Or try it now in the <Link href={STUDIO} {...tabFor(STUDIO)}>Studio</Link>.</p></li>
         </ol>
       </section>
     </Page>

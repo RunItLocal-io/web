@@ -53,6 +53,8 @@ export const VERDICT_PHRASE: Record<Exclude<Verdict, "nofit">, string> = {
 /** GB a model can use: all of a card's VRAM, or the share of unified memory macOS and PCs give the GPU. */
 export function usableGb(gpu: Pick<Gpu, "kind">, mem: number) {
   if (gpu.kind === "apple") return mem * (mem > 36 ? 0.75 : 0.67);
+  // Linux on a DGX Spark or Ryzen AI Max lets the GPU take most of memory; Windows caps Ryzen AI Max at 96 of 128.
+  if (gpu.kind === "unified") return mem * 0.75;
   if (gpu.kind === "integrated") return mem * 0.6;
   return mem;
 }
@@ -80,7 +82,7 @@ export function pickHero(rated: Rated[]): Rated | null {
 export function pickUpgrade(rated: Rated[], usable: number): { build: Build; model: Rated } | null {
   const bestIdx = rated.map(r => r.fits).lastIndexOf(true);
   for (const b of BUILDS.slice().sort((x, y) => x.lo - y.lo)) {
-    if (b.vram <= usable) continue;
+    if (b.hi === 0 || b.vram <= usable) continue;
     const theirs = rateAll(b.bw, b.vram);
     const better = theirs.slice(bestIdx + 1).filter(r => r.fits && r.tps >= 15).pop();
     if (better) return { build: b, model: better };

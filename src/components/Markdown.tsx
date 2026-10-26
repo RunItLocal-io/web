@@ -4,6 +4,7 @@ import CopyCommand from "@/components/CopyCommand";
 import Lineup from "@/components/Lineup";
 import { rateAll, usableGb } from "@/lib/estimate";
 import { gpuFromSlug } from "@/lib/gpus";
+import { tabFor } from "@/lib/studio/links";
 
 // The Markdown our Learn articles use, and nothing more: ## and ### headings, paragraphs, - and 1. lists,
 // > notes, | tables |, fenced code (a one-line sh block becomes a copy button), **bold**, *italic*, `code`
@@ -22,7 +23,7 @@ function inline(text: string): ReactNode[] {
     if (link) {
       const [, label, href] = link;
       return href.startsWith("/") || href.startsWith("#")
-        ? <Link key={i} href={href}>{inline(label)}</Link>
+        ? <Link key={i} href={href} {...tabFor(href)}>{inline(label)}</Link>
         : <a key={i} href={href} rel="noopener">{inline(label)}</a>;
     }
     if (t.startsWith("*") && t.endsWith("*") && t.length > 2) return <em key={i}>{inline(t.slice(1, -1))}</em>;

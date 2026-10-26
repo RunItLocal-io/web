@@ -11,6 +11,7 @@ import { detectGpu, type Detection, type WebGpuInfo } from "@/lib/detect";
 import {
   LOCAL_MODELS, VERDICT_PHRASE, fmtTps, pickHero, rateAll, usableGb,
 } from "@/lib/estimate";
+import { STUDIO, tabFor } from "@/lib/studio/links";
 import { GPUS, GPU_GROUPS, INTEGRATED, MAC_UNKNOWN, gpuFromSlug, gpuSlug, type Gpu } from "@/lib/gpus";
 
 const PICK_INTEGRATED = "__integrated";
@@ -139,7 +140,7 @@ export default function YourGpu() {
           ) : gpu ? (
             <>
               <h1>{subject} is tight on memory. You&apos;re not out.</h1>
-              <p className="lede">Most models won&apos;t fit in {memGb} GB. Try a small model right in your browser in the <a href="/studio" target="_blank" rel="noopener">Studio</a>.</p>
+              <p className="lede">Most models won&apos;t fit in {memGb} GB. Try a small model right in your browser in the <a href={STUDIO} {...tabFor(STUDIO)}>Studio</a>.</p>
             </>
           ) : (
             <>

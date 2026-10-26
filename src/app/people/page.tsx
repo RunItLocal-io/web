@@ -32,7 +32,7 @@ const PEOPLE: Person[] = [
   {
     name: "Md Moazzem Hossain",
     role: "Contributor",
-    photo: "/people/md-moazzem-hossain.jpg",
+    photo: "/people/moazzem-hossain.jpg",
     meta: ["Fukuoka, Japan", "Cognitive AppDev"],
     bio: "AI engineer in Fukuoka who competes in Kaggle machine-learning competitions. Works with the rack on training runs and on getting the inference network up.",
     works: ["Kaggle and model training", "Inference network"],
@@ -41,6 +41,7 @@ const PEOPLE: Person[] = [
   {
     name: "Henri Alfonso",
     role: "Builder",
+    photo: "/people/henri-alfonso.jpg",
     meta: ["United States", "3D simulation and security"],
     bio: "Builds 3D worlds that robots learn in: digital twins in NVIDIA Isaac Sim and Unreal Engine 5, rendered on an RTX 4090 lab at home, with an open pull request to Isaac Sim. Before that, fifteen years in cybersecurity, eleven of them in DoD work after the U.S. Air Force, and a Linux kernel fix that was assigned CVE-2026-64240.",
     works: ["3D models and digital twins", "Isaac Sim and Unreal Engine 5", "RTX 4090 AI lab", "Breaking AI systems"],

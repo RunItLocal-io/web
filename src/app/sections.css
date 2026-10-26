@@ -38,6 +38,8 @@ input[type=range] { padding: 0; background: transparent; border: 0; accent-color
 .bom li span:last-child { font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); white-space: nowrap; }
 .runs { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { font-size: 13px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule-2); color: var(--ink-2); }
+button.chip { font: inherit; font-size: 13px; background: transparent; cursor: pointer; }
+button.chip:hover { color: var(--ink); border-color: var(--accent); }
 .chip.hit { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); box-shadow: 0 0 14px rgba(200, 255, 46, .2); }
 .note { font-size: 14px; color: var(--ink-2); padding: 10px 12px; border-radius: 10px; background: rgba(255, 176, 32, .06); border: 1px solid rgba(255, 176, 32, .2); }
 

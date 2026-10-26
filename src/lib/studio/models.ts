@@ -14,6 +14,8 @@ export type StudioModel = {
   f16Only?: boolean;
   /** A Qwen3 model: answer directly instead of thinking out loud first. */
   noThink?: boolean;
+  /** Settings passed to WebLLM on load, overriding its model record and the model's own config file. */
+  chatOpts?: { sliding_window_size?: number };
   /** Prompts shown when it's picked; clicking one runs it. Defaults to its group's. */
   examples?: string[];
 };
@@ -52,7 +54,9 @@ export const STUDIO_MODELS: StudioModel[] = [
     id: "sd-turbo", kind: "image", group: "Images", label: IMAGE_MODEL.label, size: IMAGE_MODEL.size.replace("about ", ""), minGb: 4, f16Only: true,
     blurb: "Text to image in one step, 512 px. A picture in a second or two.",
   },
-  chat("gemma3-1b-it", "Gemma 3 1B", 711, "Google's tiny model. Quick and surprisingly fluent.", { f16Only: true }),
+  // Its config on Hugging Face turns on a 512-token sliding window while WebLLM's record sets a 4K context, and
+  // WebLLM refuses both at once ("Only one of context_window_size and sliding_window_size can be positive").
+  chat("gemma3-1b-it", "Gemma 3 1B", 711, "Google's tiny model. Quick and surprisingly fluent.", { f16Only: true, chatOpts: { sliding_window_size: -1 } }),
   chat("Llama-3.2-1B-Instruct", "Llama 3.2 1B", 879, "Tiny and fast. Good for quick questions and short writing."),
   chat("Qwen3-1.7B", "Qwen3 1.7B", 2037, "Small but sharp. Good at following instructions.", { noThink: true }),
   chat("Llama-3.2-3B-Instruct", "Llama 3.2 3B", 2264, "Noticeably smarter. Rewrites, summaries and plans."),
@@ -67,12 +71,18 @@ export const STUDIO_MODELS: StudioModel[] = [
 
 export const studioModel = (id: string | null) => STUDIO_MODELS.find(m => m.id === id) ?? null;
 
+/**
+ * What a phone's browser tab can safely use, in GB. iOS and Android kill a tab long before the phone's RAM runs
+ * out (roughly 1 to 2 GB on an iPhone), and Safari then reloads the page. Only the 1B chat models fit under this.
+ */
+export const PHONE_GB = 1;
+
 const chatModelId = (id: string, f16: boolean) => `${id}-${f16 ? "q4f16_1" : "q4f32_1"}-MLC`;
 
 /** Why a model can't run here, or null when it can. */
 export function cantRun(m: StudioModel, webgpu: WebGpuInfo, usableGb: number): string | null {
   if (m.f16Only && !webgpu.f16) return "Needs 16-bit shader support, which this browser or GPU doesn't offer";
-  if (usableGb < m.minGb) return `Needs about ${m.minGb} GB of graphics memory`;
+  if (usableGb < m.minGb) return usableGb <= PHONE_GB ? "Too big for a phone's browser. Open the Studio on a computer" : `Needs about ${m.minGb} GB of graphics memory`;
   return null;
 }
 
@@ -88,7 +98,7 @@ export async function loadModel(m: StudioModel, webgpu: WebGpuInfo, onProgress: 
     return { kind: "image", model: m, engine };
   }
   const { CreateMLCEngine } = await import("@mlc-ai/web-llm");
-  const engine = await CreateMLCEngine(chatModelId(m.id, webgpu.f16), { initProgressCallback: r => onProgress({ p: r.progress, text: r.text }) });
+  const engine = await CreateMLCEngine(chatModelId(m.id, webgpu.f16), { initProgressCallback: r => onProgress({ p: r.progress, text: r.text }) }, m.chatOpts);
   return { kind: "chat", model: m, engine };
 }
 

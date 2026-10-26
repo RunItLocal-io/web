@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Geist, Geist_Mono, Unbounded } from "next/font/google";
 import { SiteFooter, SiteNav } from "@/components/SiteNav";
 import Spotlight from "@/components/Spotlight";
+import StudioTabs from "@/components/StudioTabs";
 import "./globals.css";
 import "./sections.css";
 
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <SiteFooter />
         </div>
         <Spotlight />
+        <StudioTabs />
         {/* Umami, website runitlocal.io (darkcompute-fleet deploy/analytics/sites.yaml) */}
         <Script
           src="https://a.darkcompute.io/assets/app.js"
