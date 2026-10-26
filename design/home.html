@@ -1,0 +1,684 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Run It Local</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a simple front door. Find a build, add your rig, try it, learn, lab notes, people. Sub-pages carry the depth.
+   Palette: cool workbench grey with one cobalt accent; a small amber power LED is the only warm note. Dark mode mirrors it. */
+:root {
+  --bg: #f3f5f8; --surface: #ffffff; --sunk: #e9edf2;
+  --ink: #10151c; --ink-2: #444d59; --ink-3: #5c6571; --rule: #d6dce4;
+  --accent: #2251d1; --accent-ink: #ffffff; --accent-soft: #e4ebff;
+  --led: #e09b12;
+  --ok: #17734c; --ok-bg: #ddf1e7; --err: #b3261e; --err-bg: #fbe3e1;
+  --font-display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1117; --surface: #151b23; --sunk: #1c232d;
+    --ink: #e8edf3; --ink-2: #aab4c0; --ink-3: #8b95a2; --rule: #2a323d;
+    --accent: #7ea2ff; --accent-ink: #0d1117; --accent-soft: #1a2440;
+    --led: #f2a516;
+    --ok: #63d3a2; --ok-bg: #12302a; --err: #ff8a80; --err-bg: #3a1714;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1117; --surface: #151b23; --sunk: #1c232d;
+  --ink: #e8edf3; --ink-2: #aab4c0; --ink-3: #8b95a2; --rule: #2a323d;
+  --accent: #7ea2ff; --accent-ink: #0d1117; --accent-soft: #1a2440;
+  --led: #f2a516;
+  --ok: #63d3a2; --ok-bg: #12302a; --err: #ff8a80; --err-bg: #3a1714;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 18px 64px;
+}
+.wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 96px; }
+a { color: var(--accent); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+p { margin: 0; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+h1 { font-weight: 800; font-size: clamp(42px, 7.4vw, 88px); line-height: .96; }
+h2 { font-weight: 800; font-size: clamp(28px, 4vw, 42px); line-height: 1.05; }
+h3 { font-weight: 600; font-size: 20px; line-height: 1.2; }
+.kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.lede { font-size: clamp(18px, 2vw, 20px); color: var(--ink-2); max-width: 56ch; }
+.small { font-size: 13px; color: var(--ink-3); }
+section { display: grid; gap: 26px; min-width: 0; }
+.head { display: grid; gap: 10px; max-width: 700px; }
+.head p { color: var(--ink-2); }
+.more { font-size: 15px; font-weight: 600; text-decoration: none; }
+.more::after { content: " →"; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+nav { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 800; font-size: 21px; letter-spacing: -.02em; color: var(--ink); text-decoration: none; }
+.led { width: 9px; height: 9px; border-radius: 50%; background: var(--led); box-shadow: 0 0 10px var(--led); flex: none; }
+nav ul { display: flex; flex-wrap: wrap; gap: 4px 20px; list-style: none; margin: 0; padding: 0; font-size: 15px; }
+nav ul a { color: var(--ink-2); text-decoration: none; }
+nav ul a:hover { color: var(--ink); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font: inherit; font-weight: 600; font-size: 15px; min-height: 46px; padding: 10px 18px; border-radius: 8px; text-decoration: none; cursor: pointer; border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
+.btn.alt { background: transparent; color: var(--ink); border-color: var(--rule); }
+.btn.alt:hover { border-color: var(--ink-3); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+input, select, textarea { font: inherit; font-size: 16px; color: var(--ink); background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 11px 12px; width: 100%; }
+label { display: grid; gap: 6px; font-size: 14px; color: var(--ink-2); }
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; }
+
+/* finder */
+.hero { display: grid; gap: 28px; }
+.finder { overflow: hidden; }
+.tabs { display: flex; border-bottom: 1px solid var(--rule); }
+.tab { flex: 1; font: inherit; font-weight: 600; font-size: 15px; padding: 14px 16px; min-height: 52px; background: var(--sunk); color: var(--ink-2); border: 0; cursor: pointer; }
+.tab + .tab { border-left: 1px solid var(--rule); }
+.tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: inset 0 -3px 0 var(--accent); }
+.ask { padding: 22px; display: grid; gap: 10px; border-bottom: 1px solid var(--rule); }
+.budget { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; }
+.budget output { font-family: var(--font-display); font-weight: 800; font-size: 34px; letter-spacing: -.02em; min-width: 5ch; text-align: right; font-variant-numeric: tabular-nums; }
+input[type=range] { padding: 0; background: transparent; border: 0; accent-color: var(--accent); height: 44px; }
+.build { padding: 22px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 22px 32px; }
+.build .name { display: grid; gap: 6px; align-content: start; }
+.price { font-family: var(--font-display); font-weight: 800; font-size: clamp(30px, 4vw, 40px); letter-spacing: -.02em; line-height: 1; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); }
+.bom { list-style: none; margin: 0; padding: 0; font-size: 15px; }
+.bom li { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.bom li span:last-child { font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+.runs { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 13px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); color: var(--ink-2); }
+.chip.hit { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+.note { font-size: 14px; color: var(--ink-2); padding: 10px 12px; border-radius: 8px; background: var(--sunk); }
+
+/* add your rig */
+.connect { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 20px; }
+.panel { padding: 22px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.steps3 { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: s; }
+.steps3 li { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; font-size: 15px; color: var(--ink-2); }
+.steps3 li::before { counter-increment: s; content: counter(s); width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-family: var(--font-mono); font-size: 13px; font-weight: 600; display: grid; place-items: center; }
+pre.prompt { margin: 0; max-height: 200px; overflow: auto; background: var(--sunk); border: 1px solid var(--rule); border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 12px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+textarea.json { font-family: var(--font-mono); font-size: 12px; min-height: 150px; resize: vertical; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 12px; }
+.msg { font-size: 14px; padding: 9px 12px; border-radius: 8px; }
+.msg.ok { background: var(--ok-bg); color: var(--ok); }
+.msg.err { background: var(--err-bg); color: var(--err); }
+.msg ul { margin: 6px 0 0; padding-left: 18px; }
+.rigs { display: grid; gap: 0; }
+.rig { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 16px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.rig:last-child { border-bottom: 0; }
+.rig b { font-weight: 600; overflow-wrap: anywhere; }
+.rig .n { font-family: var(--font-mono); font-weight: 600; text-align: right; }
+.rig .d { grid-column: 1 / -1; font-size: 13px; color: var(--ink-3); overflow-wrap: anywhere; }
+
+/* try it */
+.demo { padding: 20px; display: grid; gap: 12px; }
+.log { display: grid; gap: 10px; max-height: 380px; overflow-y: auto; }
+.bubble { max-width: 72ch; padding: 11px 14px; border-radius: 12px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 15px; border: 1px solid var(--rule); }
+.bubble.you { justify-self: end; background: var(--sunk); }
+.bubble.wait { color: var(--ink-3); }
+.receipt { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); padding: 9px 12px; border-radius: 8px; background: var(--accent-soft); }
+.receipt b { color: var(--ink-3); font-weight: 500; margin-right: 4px; }
+.receipt .ex { text-transform: uppercase; letter-spacing: .06em; font-size: 10px; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 1px 6px; }
+.chatform { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+
+/* learn */
+.path { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); border-top: 1px solid var(--rule); }
+.path li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; padding: 18px 18px 18px 0; border-bottom: 1px solid var(--rule); }
+.path .n { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--accent); padding-top: 3px; grid-row: span 2; }
+.path b { font-weight: 600; }
+.path p { color: var(--ink-2); font-size: 15px; }
+.cmd { display: flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; margin-top: 8px; }
+.cmd code { flex: 1; min-width: 0; padding: 9px 12px; background: var(--sunk); font-family: var(--font-mono); font-size: 13px; overflow-x: auto; white-space: nowrap; }
+.cmd code::before { content: "$ "; color: var(--accent); }
+.cmd button { font: inherit; font-size: 13px; font-weight: 600; border: 0; border-left: 1px solid var(--rule); background: var(--surface); color: var(--ink); padding: 0 12px; cursor: pointer; min-width: 64px; }
+
+/* lab notes */
+.posts { display: grid; border-top: 1px solid var(--rule); }
+.post { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 6px 24px; padding: 22px 0; border-bottom: 1px solid var(--rule); }
+@media (max-width: 640px) { .post { grid-template-columns: 1fr; } }
+.post time { font-family: var(--font-mono); font-size: 13px; color: var(--ink-3); padding-top: 4px; }
+.post .body { display: grid; gap: 10px; min-width: 0; }
+.post .body > p { color: var(--ink-2); }
+.tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.tag.queued { color: var(--led); }
+.runson { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px 20px; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 10px; font-size: 14px; background: var(--surface); }
+.runson div { display: grid; gap: 1px; }
+.runson span { font-size: 12px; color: var(--ink-3); }
+
+/* about */
+.about { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px 36px; align-items: start; }
+@media (max-width: 640px) { .about { grid-template-columns: 1fr; } }
+.photo { width: 160px; height: 160px; border-radius: 50%; border: 1px dashed var(--ink-3); display: grid; place-items: center; text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); background: var(--sunk); }
+.about .text { display: grid; gap: 14px; max-width: 64ch; }
+.about .text p { color: var(--ink-2); }
+.signup { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; max-width: 520px; }
+
+footer { display: flex; flex-wrap: wrap; gap: 10px 28px; justify-content: space-between; align-items: center; font-size: 14px; color: var(--ink-3); border-top: 1px solid var(--rule); padding-top: 22px; }
+footer ul { display: flex; flex-wrap: wrap; gap: 4px 18px; list-style: none; margin: 0; padding: 0; }
+footer a { color: var(--ink-2); text-decoration: none; }
+</style>
+
+<div class="wrap">
+  <nav aria-label="Main">
+    <a class="brand" href="#top" id="top"><span class="led" aria-hidden="true"></span>run it local</a>
+    <ul>
+      <li><a href="#builds">Builds</a></li>
+      <li><a href="#rigs">Add your rig</a></li>
+      <li><a href="#learn">Learn</a></li>
+      <li><a href="#notes">Lab notes</a></li>
+      <li><a href="https://claude.ai/artifact/UkkEhZeFeq65LnQJe4i9J5">People</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero" id="builds">
+    <div class="head" style="max-width:820px">
+      <span class="kicker">Local AI, from people who run it</span>
+      <h1>Run AI on your own hardware.</h1>
+      <p class="lede">Tell us your budget or the model you want. We'll show you the build, the parts list with used prices, and what it can actually run.</p>
+      <p><a class="more" href="#rigs">Already running it local? Add your rig</a></p>
+    </div>
+
+    <div class="card finder">
+      <div class="tabs" role="tablist" aria-label="Find a build">
+        <button class="tab" role="tab" id="t-budget" aria-selected="true" aria-controls="ask-budget" type="button">I have a budget</button>
+        <button class="tab" role="tab" id="t-model" aria-selected="false" aria-controls="ask-model" type="button">I want a model</button>
+      </div>
+      <div class="ask" id="ask-budget" role="tabpanel" aria-labelledby="t-budget">
+        <label for="budget">How much do you want to spend on hardware?</label>
+        <div class="budget">
+          <input id="budget" type="range" min="200" max="5000" step="50" value="500">
+          <output id="budgetv" for="budget">$500</output>
+        </div>
+      </div>
+      <div class="ask" id="ask-model" role="tabpanel" aria-labelledby="t-model" hidden>
+        <label for="model">Which model do you want to run?</label>
+        <select id="model"></select>
+      </div>
+      <div class="build" aria-live="polite">
+        <div class="name">
+          <span class="kicker" id="b-tier"></span>
+          <h3 id="b-name"></h3>
+          <span class="price" id="b-price"></span>
+          <div class="facts" id="b-facts"></div>
+          <p style="color:var(--ink-2);font-size:15px" id="b-why"></p>
+          <div class="runs" id="b-runs" aria-label="Runs these models"></div>
+        </div>
+        <div style="display:grid;gap:14px;align-content:start;min-width:0">
+          <ul class="bom" id="b-bom" aria-label="Parts list"></ul>
+          <p class="note" id="b-gotcha"></p>
+          <div class="btns">
+            <a class="btn" href="#builds" id="b-full">See the full build</a>
+            <a class="btn alt" href="https://openrouter.ai/chat" id="b-or" target="_blank" rel="noopener">Chat on OpenRouter</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="small">Prices are rough used-market ranges as of October 2026, before tax and shipping. Live eBay prices are coming to the full build pages.</p>
+  </section>
+
+  <section id="rigs">
+    <div class="head">
+      <span class="kicker">Already running it local?</span>
+      <h2>Add your rig to the board</h2>
+      <p>Help us build a leaderboard of real hardware, not spec sheets. Paste one prompt into the AI agent on your machine, then paste its result back here. It reads your specs, runs a short test, and leaves out hostnames, paths and serials.</p>
+    </div>
+    <div class="connect">
+      <div class="card panel">
+        <ol class="steps3">
+          <li>Copy the prompt.</li>
+          <li>Paste it into Claude Code, Codex, OpenClaw, Hermes or whatever agent runs on your machine.</li>
+          <li>Paste the JSON it prints into the box on the right.</li>
+        </ol>
+        <div class="btns"><button class="btn" type="button" id="copyprompt">Copy the prompt</button><span class="small" id="copymsg" role="status"></span></div>
+        <pre class="prompt" id="prompt" tabindex="0"></pre>
+      </div>
+      <form class="card panel" id="rigform" novalidate>
+        <label for="rigjson">Your benchmark JSON
+          <textarea class="json" id="rigjson" spellcheck="false" placeholder='{ "schema": "runitlocal-bench/1", ... }'></textarea>
+        </label>
+        <div class="two">
+          <label for="righandle">Name or handle, optional<input id="righandle" maxlength="40" placeholder="Shown on the board"></label>
+          <label for="riguse">What you use it for, optional<input id="riguse" maxlength="80" placeholder="Coding, home lab, video…"></label>
+        </div>
+        <label for="rigemail">Email, optional<input id="rigemail" type="email" maxlength="120" placeholder="Only if you want us to reach out. Never shown."></label>
+        <div class="btns"><button class="btn" type="submit" id="rigsend">Add my rig</button></div>
+        <div id="rigmsg" role="status"></div>
+      </form>
+    </div>
+    <div class="card panel">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline">
+        <h3>Community rigs</h3>
+        <a class="more" href="https://claude.ai/artifact/Ci55mmJWhp3J16mq6xgVa4">Full leaderboard</a>
+      </div>
+      <div class="rigs" id="riglist"><p class="small">No community rigs yet. Yours could be the first on the board.</p></div>
+    </div>
+  </section>
+
+  <section id="try">
+    <div class="head">
+      <span class="kicker">Live on our rack</span>
+      <h2>Try it before you buy anything</h2>
+      <p>This runs on our own used GPUs, not a cloud API. The receipt under each answer shows what it took.</p>
+    </div>
+    <div class="card demo">
+      <div class="log" id="log" aria-live="polite">
+        <div class="bubble you">What's a quantized model, in two sentences?</div>
+        <div class="bubble">Quantizing stores a model's weights with fewer bits, like 4 instead of 16, so it needs a quarter of the memory and runs faster. You lose a little accuracy, usually too little to notice day to day.</div>
+        <div class="receipt"><span class="ex">Example</span><span><b>Ran on</b>2× RTX A4500</span><span><b>Model</b>Qwen3.6-35B-A3B, 4-bit</span><span><b>Speed</b>110 tok/s</span><span><b>Power</b>0.001¢</span></div>
+      </div>
+      <form class="chatform" id="chatform" novalidate>
+        <label for="chatin" class="sr">Your message</label>
+        <input id="chatin" maxlength="2000" placeholder="Ask anything" autocomplete="off">
+        <button class="btn" type="submit" id="chatsend">Send</button>
+      </form>
+      <p class="small">20 free messages a day. Nothing you type is stored.</p>
+    </div>
+  </section>
+
+  <section id="learn">
+    <div class="head">
+      <span class="kicker">Start here</span>
+      <h2>Learn it in six steps</h2>
+      <p>From your first model on the computer you already own to a server that runs your whole team. Each step is a short guide.</p>
+    </div>
+    <ol class="path">
+      <li><span class="n">01</span><b>Run your first model</b><div><p>Install Ollama, then run one command. Works on most laptops.</p><div class="cmd"><code id="cmd1">ollama run qwen3:8b</code><button type="button" id="copy1">Copy</button></div></div></li>
+      <li><span class="n">02</span><b>Know what matters</b><p>Memory, quantization, and why one card is fast and another isn't.</p></li>
+      <li><span class="n">03</span><b>Pick your build</b><p>Match a budget to the models you want. Use the finder above.</p></li>
+      <li><span class="n">04</span><b>Build it</b><p>Parts, drivers, cooling, and the cables nobody tells you about.</p></li>
+      <li><span class="n">05</span><b>Serve it</b><p>Ollama, then llama.cpp, then Open WebUI for a ChatGPT-style app.</p></li>
+      <li><span class="n">06</span><b>Make it useful</b><p>Chat with your documents, run agents, add voice.</p></li>
+    </ol>
+  </section>
+
+  <section id="notes">
+    <div class="head">
+      <span class="kicker">Lab notes</span>
+      <h2>What we tested this week</h2>
+      <p>Short write-ups from the rack: what came out, whether it runs on used hardware, and what broke.</p>
+    </div>
+    <div class="posts">
+      <article class="post">
+        <time datetime="2026-10-15">Oct 15, 2026</time>
+        <div class="body">
+          <span class="tag queued">Testing now</span>
+          <h3>NVIDIA's Nemotron 3.5 Bolt squeezes a 74B model into 24 GB</h3>
+          <p>A 74B mixture-of-experts model with 9B active, trained to run at 2-bit, with vision built in. Open weights, commercial use allowed.</p>
+          <div class="runson">
+            <div><span>Memory</span>About 24 GB</div>
+            <div><span>Cheapest build</span>2× P100 or one 3090</div>
+            <div><span>Our test</span>Queued on P100, A4500, CMP</div>
+            <div><span>Catch</span>NVIDIA's own file needs Ada or Blackwell. Use the Unsloth GGUF on older cards.</div>
+          </div>
+          <a class="more" href="https://huggingface.co/unsloth/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-GGUF" rel="noopener">Model files on Hugging Face</a>
+        </div>
+      </article>
+      <article class="post">
+        <time datetime="2026-10-19">Oct 19, 2026</time>
+        <div class="body">
+          <span class="tag">Lab note</span>
+          <h3>A billion tokens on 90 used GPUs: 2.9 days</h3>
+          <p>Qwen3.6-35B-A3B on Tesla P100s, RTX A4500s and ex-mining CMP cards. The 2016 P100s never throttled, and the A4500s won every speed test while sitting on their power cap.</p>
+          <div class="runson">
+            <div><span>2× P100</span>53 tok/s</div>
+            <div><span>2× A4500</span>110 tok/s</div>
+            <div><span>Power per 1M tokens</span>6 to 8 cents</div>
+          </div>
+          <a class="more" href="https://claude.ai/artifact/YHV3B1kMy3h6nRzbKDidFY" rel="noopener">Read the full bench</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="about">
+      <div class="photo" role="img" aria-label="Photo placeholder">Your photo<br>here</div>
+      <div class="text">
+        <span class="kicker">Who runs this</span>
+        <h2>James Buniak</h2>
+        <p>Controls and automation engineer with 15 years in PLCs, DCS and pharma validation. I built and ran a UL 508A panel shop. Now I run a rack of 90 used data-center GPUs and test what they can really do, so you don't have to guess.</p>
+        <p>Every number on this site comes from hardware we own and measure, or from rigs people like you submit. When something hasn't been tested, it says so.</p>
+        <a class="more" href="https://claude.ai/artifact/UkkEhZeFeq65LnQJe4i9J5">Meet the people behind the rack</a>
+        <div class="btns">
+          <a class="btn alt" href="#about">Local AI group on Facebook</a>
+          <a class="btn alt" href="#about">Podcast: coming soon</a>
+        </div>
+        <form class="signup" id="signup" novalidate>
+          <label for="email" class="sr">Email</label>
+          <input id="email" type="email" autocomplete="email" placeholder="Get lab notes by email" maxlength="120">
+          <button class="btn" type="submit" id="signupbtn">Subscribe</button>
+        </form>
+        <div id="signupmsg" role="status"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span style="display:inline-flex;align-items:center;gap:10px"><span class="led" aria-hidden="true"></span>Run It Local · run it yourself, own your data</span>
+    <ul>
+      <li><a href="#builds">Builds</a></li>
+      <li><a href="#rigs">Add your rig</a></li>
+      <li><a href="#notes">Lab notes</a></li>
+      <li><a href="https://claude.ai/artifact/UkkEhZeFeq65LnQJe4i9J5">People</a></li>
+      <li><a href="https://claude.ai/artifact/Ci55mmJWhp3J16mq6xgVa4">Leaderboard</a></li>
+    </ul>
+  </footer>
+</div>
+
+<script type="text/plain" id="prompt-src">You are running the Run It Local benchmark on this machine. Work step by step, show me each command before you run it, and do not install anything, download anything, or use sudo without asking me first. Do not change any system settings.
+
+PRIVACY: Never include hostnames, usernames, IP or MAC addresses, serial numbers, UUIDs, file paths under my home folder, or anything from my environment variables in the output.
+
+STEP 1: HARDWARE AND SOFTWARE
+Detect, using only read-only commands that fit this OS (Linux, Windows or macOS):
+- OS name and version, kernel
+- CPU model, physical cores, threads, max clock
+- RAM total in GB, speed in MT/s if available, number of DIMMs if available
+- Motherboard model if available
+- Each GPU: model, VRAM in GB, driver version, CUDA/ROCm/Metal version, power limit in W, current PCIe generation and width under load (nvidia-smi, rocm-smi or system_profiler)
+- Inference engine and version: llama.cpp (commit hash), Ollama, vLLM, LM Studio or other
+
+STEP 2: PICK THE TEST TIER
+Pick the largest tier that fits in total GPU memory (or unified memory on Apple Silicon), and tell me which one you picked before continuing:
+- Tier S (under 24 GB total): Qwen3-8B, Q4_K_M GGUF
+- Tier M (24 GB or more total): Qwen3.6-35B-A3B, unsloth UD-Q4_K_M GGUF
+If the model file is not already on disk, tell me the file name and size and ask before downloading it.
+
+STEP 3: RUN THE TEST
+Use llama.cpp's llama-bench with all layers on GPU and flash attention on:
+llama-bench -m <model> -ngl 99 -fa 1 -p 512,4096,16384 -n 128 -r 3 -o json
+If the model needs more than one GPU, use the default layer split and record how many cards it used.
+While it runs, sample every second and keep the min, max and average of: GPU power (W), GPU temperature (C), SM clock (MHz), VRAM used (GB), throttle reasons. On NVIDIA use:
+nvidia-smi --query-gpu=index,power.draw,temperature.gpu,clocks.sm,memory.used,clocks_throttle_reasons.active --format=csv,noheader,nounits -l 1
+Also record idle GPU power for 10 seconds before the test starts.
+If llama-bench is not available but Ollama is, run the same model with "ollama run <model> --verbose" on a fixed 500-word prompt three times and report its prompt eval and eval rates instead, and set engine name to "ollama".
+
+STEP 4: OUTPUT
+Print exactly one JSON code block in this shape, with null for anything you could not detect, then a three-line plain summary. Do not invent or estimate numbers; mark anything inferred in "notes".
+
+{
+  "schema": "runitlocal-bench/1",
+  "date": "YYYY-MM-DD",
+  "system": {
+    "os": "", "kernel": "",
+    "cpu": {"model": "", "cores": 0, "threads": 0, "max_mhz": 0},
+    "ram": {"total_gb": 0, "speed_mts": null, "dimms": null},
+    "motherboard": null
+  },
+  "gpus": [
+    {"model": "", "vram_gb": 0, "driver": "", "runtime": "", "power_limit_w": 0, "pcie": "Gen3 x16"}
+  ],
+  "engine": {"name": "llama.cpp", "version": "", "flags": "-ngl 99 -fa 1"},
+  "test": {
+    "tier": "M",
+    "model": "Qwen3.6-35B-A3B",
+    "quant": "UD-Q4_K_M",
+    "gpus_used": 2,
+    "prefill_tps": {"512": 0, "4096": 0, "16384": 0},
+    "decode_tps": 0
+  },
+  "telemetry": {
+    "idle_w": 0,
+    "power_w": {"avg": 0, "max": 0},
+    "temp_c": {"avg": 0, "max": 0},
+    "sm_mhz": {"avg": 0, "min": 0},
+    "vram_used_gb": {"max": 0},
+    "throttled": false,
+    "throttle_reasons": []
+  },
+  "derived": {
+    "joules_per_token": 0,
+    "kwh_per_million_tokens": 0
+  },
+  "notes": ""
+}
+
+Compute joules_per_token as average GPU power during decode divided by decode tok/s. Compute kwh_per_million_tokens as joules_per_token times 1,000,000 divided by 3,600,000.
+
+When you're done, tell me to paste the JSON at runitlocal.io under Submit.</script>
+
+<script>
+// Reference builds. lo/hi = rough used-market range in USD, October 2026. vram = usable GB for models.
+const BUILDS = [
+  {tier:"Starter", name:"Used desktop + RTX 3060 12 GB", lo:300, hi:400, vram:12, power:"About 200 W",
+   why:"The cheapest way to run real models on a graphics card. Fast with 8B to 14B models.",
+   bom:[["RTX 3060 12 GB","$180 to $230"],["Used desktop tower, 16 GB RAM, 450 W+ PSU","$100 to $150"],["1 TB SSD","$40 to $60"]],
+   gotcha:"Check the PSU has an 8-pin GPU cable and the case fits a full-size card. Office small-form-factor PCs usually don't."},
+  {tier:"Best value", name:"Used workstation + 2× Tesla P100", lo:450, hi:650, vram:32, power:"About 400 W under load", measured:"53 tok/s on Qwen3.6-35B-A3B, measured on our rack",
+   why:"32 GB of fast HBM2 for the price of one mid-range gaming card. Runs 30B-class models.",
+   bom:[["2× Tesla P100 16 GB (we paid about $85 each)","$170 to $240"],["Dell T7810 or HP Z840 workstation, 64 GB RAM","$200 to $300"],["2× blower fan shrouds for passive cards","$30 to $50"],["Power adapter cables (EPS to GPU)","$15 to $25"]],
+   gotcha:"P100s have no fans. Without a shroud or strong case airflow they overheat in minutes. Pascal also only works with llama.cpp-based tools."},
+  {tier:"Popular", name:"Used desktop + RTX 3090 24 GB", lo:900, hi:1200, vram:24, power:"About 400 W under load",
+   why:"The community default. 24 GB on one card, fast, and every tool supports it.",
+   bom:[["RTX 3090 24 GB","$650 to $850"],["Desktop with 32 GB RAM, 850 W PSU","$200 to $300"],["1 TB NVMe SSD","$50 to $70"]],
+   gotcha:"The 3090 is long and hot. Check case clearance and give it a quality 850 W supply."},
+  {tier:"Quiet", name:"Used Mac Studio, 64 GB unified memory", lo:1500, hi:2100, vram:48, power:"About 100 W",
+   why:"Silent and simple. Big memory for big models, slower than a GPU of the same size.",
+   bom:[["Mac Studio M1 or M2 Max, 64 GB","$1,500 to $2,100"]],
+   gotcha:"About three quarters of unified memory is usable for models by default. Speed is roughly half a 3090 on the same model."},
+  {tier:"Serious", name:"Workstation + 2× RTX 3090", lo:1900, hi:2500, vram:48, power:"About 750 W under load",
+   why:"48 GB runs 70B-class models at 4-bit and serves a small team.",
+   bom:[["2× RTX 3090 24 GB","$1,300 to $1,700"],["Workstation board with two x16 slots, 64 GB RAM","$350 to $500"],["1,200 W PSU","$150 to $220"],["Open frame or large case","$80 to $120"]],
+   gotcha:"Two 3090s need real spacing or riser cables. Expect a 1,200 W supply and a dedicated circuit."},
+  {tier:"The rack in a box", name:"Dell DSS 8440 + 10× Tesla P100", lo:2500, hi:4000, vram:160, power:"About 2 kW under load", measured:"498 tok/s across 5 lanes, measured on our rack (SV112)",
+   why:"160 GB of GPU memory. Runs the biggest open models or serves dozens of users at once.",
+   bom:[["Dell DSS 8440 GPU server","$1,500 to $3,000"],["10× Tesla P100 16 GB","$850 to $1,200"],["10× PSB 14-pin to EPS 8-pin cables","$100 to $200"]],
+   gotcha:"This is a loud data-center server. Plan for a rack, power and cooling before you buy."},
+];
+// or = OpenRouter model id, used to open a chat with that model preselected. null = not on OpenRouter.
+const MODELS = [
+  {n:"Qwen3 8B", gb:7, or:"qwen/qwen3-8b"}, {n:"Qwen3 14B", gb:11, or:"qwen/qwen3-14b"},
+  {n:"Gemma 3 27B", gb:20, or:"google/gemma-3-27b-it"},
+  {n:"Qwen3.6-35B-A3B", gb:24, or:"qwen/qwen3.6-35b-a3b"},
+  {n:"Nemotron 3.5 Bolt 74B (2-bit)", gb:24, or:null},
+  {n:"Qwen3 32B", gb:24, or:"qwen/qwen3-32b"},
+  {n:"Llama 3.3 70B", gb:44, or:"meta-llama/llama-3.3-70b-instruct"},
+  {n:"gpt-oss-120b", gb:66, or:"openai/gpt-oss-120b"},
+  {n:"Nemotron 3.5 Super VL 120B", gb:72, or:"nvidia/nemotron-3.5-super-vl"},
+];
+const OR_CHAT = id => "https://openrouter.ai/chat?models=" + encodeURIComponent(id).replace(/%2F/g, "/");
+const $ = id => document.getElementById(id);
+const usd = v => "$" + v.toLocaleString("en-US");
+const fmt = (v, d=0) => v.toLocaleString("en-US", {maximumFractionDigits:d, minimumFractionDigits:d});
+
+function show(b, hitModel) {
+  $("b-tier").textContent = b.tier;
+  $("b-name").textContent = b.name;
+  $("b-price").textContent = usd(b.lo) + " to " + usd(b.hi);
+  const f = $("b-facts"); f.replaceChildren();
+  for (const t of [b.vram + " GB for models", b.power]) { const s = document.createElement("span"); s.textContent = t; f.appendChild(s); }
+  $("b-why").textContent = b.why + (b.measured ? " " + b.measured + "." : "");
+  const r = $("b-runs"); r.replaceChildren();
+  for (const m of MODELS) if (m.gb <= b.vram) { const c = document.createElement("span"); c.className = "chip" + (hitModel === m.n ? " hit" : ""); c.textContent = m.n; r.appendChild(c); }
+  const bom = $("b-bom"); bom.replaceChildren();
+  for (const [part, price] of b.bom) { const li = document.createElement("li"); const a = document.createElement("span"); a.textContent = part; const p = document.createElement("span"); p.textContent = price; li.append(a, p); bom.appendChild(li); }
+  $("b-gotcha").textContent = b.gotcha;
+  const target = hitModel ? MODELS.find(m => m.n === hitModel) : MODELS.filter(m => m.gb <= b.vram && m.or).pop();
+  const a = $("b-or");
+  if (target && target.or) { a.hidden = false; a.href = OR_CHAT(target.or); a.textContent = "Chat with " + target.n + " on OpenRouter"; }
+  else if (target) { a.hidden = false; a.href = "https://huggingface.co/unsloth/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-GGUF"; a.textContent = target.n + ": download from Hugging Face"; }
+  else a.hidden = true;
+}
+function byBudget() {
+  const v = Number($("budget").value);
+  $("budgetv").textContent = usd(v);
+  const fits = BUILDS.filter(b => b.lo <= v);
+  show(fits.length ? fits[fits.length - 1] : BUILDS[0]);
+}
+function byModel() {
+  const m = MODELS[Number($("model").value)];
+  const b = BUILDS.slice().sort((x, y) => x.lo - y.lo).find(x => x.vram >= m.gb) || BUILDS[BUILDS.length - 1];
+  show(b, m.n);
+}
+MODELS.forEach((m, i) => { const o = document.createElement("option"); o.value = String(i); o.textContent = m.n + "  (about " + m.gb + " GB)"; $("model").appendChild(o); });
+$("model").value = "3";
+function setTab(which) {
+  const budget = which === "budget";
+  $("t-budget").setAttribute("aria-selected", String(budget));
+  $("t-model").setAttribute("aria-selected", String(!budget));
+  $("ask-budget").hidden = !budget; $("ask-model").hidden = budget;
+  budget ? byBudget() : byModel();
+}
+$("t-budget").addEventListener("click", () => setTab("budget"));
+$("t-model").addEventListener("click", () => setTab("model"));
+$("budget").addEventListener("input", byBudget);
+$("model").addEventListener("change", byModel);
+byBudget();
+
+function copyText(txt, selectEl, done, fail) {
+  const sel = () => { const r = document.createRange(); r.selectNodeContents(selectEl); const s = getSelection(); s.removeAllRanges(); s.addRange(r); fail(); };
+  try { navigator.clipboard.writeText(txt).then(done, sel); } catch (e) { sel(); }
+}
+$("copy1").addEventListener("click", () => copyText($("cmd1").textContent, $("cmd1"), () => $("copy1").textContent = "Copied", () => $("copy1").textContent = "Selected"));
+$("prompt").textContent = $("prompt-src").textContent;
+$("copyprompt").addEventListener("click", () => copyText($("prompt-src").textContent, $("prompt"), () => $("copymsg").textContent = "Copied. Paste it into your agent.", () => $("copymsg").textContent = "Selected. Press Ctrl+C or ⌘C."));
+
+// ---- benchmark JSON: rebuilt field by field from the schema, so nothing outside it is kept
+const str = (v, n=120) => typeof v === "string" ? v.slice(0, n) : null;
+const num = v => typeof v === "number" && isFinite(v) ? v : null;
+const obj = v => v && typeof v === "object" && !Array.isArray(v) ? v : {};
+function clean(j) {
+  const s = obj(j.system), cpu = obj(s.cpu), ram = obj(s.ram), e = obj(j.engine), t = obj(j.test), pf = obj(t.prefill_tps), tl = obj(j.telemetry), d = obj(j.derived);
+  const pw = obj(tl.power_w), tc = obj(tl.temp_c), vu = obj(tl.vram_used_gb);
+  return {
+    schema: str(j.schema, 40), date: str(j.date, 10),
+    system: {os: str(s.os), cpu: {model: str(cpu.model), cores: num(cpu.cores), threads: num(cpu.threads)}, ram: {total_gb: num(ram.total_gb)}},
+    gpus: (Array.isArray(j.gpus) ? j.gpus : []).slice(0, 16).map(g => { g = obj(g); return {model: str(g.model, 80), vram_gb: num(g.vram_gb), driver: str(g.driver, 40), runtime: str(g.runtime, 40), power_limit_w: num(g.power_limit_w), pcie: str(g.pcie, 20)}; }),
+    engine: {name: str(e.name, 30), version: str(e.version, 60)},
+    test: {tier: str(t.tier, 2), model: str(t.model, 60), quant: str(t.quant, 30), gpus_used: num(t.gpus_used),
+      prefill_tps: {"512": num(pf["512"]), "4096": num(pf["4096"]), "16384": num(pf["16384"])}, decode_tps: num(t.decode_tps)},
+    telemetry: {idle_w: num(tl.idle_w), power_w: {avg: num(pw.avg), max: num(pw.max)}, temp_c: {max: num(tc.max)}, vram_used_gb: {max: num(vu.max)}, throttled: typeof tl.throttled === "boolean" ? tl.throttled : null},
+    derived: {joules_per_token: num(d.joules_per_token)}
+  };
+}
+function validate(text) {
+  let j; const m = text.match(/\{[\s\S]*\}/);
+  try { j = JSON.parse(m ? m[0] : text); } catch (e) { return {errors: ["That isn't valid JSON. Paste only the JSON block your agent printed."]}; }
+  const c = clean(obj(j)), errors = [];
+  if (c.schema !== "runitlocal-bench/1") errors.push('"schema" must be "runitlocal-bench/1". Use the prompt above so the format matches.');
+  if (!c.gpus.length || !c.gpus[0].model) errors.push("At least one GPU with a model name is required.");
+  if (c.test.decode_tps == null || c.test.decode_tps <= 0) errors.push("test.decode_tps must be a number above 0.");
+  else if (c.test.decode_tps > 5000) errors.push("test.decode_tps over 5,000 tok/s looks wrong. Check the units.");
+  return {errors, clean: c};
+}
+function rigMsg(kind, text, list) {
+  const p = document.createElement("div"); p.className = "msg " + kind; p.textContent = text;
+  if (list) { const ul = document.createElement("ul"); for (const x of list) { const li = document.createElement("li"); li.textContent = x; ul.appendChild(li); } p.appendChild(ul); }
+  $("rigmsg").replaceChildren(p);
+}
+
+// ---- store: community rigs are public; emails stay private to the owner
+let db = null, uid = null;
+function renderRigs(docs) {
+  const rows = [];
+  for (const doc of docs) { const d = doc.data() || {}; for (const r of (Array.isArray(d.runs) ? d.runs : [])) if (r && r.test && r.gpus) rows.push({r, handle: d.handle, use: d.use}); }
+  if (!rows.length) return;
+  rows.sort((a, b) => String(b.r.submitted_at).localeCompare(String(a.r.submitted_at)));
+  const box = $("riglist"); box.replaceChildren();
+  for (const {r, handle, use} of rows.slice(0, 12)) {
+    const g = r.gpus[0] || {};
+    const it = document.createElement("div"); it.className = "rig";
+    const t = document.createElement("b"); t.textContent = (r.test.gpus_used || r.gpus.length) + "× " + (g.model || "GPU") + (r.test.model ? " · " + r.test.model : "");
+    const n = document.createElement("span"); n.className = "n"; n.textContent = fmt(r.test.decode_tps, 1) + " tok/s";
+    const d = document.createElement("span"); d.className = "d";
+    d.textContent = [handle ? "by " + handle : null, use, r.test.quant, r.telemetry && r.telemetry.power_w && r.telemetry.power_w.avg ? fmt(r.telemetry.power_w.avg) + " W avg" : null].filter(Boolean).join(" · ");
+    it.append(t, n, d); box.appendChild(it);
+  }
+}
+(async () => {
+  try {
+    const [d, u] = await Promise.all([claude.use("db"), claude.use("user")]);
+    db = d; uid = u ? await u.id() : null;
+    if (db) db.collection("rigs").onSnapshot(snap => renderRigs(snap.docs), () => {});
+  } catch (e) {}
+})();
+
+$("rigform").addEventListener("submit", async e => {
+  e.preventDefault();
+  const v = validate($("rigjson").value);
+  if (v.errors.length) return rigMsg("err", "Fix these and try again:", v.errors);
+  const email = $("rigemail").value.trim();
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return rigMsg("err", "That email doesn't look right. Fix it or leave it blank.");
+  if (!db || !uid) return rigMsg("err", "Your JSON checks out. Saving opens when runitlocal.io launches.");
+  $("rigsend").disabled = true;
+  try {
+    const ref = db.doc("rigs/" + uid);
+    const snap = await ref.get();
+    const runs = snap.exists && Array.isArray(snap.data().runs) ? snap.data().runs.slice() : [];
+    runs.push(Object.assign({}, v.clean, {submitted_at: new Date().toISOString()}));
+    await ref.set({handle: $("righandle").value.trim().slice(0, 40) || null, use: $("riguse").value.trim().slice(0, 80) || null, runs: runs.slice(-10)});
+    if (email) {
+      const iref = db.doc("inquiries/" + uid); const isnap = await iref.get();
+      const items = isnap.exists && Array.isArray(isnap.data().items) ? isnap.data().items.slice() : [];
+      items.push({email, type: "rig", sent_at: new Date().toISOString()});
+      await iref.set({items: items.slice(-10)});
+    }
+    rigMsg("ok", "Your rig is on the board. Thanks for adding it.");
+    $("rigform").reset();
+  } catch (err) {
+    rigMsg("err", err && err.code === "invalid_argument" ? "Your account can't submit to this preview yet." : "Couldn't save just now. Try again in a minute.");
+  }
+  $("rigsend").disabled = false;
+});
+
+// ---- live chat demo: posts to the site's /api (see SPEC.md)
+const API_BASE = window.RIL_API_BASE || "/api";
+const chat = [];
+function bubble(cls, text) { const d = document.createElement("div"); d.className = "bubble " + cls; d.textContent = text; $("log").appendChild(d); $("log").scrollTop = $("log").scrollHeight; return d; }
+function receipt(r) {
+  const d = document.createElement("div"); d.className = "receipt";
+  const add = (k, v) => { if (v == null || v === "") return; const s = document.createElement("span"); const b = document.createElement("b"); b.textContent = k; s.append(b, document.createTextNode(String(v))); d.appendChild(s); };
+  add("Ran on", r.hardware); add("Model", r.model);
+  add("Speed", r.tok_s != null ? Math.round(r.tok_s) + " tok/s" : null);
+  add("Power", r.power_cents != null ? r.power_cents.toFixed(3) + "¢" : null);
+  $("log").appendChild(d); $("log").scrollTop = $("log").scrollHeight;
+}
+$("chatform").addEventListener("submit", async e => {
+  e.preventDefault();
+  const text = $("chatin").value.trim(); if (!text) return;
+  $("chatin").value = ""; $("chatsend").disabled = true;
+  bubble("you", text); chat.push({role: "user", content: text});
+  const wait = bubble("wait", "Thinking on the rack…");
+  try {
+    const res = await fetch(API_BASE + "/chat", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({messages: chat.slice(-6)})});
+    const data = await res.json().catch(() => null);
+    if (res.status === 429) throw {msg: (data && data.error) || "That's today's 20 free messages. Come back tomorrow."};
+    if (!res.ok || !data || typeof data.reply !== "string") throw {msg: "The live demo connects when runitlocal.io launches. The example above shows what you'll get."};
+    wait.className = "bubble"; wait.textContent = data.reply; chat.push({role: "assistant", content: data.reply});
+    if (data.receipt) receipt(data.receipt);
+  } catch (err) {
+    chat.pop(); wait.className = "bubble wait"; wait.textContent = (err && err.msg) || "Couldn't reach the rack just now. Try again in a minute.";
+  }
+  $("chatsend").disabled = false;
+});
+
+// ---- email signup (private to the owner)
+function say(kind, t) { const p = document.createElement("p"); p.className = "msg " + kind; p.textContent = t; $("signupmsg").replaceChildren(p); }
+$("signup").addEventListener("submit", async e => {
+  e.preventDefault();
+  const email = $("email").value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return say("err", "That email doesn't look right. Check it and try again.");
+  if (!db || !uid) return say("err", "Signups open when runitlocal.io launches.");
+  $("signupbtn").disabled = true;
+  try {
+    const ref = db.doc("inquiries/" + uid);
+    const snap = await ref.get();
+    const items = snap.exists && Array.isArray(snap.data().items) ? snap.data().items.slice() : [];
+    items.push({email, type: "updates", sent_at: new Date().toISOString()});
+    await ref.set({items: items.slice(-10)});
+    say("ok", "You're on the list."); $("signup").reset();
+  } catch (err) { say("err", "Couldn't save that just now. Try again in a minute."); }
+  $("signupbtn").disabled = false;
+});
+</script>
+
+</body></html>
