@@ -14,6 +14,8 @@ export default function StudioTabs() {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as Element | null)?.closest?.(`a[target="${STUDIO_TAB}"]`) as HTMLAnchorElement | null;
       if (!a) return;
+      // A Studio tab that went back to the site keeps the name; drop it, or the Studio would load over this page.
+      if (window.name === STUDIO_TAB && !location.pathname.startsWith(STUDIO)) window.name = "";
       const w = window.open("", STUDIO_TAB);
       if (!w) return;
       e.preventDefault();
