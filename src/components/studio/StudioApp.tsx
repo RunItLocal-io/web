@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { ChatCompletionMessageParam } from "@mlc-ai/web-llm";
 import { pulse } from "@/components/DieField";
 import ShareButton from "@/components/ShareButton";
+import PhoneGate from "@/components/studio/PhoneGate";
 import Icon, { kindIcon } from "@/components/studio/Icon";
 import { SITE } from "@/lib/share";
 import ModelChip from "@/components/studio/ModelChip";
@@ -16,7 +17,7 @@ import { INTEGRATED, MAC_UNKNOWN } from "@/lib/gpus";
 import { deleteChat, listChats, saveChat, type Chat, type ChatFile, type SavedMsg } from "@/lib/studio/chats";
 import { deleteImage, listImages, saveImage } from "@/lib/studio/gallery";
 import {
-  PHONE_GB, STUDIO_MODELS, cantRun, examplesFor, loadModel, storedModels, studioModel, unload, type Loaded, type Progress, type StudioModel,
+  STUDIO_MODELS, cantRun, examplesFor, loadModel, storedModels, studioModel, unload, type Loaded, type Progress, type StudioModel,
 } from "@/lib/studio/models";
 import { PRESETS, loadInstructions, saveInstructions, systemPrompt } from "@/lib/studio/presets";
 import { dropSandbox, pythonBlock, sandboxFor } from "@/lib/studio/python";
@@ -105,6 +106,7 @@ export default function StudioApp() {
   const [webgpu, setWebgpu] = useState<WebGpuInfo | null>(null);
   const [gpuName, setGpuName] = useState<string | null>(null);
   const [usable, setUsable] = useState(8);
+  const [phone, setPhone] = useState(false);
   const [install, setInstall] = useState<InstallPrompt | null>(null);
   const [installed, setInstalled] = useState(false);
   const [online, setOnline] = useState(true);
@@ -183,7 +185,7 @@ export default function StudioApp() {
     detectGpu().then(async ({ detection, webgpu }) => {
       setWebgpu(webgpu);
       let gb = 8;
-      if (detection.status === "mobile") { gb = PHONE_GB; setUsable(gb); }
+      if (detection.status === "mobile") { setPhone(true); return; }
       if (detection.status === "found" || detection.status === "guess") {
         const g = detection.gpu;
         if (g !== INTEGRATED && g !== MAC_UNKNOWN) { setGpuName(g.name); whereRef.current = "your " + g.name; }
@@ -206,7 +208,7 @@ export default function StudioApp() {
         if (c?.at && Date.now() - c.at < CRASH_WINDOW_MS) crashed = studioModel(c.id ?? null);
       } catch {}
       if (crashed) {
-        add({ id: nextId++, role: "note", err: true, text: `Loading ${crashed.label} closed the page last time: this device probably ran out of memory for it. ${gb <= PHONE_GB ? "Phones can only run the smallest models here; for the rest, open the Studio on a computer." : "Close other tabs and apps, or pick a smaller model."}` });
+        add({ id: nextId++, role: "note", err: true, text: `Loading ${crashed.label} closed the page last time: this device probably ran out of memory for it. Close other tabs and apps, or pick a smaller model.` });
         return;
       }
       // Start on the last model used, else the first one this GPU can run. Reopen it now if it's already here.
@@ -445,6 +447,8 @@ export default function StudioApp() {
 
   /** Avatar beside each answer: the model's kind, lit while it works. */
   const avatar = (m: StudioModel, working: boolean) => <span className={"avatar" + (working ? " working" : "")}><Icon name={kindIcon(m.group)} /></span>;
+
+  if (phone) return <PhoneGate />;
 
   return (
     <div className="app">

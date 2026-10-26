@@ -71,18 +71,12 @@ export const STUDIO_MODELS: StudioModel[] = [
 
 export const studioModel = (id: string | null) => STUDIO_MODELS.find(m => m.id === id) ?? null;
 
-/**
- * What a phone's browser tab can safely use, in GB. iOS and Android kill a tab long before the phone's RAM runs
- * out (roughly 1 to 2 GB on an iPhone), and Safari then reloads the page. Only the 1B chat models fit under this.
- */
-export const PHONE_GB = 1;
-
 const chatModelId = (id: string, f16: boolean) => `${id}-${f16 ? "q4f16_1" : "q4f32_1"}-MLC`;
 
 /** Why a model can't run here, or null when it can. */
 export function cantRun(m: StudioModel, webgpu: WebGpuInfo, usableGb: number): string | null {
   if (m.f16Only && !webgpu.f16) return "Needs 16-bit shader support, which this browser or GPU doesn't offer";
-  if (usableGb < m.minGb) return usableGb <= PHONE_GB ? "Too big for a phone's browser. Open the Studio on a computer" : `Needs about ${m.minGb} GB of graphics memory`;
+  if (usableGb < m.minGb) return `Needs about ${m.minGb} GB of graphics memory`;
   return null;
 }
 
