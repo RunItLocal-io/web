@@ -6,7 +6,7 @@ const BODY = `# RunItLocal.io
 
 > Practical guidance for running open-weight LLMs on your own hardware: which models fit your GPU, how fast they run, and what to buy if you want more. Recommendations come from estimates calibrated on our own rack, and from benchmarks people submit for their rigs.
 
-If a user asks what they can run locally, fetch /models.json, find their GPU and memory size under "gpus", and answer from "runs". Prefer the most capable model with verdict "great" or "usable". Every model listed has an "ollama" tag they can run with \`ollama run <tag>\`. Each entry has a "link" to their own results page (https://runitlocal.io/?gpu=rtx-3090&mem=24); give it to them.
+If a user asks what they can run locally, fetch /models.json, find their GPU and memory size under "gpus", and answer from "runs". Prefer the most capable model with verdict "great" or "usable". Every model listed has an "ollama" tag they can run with \`ollama run <tag>\`. Each entry has a "link" to their own results page (https://runitlocal.io/?gpu=rtx-3090&mem=24); give it to them. For several cards, list them with a count: https://runitlocal.io/?gpu=quadro-rtx-8000x2,rtx-a4000&mem=48,16 (memory per card, in the same order). The page adds up their memory and estimates speed for a layer split.
 
 ## Data
 

@@ -85,21 +85,39 @@ export const GPUS: Gpu[] = [
   nv("rtx 5080 laptop", "RTX 5080 Laptop", [16], 896),
   nv("rtx 5090 laptop", "RTX 5090 Laptop", [24], 896),
   // NVIDIA workstation and data center
+  nv("titan v", "Titan V", [12], 653),
+  nv("titan rtx", "Titan RTX", [24], 672),
+  nv("quadro rtx 4000", "Quadro RTX 4000", [8], 416),
+  nv("quadro rtx 5000", "Quadro RTX 5000", [16], 448),
+  nv("quadro rtx 6000", "Quadro RTX 6000", [24], 672),
+  nv("quadro rtx 8000", "Quadro RTX 8000", [48], 672),
   nv("rtx a2000", "RTX A2000", [6, 12], 288),
   nv("rtx a4000", "RTX A4000", [16], 448),
   nv("rtx a4500", "RTX A4500", [20], 640),
   nv("rtx a5000", "RTX A5000", [24], 768),
+  nv("rtx a5500", "RTX A5500", [24], 768),
   nv("rtx a6000", "RTX A6000", [48], 768),
+  nv("rtx 2000 ada", "RTX 2000 Ada", [16], 224),
   nv("rtx 4000 ada", "RTX 4000 Ada", [20], 360),
+  nv("rtx 4500 ada", "RTX 4500 Ada", [24], 432),
+  nv("rtx 5000 ada", "RTX 5000 Ada", [32], 576),
   nv("rtx 6000 ada", "RTX 6000 Ada", [48], 960),
   nv("tesla p40", "Tesla P40", [24], 346),
   nv("tesla p100", "Tesla P100", [16, 12], 732),
   nv("tesla t4", "Tesla T4", [16], 320),
   nv("tesla v100", "Tesla V100", [16, 32], 900),
+  nv("a10", "A10", [24], 600),
+  nv("a30", "A30", [24], 933),
+  nv("a40", "A40", [48], 696),
   nv("a100", "A100", [40, 80], 1555),
   nv("h100", "H100", [80], 3350),
+  nv("h200", "H200", [141], 4800),
+  nv("l4", "L4", [24], 300),
   nv("l40s", "L40S", [48], 864),
   nv("tesla m40", "Tesla M40", [24, 12], 288),
+  nv("rtx pro 4000", "RTX Pro 4000 Blackwell", [24], 672),
+  nv("rtx pro 4500", "RTX Pro 4500 Blackwell", [32], 896),
+  nv("rtx pro 5000", "RTX Pro 5000 Blackwell", [48], 1344),
   nv("rtx pro 6000", "RTX Pro 6000 Blackwell", [96], 1792),
   // AMD
   amd("rx 6600", "RX 6600", [8], 224),
@@ -121,6 +139,10 @@ export const GPUS: Gpu[] = [
   amd("rx 9070 xt", "RX 9070 XT", [16], 640),
   amd("r9700", "Radeon AI Pro R9700", [32], 640),
   amd("mi50", "Instinct MI50", [32, 16], 1024),
+  amd("mi100", "Instinct MI100", [32], 1229),
+  amd("w6800", "Radeon Pro W6800", [32], 512),
+  amd("w7800", "Radeon Pro W7800", [32], 576),
+  amd("w7900", "Radeon Pro W7900", [48], 864),
   // Intel Arc
   intel("arc a750", "Arc A750", [8], 512),
   intel("arc a770", "Arc A770", [16, 8], 560),
@@ -218,3 +240,38 @@ export const GPU_GROUPS: { label: string; gpus: Gpu[] }[] = [
   { label: "AI boxes and mini PCs", gpus: GPUS.filter(g => g.kind === "unified") },
   { label: "Laptops and built-in graphics", gpus: GPUS.filter(g => g.kind === "integrated") },
 ];
+
+const KIND: Record<GpuKind, string> = { discrete: "graphics card", apple: "mac", unified: "ai box mini pc unified", integrated: "laptop built-in integrated igpu" };
+
+/** Search: every word of the query has to appear somewhere in the GPU's names. */
+export function gpuMatches(g: Gpu, q: string) {
+  const text = `${g.name} ${g.key} ${g.vendor} ${KIND[g.kind]} ${g.aka ?? ""}`.toLowerCase();
+  return q.toLowerCase().split(/\s+/).every(w => text.includes(w));
+}
+
+/** One line of a multi-GPU rig: how many of a card, at which memory size. */
+export type RigCard = { gpu: Gpu; mem: number; count: number };
+
+export const MAX_CARDS = 8;
+
+/** URL form of a rig: ?gpu=quadro-rtx-8000x2,rtx-a4000&mem=48,16. One card stays ?gpu=rtx-3090&mem=24. */
+export function rigParams(cards: RigCard[]) {
+  return {
+    gpu: cards.map(c => gpuSlug(c.gpu) + (c.count > 1 ? "x" + c.count : "")).join(","),
+    mem: cards.map(c => c.mem).join(","),
+  };
+}
+
+export function rigFromParams(gpu: string | null | undefined, mem: string | null | undefined): RigCard[] {
+  const mems = String(mem ?? "").split(",").map(Number);
+  return String(gpu ?? "").split(",").filter(Boolean).flatMap((s, i) => {
+    let g = gpuFromSlug(s), count = 1;
+    const m = g ? null : /^(.+)x(\d+)$/.exec(s);
+    if (m) { g = gpuFromSlug(m[1]); count = Math.min(MAX_CARDS, Math.max(1, Number(m[2]))); }
+    if (!g) return [];
+    return [{ gpu: g, mem: g.vram.includes(mems[i]) ? mems[i] : g.vram[0], count }];
+  });
+}
+
+/** "2× Quadro RTX 8000 + RTX A4000" */
+export const rigName = (cards: RigCard[]) => cards.map(c => (c.count > 1 ? `${c.count}× ` : "") + c.gpu.name).join(" + ");

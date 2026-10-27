@@ -27,7 +27,7 @@ const PEOPLE: Person[] = [
     meta: ["Pennsylvania, USA", "Controls and automation"],
     bio: "Controls and automation engineer with 15 years in PLCs, DCS and pharmaceutical validation. Built and ran a UL 508A panel shop. Now runs a rack of 90 used data-center GPUs and measures what they can really do, so you don't have to guess.",
     works: ["GPU rack and benchmarks", "Builds and parts lists", "Podcast host", "Private AI installs"],
-    links: [{ label: "Local AI group", href: "#" }, { label: "PLC group, 222K members", href: "#" }, { label: "LinkedIn", href: "https://www.linkedin.com/in/jamesbuniak/" }, { label: "GitHub", href: "https://github.com/jamesbuniak" }, { label: "PLCcode.ai", href: "https://plccode.ai" }],
+    links: [{ label: "Dark Compute", href: "https://darkcompute.io/?utm_source=runitlocal&utm_content=people" }, { label: "Local AI group", href: "#" }, { label: "PLC group, 222K members", href: "#" }, { label: "LinkedIn", href: "https://www.linkedin.com/in/jamesbuniak/" }, { label: "GitHub", href: "https://github.com/jamesbuniak" }, { label: "PLCcode.ai", href: "https://plccode.ai" }],
   },
   {
     name: "Md Moazzem Hossain",
@@ -68,7 +68,7 @@ const PEOPLE: Person[] = [
     meta: ["Bethlehem, USA", "Technologist and videographer"],
     bio: "Avid technologist and videographer with more than 15 years behind the camera. Brent racks and cables the GPU servers, gets models running on them, and builds AI-ready PCs for friends. On the podcast he runs the cameras, live switching and edits. By day he manages a unit at Clubhouse of Lehigh County, where AI now builds his spreadsheets and newsletters.",
     works: ["Videography and editing", "Podcast production", "GPU server installs", "AI PC builds"],
-    links: [{ label: "LinkedIn", href: "https://www.linkedin.com/in/brent-forschner-96969b365/" }],
+    links: [{ label: "LinkedIn", href: "https://www.linkedin.com/in/brent-forschner-96969b365/" }, { label: "GitHub", href: "https://github.com/brentanthonyproductions" }],
   },
 ];
 

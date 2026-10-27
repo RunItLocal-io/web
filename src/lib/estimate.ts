@@ -3,7 +3,7 @@
 // that ceiling. Efficiencies are calibrated against our rack: 2× A4500 measured 110 tok/s on a 3B-active MoE.
 
 import { BUILDS, type Build } from "./builds";
-import type { Gpu } from "./gpus";
+import type { Gpu, RigCard } from "./gpus";
 
 export type LocalModel = {
   name: string;
@@ -25,6 +25,8 @@ export const LOCAL_MODELS: LocalModel[] = [
   { name: "Qwen3 32B", tag: "qwen3:32b", file: 20, active: 20, blurb: "Strong coding and long answers" },
   { name: "Llama 3.3 70B", tag: "llama3.3:70b", file: 43, active: 43, blurb: "Close to the big cloud models" },
   { name: "gpt-oss 120B", tag: "gpt-oss:120b", file: 65, active: 2.9, blurb: "OpenAI's largest open model" },
+  { name: "Qwen3 235B-A22B", tag: "qwen3:235b", file: 142, active: 13.3, blurb: "Alibaba's flagship open model, for multi-GPU rigs" },
+  { name: "DeepSeek R1 671B", tag: "deepseek-r1:671b", file: 404, active: 22.3, blurb: "The full DeepSeek R1, for the biggest rigs" },
 ];
 
 /** URL form of a model, as in /model/qwen3-32b. */
@@ -60,6 +62,25 @@ export function usableGb(gpu: Pick<Gpu, "kind">, mem: number) {
   if (gpu.kind === "unified") return mem * 0.75;
   if (gpu.kind === "integrated") return mem * 0.6;
   return mem;
+}
+
+/** Each card past the first keeps some memory for its own runtime buffers. */
+const PER_CARD_GB = 0.5;
+
+/**
+ * Several cards split a model by layers: their memory adds up, and each token passes through every card in turn.
+ * With weights spread in proportion to memory, speed works out to total memory over the time each card takes to
+ * read its share, so a slow card in the mix drags the whole rig toward its speed.
+ */
+export function combineRig(cards: RigCard[]) {
+  const parts = cards.map(c => ({ gb: c.count * usableGb(c.gpu, c.mem), bw: c.gpu.bw }));
+  const total = parts.reduce((s, p) => s + p.gb, 0);
+  const n = cards.reduce((s, c) => s + c.count, 0);
+  return {
+    usable: total - PER_CARD_GB * (n - 1),
+    bw: total / parts.reduce((s, p) => s + p.gb / p.bw, 0),
+    memGb: cards.reduce((s, c) => s + c.count * c.mem, 0),
+  };
 }
 
 export function estimate(m: LocalModel, bw: number, usable: number) {

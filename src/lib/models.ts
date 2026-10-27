@@ -75,6 +75,18 @@ export const MODEL_INFO: Record<string, ModelInfo> = {
     goodFor: ["The strongest reasoning you can run at home", "Agents and tool calling", "Big-memory Macs and multi-GPU rigs"],
     skip: ["Anything under 64 GB of memory", "Image input: it is text only"],
   },
+  "qwen3:235b": {
+    maker: "Alibaba (Qwen)", params: "235B total, 22B active (mixture of experts)", released: "April 2025", license: "Apache 2.0", context: "32K tokens, 128K with YaRN",
+    about: "The largest Qwen3. It needs about 145 GB to load, so it is a model for multi-GPU rigs and the biggest Macs, but with 22B active parameters it runs at a usable speed once it fits.",
+    goodFor: ["Hard coding and reasoning on a multi-GPU rig", "Thinking mode on long problems", "A step up when gpt-oss 120B isn't enough"],
+    skip: ["Anything under about 150 GB of memory", "Image input: it is text only"],
+  },
+  "deepseek-r1:671b": {
+    maker: "DeepSeek", params: "671B total, 37B active (mixture of experts)", released: "January 2025", license: "MIT", context: "128K tokens",
+    about: "The full DeepSeek R1, not one of the small distilled versions that share its name. It needs over 400 GB at 4-bit, so it takes a server-class rig, such as five 96 GB cards.",
+    goodFor: ["The deepest step-by-step reasoning you can run yourself", "Math and hard coding problems", "Teams with a big multi-GPU server"],
+    skip: ["Any single GPU or Mac: it won't fit", "Quick answers: it thinks at length before replying"],
+  },
 };
 
 export function modelFromSlug(s: string) {

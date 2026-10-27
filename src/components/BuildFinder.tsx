@@ -4,17 +4,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { BUILDS, MODELS, NEMOTRON_BOLT_GGUF, buildForBudget, buildForModel, orChat, usd, type Build } from "@/lib/builds";
 import { pickHero, rateAll, usableGb } from "@/lib/estimate";
-import { GPUS, gpuSlug, type Gpu } from "@/lib/gpus";
+import { GPUS, gpuMatches, gpuSlug, type Gpu } from "@/lib/gpus";
 import { STUDIO, tabFor } from "@/lib/studio/links";
 
 type Tab = "budget" | "model" | "search";
 
 const SUGGEST = ["DGX Spark", "Strix Halo", "Mac", "RTX 3090", "Laptop", "Chromebook"];
-const KIND: Record<Gpu["kind"], string> = { discrete: "graphics card", apple: "mac", unified: "ai box mini pc unified", integrated: "laptop built-in integrated igpu" };
 
 // Every word of the query has to appear somewhere in the item's text.
 const hits = (text: string, q: string) => q.split(/\s+/).every(w => text.includes(w));
-const gpuText = (g: Gpu) => `${g.name} ${g.key} ${g.vendor} ${KIND[g.kind]} ${g.aka ?? ""}`.toLowerCase();
 const buildText = (b: Build) => `${b.tier} ${b.name} ${b.why} ${b.bom.map(p => p[0]).join(" ")}`.toLowerCase();
 const best = (g: Gpu) => pickHero(rateAll(g.bw, usableGb(g, g.vram[0])))?.name ?? "browser models";
 const price = (b: Build) => b.hi === 0 ? "Free" : `${usd(b.lo)} to ${usd(b.hi)}`;
@@ -28,7 +26,7 @@ export default function BuildFinder() {
 
   const q = query.trim().toLowerCase();
   const foundBuilds = q ? BUILDS.filter(b => hits(buildText(b), q)) : [];
-  const foundGpus = q ? GPUS.filter(g => hits(gpuText(g), q)) : [];
+  const foundGpus = q ? GPUS.filter(g => gpuMatches(g, q)) : [];
 
   const model = MODELS[modelIdx];
   const hitModel = tab === "model" ? model.n : undefined;

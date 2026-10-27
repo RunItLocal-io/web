@@ -25,7 +25,14 @@
 .facts-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
 .linkish { font: inherit; font-size: 14px; font-weight: 500; color: var(--ink-2); background: none; border: 0; padding: 4px 0; cursor: pointer; text-decoration: underline; text-decoration-color: var(--rule-2); text-underline-offset: 4px; transition: color .2s; }
 .linkish:hover { color: var(--accent); }
-.picker { max-width: 420px; }
+.picker { display: grid; gap: 8px; max-width: 460px; }
+.picker > label { font-size: 14px; color: var(--ink-2); }
+.pick-list { list-style: none; margin: 0; padding: 4px; display: grid; border: 1px solid var(--rule-2); border-radius: 10px; background: var(--surface-solid); }
+.pick-list li { display: flex; justify-content: space-between; gap: 12px; padding: 9px 10px; border-radius: 7px; cursor: pointer; }
+.pick-list li[aria-selected="true"] { background: var(--accent-soft); }
+.pick-list li span { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); white-space: nowrap; }
+.rig-cards { display: grid; gap: 12px; justify-items: start; }
+.rig-name { font-weight: 600; color: var(--ink); }
 
 /* HUD panel with corner brackets */
 .hud {
