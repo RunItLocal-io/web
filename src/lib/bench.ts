@@ -1,6 +1,7 @@
-// The benchmark prompt people paste into their local agent, and the validator for the JSON it prints back.
+// The benchmark prompt people paste into their local agent, and the validator for the JSON it prints back. The
+// result is sent in with the share form on /learn/posts, so we can read it and write it up.
 
-/** The tests people can pick. Results are only ranked against runs of the same test. */
+/** The tests people can pick. Results only compare with runs of the same test. */
 export const TESTS = [
   { tier: "S", model: "Qwen3-8B", quant: "Q4_K_M", fits: "Any GPU with 8 GB or more",
     repo: "Qwen/Qwen3-8B-GGUF", file: "Qwen3-8B-Q4_K_M.gguf", gb: 5.03,
@@ -12,7 +13,7 @@ export const TESTS = [
 
 export type Tier = (typeof TESTS)[number]["tier"];
 
-/** Engines whose numbers are comparable on the board. */
+/** Engines whose numbers compare with each other. */
 export const ENGINES = ["llama.cpp", "ollama"] as const;
 
 const modelLine = (t: (typeof TESTS)[number], when = "") =>
@@ -34,25 +35,19 @@ Use this test. If it does not fit in total GPU memory (or unified memory on Appl
 ${modelLine(t)}
 ${MODEL_RULES}`;
 
-const FINISH_PASTE = "When you're done, tell me to paste the JSON at runitlocal.io under Submit.";
+const FINISH = "When you're done, tell me I can send the JSON to RunItLocal.io by pasting it into the form at https://runitlocal.io/learn/posts#share, if I want to.";
 
-const finishPost = (url: string) => `STEP 6: SUBMIT
-Save the JSON to a file, show it to me, and once I say yes, send it to the RunItLocal.io leaderboard:
-curl -sS -X POST "${url}" -H "Content-Type: application/json" --data-binary @<file>
-(On Windows without curl, use Invoke-RestMethod -Method Post -ContentType "application/json" -InFile <file> -Uri "${url}".)
-Show me the response. It says where my rig landed on the board. The link works once.`;
-
-/** The prompt for one run: a picked test or auto, and either a one-time submit link or the paste-it-back ending. */
-export function benchPrompt({ tier, submitUrl }: { tier?: Tier; submitUrl?: string } = {}) {
+/** The prompt for one run, with a picked test or letting the agent pick. */
+export function benchPrompt({ tier }: { tier?: Tier } = {}) {
   const t = TESTS.find(x => x.tier === tier);
-  return BASE.replace("{{STEP2}}", t ? step2Fixed(t) : STEP2_AUTO).replace("{{FINISH}}", submitUrl ? finishPost(submitUrl) : FINISH_PASTE);
+  return BASE.replace("{{STEP2}}", t ? step2Fixed(t) : STEP2_AUTO).replace("{{FINISH}}", FINISH);
 }
 
 const BASE = `You are running the RunItLocal.io benchmark on this machine. Work step by step, show me each command before you run it, and do not install anything, download anything, or use sudo without asking me first. Do not change any system settings.
 
 PRIVACY: Never include hostnames, usernames, IP or MAC addresses, serial numbers, UUIDs, file paths under my home folder, or anything from my environment variables in the output.
 
-If anything this prompt needs is missing, stop and tell me the options. Never substitute another engine, model, format or quant; those results are not comparable and will be rejected.
+If anything this prompt needs is missing, stop and tell me the options. Never substitute another engine, model, format or quant; those results are not comparable with anyone else's.
 
 STEP 1: HARDWARE AND SOFTWARE
 Detect, using only read-only commands that fit this OS (Linux, Windows or macOS):
@@ -162,7 +157,7 @@ export function validate(text: string): {errors: string[]; clean?: BenchRun} {
   if (!c.gpus.length || !c.gpus[0].model) errors.push("At least one GPU with a model name is required.");
   if (c.test.decode_tps == null || c.test.decode_tps <= 0) errors.push("test.decode_tps must be a number above 0.");
   else if (c.test.decode_tps > 5000) errors.push("test.decode_tps over 5,000 tok/s looks wrong. Check the units.");
-  if (!ENGINES.some(e => e === c.engine.name)) errors.push(`engine.name must be ${ENGINES.join(" or ")}. Other engines aren't comparable on the board.`);
+  if (!ENGINES.some(e => e === c.engine.name)) errors.push(`engine.name must be ${ENGINES.join(" or ")}. Other engines don't compare with other runs.`);
   const t = TESTS.find(x => x.tier === c.test.tier);
   if (!t) errors.push(`test.tier must be ${TESTS.map(x => x.tier).join(" or ")}.`);
   else if (c.test.quant !== t.quant) errors.push(`Tier ${t.tier} must use ${t.file} (quant ${t.quant}).`);

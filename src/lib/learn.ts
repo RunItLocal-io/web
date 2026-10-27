@@ -8,6 +8,8 @@
 //   order: 2                           (optional, position within the track)
 //   nav: VRAM needs                    (optional, sidebar label; defaults to the title up to any colon)
 //   ---
+// A post is dated news from the rack or from a reader, not a guide: "kind: post" instead of a track, and optionally
+// "by: Sam R." to credit whoever sent it in. Posts list newest first on /learn/posts and stay out of the sidebar.
 // Files starting with "_" are drafts and planning notes, never published.
 
 import { readdirSync, readFileSync } from "node:fs";
@@ -28,12 +30,16 @@ export type TrackId = (typeof TRACKS)[number]["id"];
 
 export type Article = {
   slug: string;
+  kind: "guide" | "post";
   title: string;
   /** Short label for the sidebar. */
   nav: string;
   description: string;
-  track: TrackId;
+  /** Guides only; null for a post. */
+  track: TrackId | null;
   date: string;
+  /** Who sent a post in, when it wasn't us. */
+  by: string | null;
   models: string[];
   order: number;
   body: string;
@@ -47,12 +53,14 @@ function parse(slug: string, raw: string): Article {
     const i = line.indexOf(":");
     if (i > 0) meta[line.slice(0, i).trim()] = line.slice(i + 1).trim().replace(/^"(.*)"$/, "$1");
   }
-  const track = TRACKS.find(t => t.id === meta.track)?.id;
-  if (!meta.title || !meta.description || !track || !/^\d{4}-\d{2}-\d{2}$/.test(meta.date ?? "")) {
-    throw new Error(`content/learn/${slug}.md: needs title, description, track (${TRACKS.map(t => t.id).join("|")}) and date (YYYY-MM-DD)`);
+  const kind = meta.kind === "post" ? "post" : "guide";
+  const track = TRACKS.find(t => t.id === meta.track)?.id ?? null;
+  if (!meta.title || !meta.description || (kind === "guide" && !track) || !/^\d{4}-\d{2}-\d{2}$/.test(meta.date ?? "")) {
+    throw new Error(`content/learn/${slug}.md: needs title, description, date (YYYY-MM-DD), and a track (${TRACKS.map(t => t.id).join("|")}) or "kind: post"`);
   }
   return {
-    slug, title: meta.title, nav: meta.nav || meta.title.split(":")[0].trim(), description: meta.description, track, date: meta.date,
+    slug, kind, title: meta.title, nav: meta.nav || meta.title.split(":")[0].trim(), description: meta.description,
+    track: kind === "guide" ? track : null, date: meta.date, by: meta.by || null,
     models: meta.models ? meta.models.split(",").map(s => s.trim()).filter(Boolean) : [],
     order: Number(meta.order) || 99,
     body: m[2].trim(),
@@ -74,8 +82,13 @@ export function articles(): Article[] {
 
 export const article = (slug: string) => articles().find(a => a.slug === slug) ?? null;
 
+export const guides = () => articles().filter(a => a.kind === "guide");
+
+/** Posts, newest first. */
+export const posts = () => articles().filter(a => a.kind === "post");
+
 /** A track's articles in reading order. */
-export const inTrack = (track: TrackId) => articles().filter(a => a.track === track).sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
+export const inTrack = (track: TrackId) => guides().filter(a => a.track === track).sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
 
 export const aboutModel = (slug: string) => articles().filter(a => a.models.includes(slug));
 

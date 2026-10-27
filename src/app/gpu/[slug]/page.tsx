@@ -4,11 +4,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import CopyCommand from "@/components/CopyCommand";
 import JsonLd, { crumbsLd, faqLd } from "@/components/JsonLd";
 import Lineup from "@/components/Lineup";
-import MeasuredRuns from "@/components/MeasuredRuns";
 import Page, { PageHead } from "@/components/Page";
 import { VERDICT_PHRASE, fmtTps, pickHero, pickUpgrade, rateAll, usableGb } from "@/lib/estimate";
 import { GPUS, gpuFromSlug, gpuSlug, type Gpu } from "@/lib/gpus";
@@ -96,13 +94,6 @@ export default async function GpuPage({ params }: PageProps<"/gpu/[slug]">) {
         </div>
       </section>
 
-      <section aria-labelledby="measured-h">
-        <div className="head"><span className="kicker">Measured, not estimated</span><h2 id="measured-h">Real runs on the {g.name}</h2></div>
-        <Suspense fallback={<div className="card panel"><p className="small">Loading measured runs…</p></div>}>
-          <MeasuredRuns gpu={g} />
-        </Suspense>
-      </section>
-
       <section className="gpu-notes">
         <div className="card panel">
           <b>How we estimate</b>
@@ -111,7 +102,7 @@ export default async function GpuPage({ params }: PageProps<"/gpu/[slug]">) {
             {g.kind === "apple" ? " macOS lets the GPU use about two thirds to three quarters of unified memory, so that is what we count." : ""}
             {g.kind === "unified" ? " The GPU shares memory with the system, so we count about three quarters of it for models." : ""}
             {g.kind === "integrated" ? " Built-in graphics share system memory, so we count about 60% of it. The easiest start is a small model in your browser in the Studio." : ""}
-            {" "}Real results are usually within about a third. Measured runs are on the <Link href="/leaderboard">leaderboard</Link>.
+            {" "}Real results are usually within about a third. Measured one yourself? <Link href="/learn/posts#share">Send us the number</Link>.
           </p>
         </div>
         {upgrade && (

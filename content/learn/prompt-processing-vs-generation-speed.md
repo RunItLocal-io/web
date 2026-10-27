@@ -58,7 +58,7 @@ ollama run qwen3:30b --verbose
 
 **Prompt eval rate** is prefill. **Eval rate** is decode. For a fair prefill number, paste in something long; a one-line prompt is too short to measure.
 
-With llama.cpp, `llama-bench` measures them separately. Our [leaderboard](/leaderboard) test uses it to record prefill at 512, 4,096 and 16,384 tokens, and decode on 128 new tokens, so you can see how a rig handles both. The method is in [what the leaderboard measures](/learn/what-the-leaderboard-measures).
+With llama.cpp, `llama-bench` measures them separately. [Our benchmark](/learn/how-we-benchmark) uses it to record prefill at 512, 4,096 and 16,384 tokens, and decode on 128 new tokens, so you can see how a rig handles both.
 
 ## Which number to care about
 

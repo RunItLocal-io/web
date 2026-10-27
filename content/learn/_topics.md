@@ -36,7 +36,7 @@ a rack measurement, a calculator embed ({{lineup gpu-slug}}), a real parts list,
 - [x] what-is-a-system-prompt: and how to set one locally
 - [x] temperature-and-sampling: settings that matter
 - [x] power-and-heat-of-local-ai: watts, electricity cost per million tokens (rack data)
-- [x] what-the-leaderboard-measures: how we benchmark
+- [x] how-we-benchmark: how we benchmark (was what-the-leaderboard-measures)
 
 ## models: Pick a model
 - [x] best-local-llm-for-8gb-vram

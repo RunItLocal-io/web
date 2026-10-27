@@ -1,0 +1,12 @@
+.admin { display: grid; gap: 16px; }
+.admin-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.admin-login { max-width: 420px; }
+.admin-item { display: grid; gap: 12px; }
+.admin-item header { display: grid; gap: 4px; }
+.admin-item h2 { font-size: 20px; overflow-wrap: anywhere; }
+.admin-item.used, .admin-item.dismissed { opacity: .7; }
+.admin-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink-2); }
+.admin-run { display: grid; gap: 8px; }
+.admin-item .btns form { display: contents; }
+.admin-done { display: grid; gap: 16px; }
+.admin-done summary { cursor: pointer; color: var(--ink-2); margin-bottom: 16px; }

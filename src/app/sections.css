@@ -101,3 +101,12 @@ textarea.json { font-family: var(--font-mono); font-size: 12px; min-height: 150p
 .signup { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; max-width: 520px; }
 .signup-wrap { display: grid; gap: 10px; }
 .trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+
+/* A choice shown as cards, one radio each. */
+.picks { border: 0; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 10px; }
+.picks legend { font-size: 14px; color: var(--ink-2); margin-bottom: 8px; }
+.pick { display: grid; gap: 4px; padding: 14px; border: 1px solid var(--rule-2); border-radius: 12px; cursor: pointer; background: var(--surface); position: relative; }
+.pick input { position: absolute; opacity: 0; pointer-events: none; }
+.pick b { color: var(--ink); font-weight: 600; }
+.pick.on { border-color: var(--accent); background: var(--accent-soft); box-shadow: 0 0 14px rgba(200, 255, 46, .2); }
+.pick:has(input:focus-visible) { box-shadow: 0 0 0 3px var(--accent-soft); }

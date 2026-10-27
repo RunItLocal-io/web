@@ -1,4 +1,4 @@
-// Podcast sign-ups: one JSON file in DATA_DIR (the same Docker volume as the leaderboard). Emails are never
+// Podcast sign-ups: one JSON file in DATA_DIR (the same Docker volume as the submissions queue). Emails are never
 // shown on the site or returned by any API; this file is only read by whoever sends the episodes.
 
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";

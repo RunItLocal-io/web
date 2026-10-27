@@ -9,7 +9,6 @@ import Page, { PageHead } from "@/components/Page";
 import { VERDICT_LABEL, fmtTps, modelSlug, needGb, type Rated } from "@/lib/estimate";
 import { gpuSlug, type Gpu } from "@/lib/gpus";
 import { MATCHUPS, compareSummary, hasPair, isShared, matchupFromSlug, matchupHref, matchupSlug, matchupsFor, memWord, pairHref } from "@/lib/pairs";
-import "@/app/leaderboard/leaderboard.css";
 import "@/components/lineup.css";
 import "../../catalog.css";
 
@@ -106,7 +105,7 @@ export default async function ComparePage({ params }: PageProps<"/compare/[pair]
         </div>
         <div className="card panel">
           <b>How we estimate</b>
-          <p className="small">Both columns use the same formula: memory bandwidth divided by the weights read per token, calibrated on our own rack, with Ollama&apos;s default 4-bit sizes. Real results are usually within about a third. Measured runs are on the <Link href="/leaderboard">leaderboard</Link>.</p>
+          <p className="small">Both columns use the same formula: memory bandwidth divided by the weights read per token, calibrated on our own rack, with Ollama&apos;s default 4-bit sizes. Real results are usually within about a third. Measured either one? <Link href="/learn/posts#share">Send us the number</Link>.</p>
         </div>
       </section>
 

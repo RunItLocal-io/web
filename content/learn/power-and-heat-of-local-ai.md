@@ -51,7 +51,7 @@ nvidia-smi --query-gpu=power.draw,temperature.gpu --format=csv -l 1
 
 That's the GPU only. A plug-in power meter at the wall gives you the whole machine, including CPU, fans and power supply losses, which is the number your electricity bill sees.
 
-Our [leaderboard](/leaderboard) records average GPU power during the test and reports **joules per token** for every rig, so you can compare efficiency, not just speed. See [what the leaderboard measures](/learn/what-the-leaderboard-measures).
+Our [benchmark](/learn/how-we-benchmark) records average GPU power during the test and reports **joules per token**, so you can compare efficiency, not just speed.
 
 ## Cut power without losing much speed
 

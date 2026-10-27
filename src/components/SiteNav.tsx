@@ -12,7 +12,6 @@ export const SECTIONS = [
   { href: "/builds", label: "Builds" },
   { href: "/learn", label: "Learn" },
   { href: "/podcast", label: "Podcast" },
-  { href: "/leaderboard", label: "Leaderboard" },
   { href: "/people", label: "People" },
 ];
 

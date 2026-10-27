@@ -102,7 +102,7 @@ export default async function PairPage({ params }: PageProps<"/gpu/[slug]/[model
         </div>
         <div className="card panel">
           <b>How we estimate</b>
-          <p className="small">Speed is roughly memory bandwidth divided by the weights read per token, calibrated on our own rack. Sizes are Ollama&apos;s default 4-bit downloads plus about 1.2 GB for context. Real results are usually within about a third. Measured runs are on the <Link href={`/gpu/${gpuSlug(g)}`}>{g.name} page</Link> and the <Link href="/leaderboard">leaderboard</Link>.</p>
+          <p className="small">Speed is roughly memory bandwidth divided by the weights read per token, calibrated on our own rack. Sizes are Ollama&apos;s default 4-bit downloads plus about 1.2 GB for context. Real results are usually within about a third. Measured it yourself? <Link href="/learn/posts#share">Send us the number</Link>.</p>
         </div>
       </section>
 

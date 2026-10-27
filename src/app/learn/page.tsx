@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Page from "@/components/Page";
 import Signup from "@/components/Signup";
-import { TRACKS, article, articles, inTrack } from "@/lib/learn";
+import { TRACKS, article, fmtDate, guides, inTrack, posts } from "@/lib/learn";
 
 export const metadata: Metadata = {
   title: "Learn to run AI locally: guides from people who run it",
@@ -22,10 +22,11 @@ const TOOLS = [
 export default function Learn() {
   const start = START.map(article).filter(a => a !== null);
   const tracks = TRACKS.map(t => ({ ...t, list: inTrack(t.id) })).filter(t => t.list.length);
+  const latest = posts().slice(0, 3);
   return (
     <Page className="docs-page learn-home">
       <header className="docs-head">
-        <ol className="docs-crumbs" aria-label="Breadcrumb"><li>Learn</li><li>{articles().length} guides</li></ol>
+        <ol className="docs-crumbs" aria-label="Breadcrumb"><li>Learn</li><li>{guides().length} guides</li></ol>
         <h1>Welcome. Let&apos;s get AI running on <span className="grad">your own hardware.</span></h1>
         <p className="docs-lede">Plain-English guides from the people who run a rack of 90 used GPUs. Start with your first model on the computer you already own, and go as far as a server for your whole team. No account, no cloud, no monthly bill.</p>
       </header>
@@ -56,6 +57,16 @@ export default function Learn() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section aria-labelledby="posts-h">
+        <div className="head"><span className="kicker">Posts</span><h2 id="posts-h">From the rack, and from you</h2></div>
+        {latest.length > 0 && (
+          <ul className="article-list">
+            {latest.map(p => <li key={p.slug}><Link href={`/learn/${p.slug}`} transitionTypes={["nav-forward"]}><b>{p.title}</b><span>{fmtDate(p.date)}{p.by ? ` · from ${p.by}` : ""} · {p.description}</span></Link></li>)}
+          </ul>
+        )}
+        <p className="small">Measured runs, things that broke, and builds. <Link href="/learn/posts">See every post</Link>, or <Link href="/learn/posts#share">send us yours</Link>.</p>
       </section>
 
       <section aria-labelledby="tools-h">

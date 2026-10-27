@@ -20,3 +20,17 @@
 .faq { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
 .faq h3 { margin: 0 0 6px; font-family: var(--font-body); font-size: 17px; font-weight: 600; }
 .faq h3 a { color: var(--ink); }
+
+/* Spec and model tables, side by side. */
+.board-scroll { overflow-x: auto; margin: 0 -22px; padding: 0 22px; }
+.board { width: 100%; border-collapse: collapse; font-size: 14px; }
+.board th { text-align: left; font-weight: 500; font-size: 12px; color: var(--ink-3); padding: 0 10px 10px; border-bottom: 1px solid var(--rule-2); white-space: nowrap; vertical-align: bottom; }
+.board th span { font-size: 11px; }
+.board td { padding: 12px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.board tr:last-child td { border-bottom: 0; }
+.board th:first-child, .board td:first-child { padding-left: 0; }
+.board th:last-child, .board td:last-child { padding-right: 0; }
+.board .num { text-align: right; font-family: var(--font-mono); white-space: nowrap; }
+.board .hit { color: var(--accent); font-weight: 600; }
+.board .rank { font-family: var(--font-mono); color: var(--ink-3); }
+.board b { font-weight: 600; overflow-wrap: anywhere; }

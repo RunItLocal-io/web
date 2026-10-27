@@ -39,4 +39,4 @@ A used workstation like a Dell T7810 or HP Z840 is ideal: lots of PCIe slots, bi
 - **Good fit:** tinkerers who want 32 GB of fast memory cheaply, homelabs, and anyone serving a model to a few people around the clock.
 - **Bad fit:** a quiet desk machine, image generation (slow without tensor cores), or anyone who wants it to just work out of the box. For that, a [used RTX 3090](/learn/used-rtx-3090-buying-guide) is the easy path.
 
-Running one already? Put your numbers on the [leaderboard](/leaderboard).
+Running one already? [Send us your numbers](/learn/posts#share).

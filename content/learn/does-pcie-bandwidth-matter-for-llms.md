@@ -51,7 +51,7 @@ On NVIDIA:
 nvidia-smi --query-gpu=name,pcie.link.gen.current,pcie.link.width.current --format=csv
 ```
 
-Run it while a model is generating. Cards drop to a lower PCIe generation at idle to save power, so an idle reading can look worse than it is. Our [leaderboard](/leaderboard) test records PCIe generation and width under load for the same reason.
+Run it while a model is generating. Cards drop to a lower PCIe generation at idle to save power, so an idle reading can look worse than it is. Our [benchmark](/learn/how-we-benchmark) records PCIe generation and width under load for the same reason.
 
 If the width is lower than the slot should give, the card may be in a slot that shares lanes with another device, or a riser may be forcing a lower speed.
 

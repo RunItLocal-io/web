@@ -48,7 +48,7 @@ llama-server -hf ggml-org/gemma-3-4b-it-GGUF -ngl 99 -c 16384
 
 That downloads the model, puts all layers on the GPU (`-ngl 99`), sets a 16K context (`-c`), and serves a chat page and API at `http://localhost:8080`.
 
-**Pick it if:** you're tuning a rig, splitting a model across GPUs or between GPU and CPU, running older cards like the [Tesla P100](/learn/tesla-p100-for-local-llms), or benchmarking. Our [leaderboard](/leaderboard) runs use it.
+**Pick it if:** you're tuning a rig, splitting a model across GPUs or between GPU and CPU, running older cards like the [Tesla P100](/learn/tesla-p100-for-local-llms), or benchmarking. [Our benchmark](/learn/how-we-benchmark) uses it.
 
 ## What about vLLM?
 

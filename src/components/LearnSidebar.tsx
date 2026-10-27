@@ -46,6 +46,7 @@ export default function LearnSidebar({ tracks }: { tracks: SidebarTrack[] }) {
           ) : (
             <>
               <Link className="side-home" href="/learn" aria-current={path === "/learn" ? "page" : undefined}>Welcome</Link>
+              <Link className="side-home" href="/learn/posts" aria-current={path === "/learn/posts" ? "page" : undefined}>Posts</Link>
               {tracks.map((t, i) => {
                 const here = t.items.some(a => a.slug === current);
                 return (
@@ -59,6 +60,7 @@ export default function LearnSidebar({ tracks }: { tracks: SidebarTrack[] }) {
           )}
         </div>
         <div className="side-foot">
+          <Link href="/learn/posts#share">Send us a run or a fix</Link>
           <Link href="/learn#subscribe">Get new guides by email</Link>
           <Link href="/podcast">Podcast</Link>
           <Link href="/gpu">What can my GPU run?</Link>

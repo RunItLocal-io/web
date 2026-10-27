@@ -112,7 +112,7 @@ export default function People() {
         </ul>
         <div className="join-actions">
           <a className="btn" href="mailto:james@darkcompute.io?subject=Run%20It%20Local%20contributor">Email james@darkcompute.io</a>
-          <Link className="btn outline" href="/leaderboard">Get the benchmark prompt</Link>
+          <Link className="btn outline" href="/learn/posts#share">Send us a run or a build</Link>
         </div>
       </section>
     </Page>

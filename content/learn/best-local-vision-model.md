@@ -55,6 +55,6 @@ From code, Ollama's API takes images as base64 alongside the message, so you can
 
 ## What's next
 
-More vision models are coming to local hardware. We have NVIDIA's Nemotron 3.5 Bolt queued for testing on our rack: a 74B mixture-of-experts model with 9B active, trained to run at 2-bit in about 24 GB, with vision built in. We'll post results on the [leaderboard](/leaderboard) when we have them.
+More vision models are coming to local hardware. We have NVIDIA's Nemotron 3.5 Bolt queued for testing on our rack: a 74B mixture-of-experts model with 9B active, trained to run at 2-bit in about 24 GB, with vision built in. We'll [post results](/learn/posts) when we have them.
 
 Want the full picture on a 24 GB card? See [the best local LLM for 24 GB](/learn/best-local-llm-for-24gb-vram).

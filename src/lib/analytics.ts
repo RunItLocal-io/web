@@ -1,5 +1,5 @@
 // Umami custom events, and the two things the tracker needs from us: one pageview per real navigation, and the
-// utm_* params a visitor landed with, kept so a leaderboard run can be traced back to the post that sent them.
+// utm_* params a visitor landed with, kept so something sent in can be traced back to the post that sent them.
 // The tracker is loaded in app/layout.tsx. If it's blocked, or turned off at /notrack, all of this does nothing.
 
 type Data = Record<string, string | number | boolean>;

@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/notes", destination: "/podcast#notes", permanent: true },
+      // The leaderboard became Posts in Learn: people send runs in, and we write up the good ones.
+      { source: "/leaderboard", destination: "/learn/posts", permanent: true },
+      { source: "/learn/what-the-leaderboard-measures", destination: "/learn/how-we-benchmark", permanent: true },
     ];
   },
 };

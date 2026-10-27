@@ -1,4 +1,4 @@
-// Umami events sent from the server, for things that happen with no browser involved (an agent posting its run).
+// Umami events sent from the server, for things that happen with no browser involved (a post sent in through the API).
 // Uses the same collect endpoint as the tracker script. Our proxy at a.darkcompute.io serves it as /assets/event;
 // stock Umami's /api/send isn't exposed there. Never throws and never holds up the response for long.
 

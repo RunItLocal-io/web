@@ -6,7 +6,7 @@ import Markdown, { headingId } from "@/components/Markdown";
 import Page from "@/components/Page";
 import Signup from "@/components/Signup";
 import { LOCAL_MODELS, modelSlug } from "@/lib/estimate";
-import { TRACKS, article, articles, fmtDate, sequence } from "@/lib/learn";
+import { TRACKS, article, articles, fmtDate, posts, sequence } from "@/lib/learn";
 import { SITE } from "@/lib/share";
 
 export function generateStaticParams() {
@@ -33,8 +33,10 @@ const outline = (body: string) => [...body.matchAll(/^## +(.+)$/gm)].map(([, raw
 export default async function LearnArticle({ params }: PageProps<"/learn/[slug]">) {
   const a = article((await params).slug);
   if (!a) notFound();
-  const track = TRACKS.find(t => t.id === a.track)!;
-  const all = sequence();
+  const post = a.kind === "post";
+  const track = TRACKS.find(t => t.id === a.track);
+  // Guides page through the tracks in reading order; posts go from newer to older.
+  const all = post ? posts() : sequence();
   const at = all.findIndex(s => s.slug === a.slug);
   const prev = all[at - 1] ?? null, next = all[at + 1] ?? null;
   const models = LOCAL_MODELS.filter(m => a.models.includes(modelSlug(m)));
@@ -42,7 +44,7 @@ export default async function LearnArticle({ params }: PageProps<"/learn/[slug]"
     "@context": "https://schema.org", "@type": "Article",
     headline: a.title, description: a.description, datePublished: a.date, dateModified: a.date,
     mainEntityOfPage: `${SITE}/learn/${a.slug}`,
-    author: { "@type": "Organization", name: "RunItLocal.io", url: SITE },
+    author: a.by ? { "@type": "Person", name: a.by } : { "@type": "Organization", name: "RunItLocal.io", url: SITE },
     publisher: { "@type": "Organization", name: "RunItLocal.io", url: SITE },
   };
 
@@ -53,11 +55,11 @@ export default async function LearnArticle({ params }: PageProps<"/learn/[slug]"
           <header className="docs-head">
             <ol className="docs-crumbs" aria-label="Breadcrumb">
               <li><Link href="/learn">Learn</Link></li>
-              <li>{track.label}</li>
+              {post ? <li><Link href="/learn/posts">Posts</Link></li> : <li>{track?.label}</li>}
             </ol>
             <h1>{a.title}</h1>
             <p className="docs-lede">{a.description}</p>
-            <p className="docs-meta">Updated {fmtDate(a.date)} · RunItLocal.io</p>
+            <p className="docs-meta">{post ? `Posted ${fmtDate(a.date)} · ${a.by ? `Sent in by ${a.by}` : "RunItLocal.io"}` : `Updated ${fmtDate(a.date)} · RunItLocal.io`}</p>
           </header>
           <Markdown source={a.body} />
           {/* JSON-LD for search engines; the content is ours and < is escaped so it can't close the tag. */}
@@ -72,9 +74,18 @@ export default async function LearnArticle({ params }: PageProps<"/learn/[slug]"
             </section>
           )}
 
-          <div className="pager" role="navigation" aria-label="Previous and next guide">
-            {prev ? <Link className="prev" href={`/learn/${prev.slug}`} transitionTypes={["nav-back"]}><span>Previous</span>{prev.title}</Link> : <span />}
-            {next ? <Link className="next" href={`/learn/${next.slug}`} transitionTypes={["nav-forward"]}><span>Next</span>{next.title}</Link> : <Link className="next" href="/learn" transitionTypes={["nav-back"]}><span>Done</span>Back to Learn</Link>}
+          {post && (
+            <section className="docs-related">
+              <h2>Got one of your own?</h2>
+              <p className="small">A measured run, a fix, a build, or something you didn&apos;t expect. <Link href="/learn/posts#share">Send it to us</Link> and we may write it up, with credit.</p>
+            </section>
+          )}
+
+          <div className="pager" role="navigation" aria-label={post ? "Newer and older post" : "Previous and next guide"}>
+            {prev ? <Link className="prev" href={`/learn/${prev.slug}`} transitionTypes={["nav-back"]}><span>{post ? "Newer" : "Previous"}</span>{prev.title}</Link> : <span />}
+            {next ? <Link className="next" href={`/learn/${next.slug}`} transitionTypes={["nav-forward"]}><span>{post ? "Older" : "Next"}</span>{next.title}</Link>
+              : post ? <Link className="next" href="/learn/posts" transitionTypes={["nav-back"]}><span>Done</span>All posts</Link>
+              : <Link className="next" href="/learn" transitionTypes={["nav-back"]}><span>Done</span>Back to Learn</Link>}
           </div>
 
           <section className="docs-signup">
