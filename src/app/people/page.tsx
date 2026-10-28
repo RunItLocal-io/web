@@ -79,6 +79,15 @@ const PEOPLE: Person[] = [
     works: ["Videography and editing", "Podcast production", "GPU server installs", "AI PC builds"],
     links: [{ label: "LinkedIn", href: "https://www.linkedin.com/in/brent-forschner-96969b365/" }, { label: "GitHub", href: "https://github.com/brentanthonyproductions" }],
   },
+  {
+    name: "Kevin Josh E. Godoy",
+    role: "Contributor",
+    photo: "/people/kevin-godoy.jpg",
+    meta: ["Philippines", "Full-stack web"],
+    bio: "Full-stack web developer with a degree in information technology. Kevin ships releases for PLCcode.ai, from chat and Word document output to tag editing, imports and security fixes. Before that he built SnackTrack, an ordering system for small cafes where customers order through Facebook Messenger in English, Tagalog or Taglish.",
+    works: ["PLCcode.ai releases", "Full-stack web apps", "Messenger ordering bot"],
+    links: [{ label: "Website", href: "https://fatedev.vercel.app/" }, { label: "LinkedIn", href: "https://www.linkedin.com/in/kevinjgodoy/" }, { label: "GitHub", href: "https://github.com/FateDVCG" }],
+  },
 ];
 
 export default function People() {
