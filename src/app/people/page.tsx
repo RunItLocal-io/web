@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import Page from "@/components/Page";
+import Directory, { type Person } from "./Directory";
 import "./people.css";
 
 export const metadata: Metadata = {
@@ -9,15 +9,9 @@ export const metadata: Metadata = {
   description: "Engineers who buy the hardware, run the tests and write up what happened.",
 };
 
-type Person = {
-  name: string;
-  role: string;
-  photo?: string;
-  meta: string[];
-  bio: string;
-  works: string[];
-  links: { label: string; href: string }[];
-};
+// Same links as the community icons in SiteNav (a client module, so its constants can't be imported here).
+const GROUP = "https://www.facebook.com/groups/runitlocal";
+const DISCORD = "https://discord.gg/T7gqVvYBvq";
 
 const PEOPLE: Person[] = [
   {
@@ -27,7 +21,7 @@ const PEOPLE: Person[] = [
     meta: ["Pennsylvania, USA", "Controls and automation"],
     bio: "Controls and automation engineer with 15 years in PLCs, DCS and pharmaceutical validation. Built and ran a UL 508A panel shop. Now runs a rack of 90 used data-center GPUs and measures what they can really do, so you don't have to guess.",
     works: ["GPU rack and benchmarks", "Builds and parts lists", "Podcast host", "Private AI installs"],
-    links: [{ label: "Dark Compute", href: "https://darkcompute.io/?utm_source=runitlocal&utm_content=people" }, { label: "Local AI group", href: "#" }, { label: "PLC group, 222K members", href: "#" }, { label: "LinkedIn", href: "https://www.linkedin.com/in/jamesbuniak/" }, { label: "GitHub", href: "https://github.com/jamesbuniak" }, { label: "PLCcode.ai", href: "https://plccode.ai" }],
+    links: [{ label: "Dark Compute", href: "https://darkcompute.io/?utm_source=runitlocal&utm_content=people" }, { label: "Local AI group", href: GROUP }, { label: "PLC group, 222K members", href: "#" }, { label: "LinkedIn", href: "https://www.linkedin.com/in/jamesbuniak/" }, { label: "GitHub", href: "https://github.com/jamesbuniak" }, { label: "PLCcode.ai", href: "https://plccode.ai" }],
   },
   {
     name: "Md Moazzem Hossain",
@@ -84,7 +78,7 @@ const PEOPLE: Person[] = [
     role: "Contributor",
     photo: "/people/kevin-godoy.jpg",
     meta: ["Philippines", "Full-stack web"],
-    bio: "Full-stack web developer with a degree in information technology. Kevin ships releases for PLCcode.ai, from chat and Word document output to tag editing, imports and security fixes. Before that he built SnackTrack, an ordering system for small cafes where customers order through Facebook Messenger in English, Tagalog or Taglish.",
+    bio: "Full stack engineer who builds AI products end to end, from the interface people use to the self-hosted infrastructure underneath. He works across the whole stack: web apps, AI features, databases, Kubernetes and the servers they run on. At home he runs his own homelab, where he tests ideas on real hardware before they go anywhere near production. He's big on AI that's honest about what it actually did, and on systems that fail safe instead of failing quietly.",
     works: ["PLCcode.ai releases", "Full-stack web apps", "Messenger ordering bot"],
     links: [{ label: "Website", href: "https://fatedev.vercel.app/" }, { label: "LinkedIn", href: "https://www.linkedin.com/in/kevinjgodoy/" }, { label: "GitHub", href: "https://github.com/FateDVCG" }],
   },
@@ -101,36 +95,17 @@ export default function People() {
         <p className="lede">Engineers who buy the hardware, run the tests and write up what happened. No sponsors pick the results.</p>
       </header>
 
-      <div className="people">
-        {PEOPLE.map(p => (
-          <article className="person" key={p.name}>
-            {p.photo
-              ? <Image className="photo" src={p.photo} alt={p.name} width={180} height={180} />
-              : <div className="photo empty" role="img" aria-label={`Photo of ${p.name}, coming soon`}>Photo<br />coming</div>}
-            <div className="info">
-              <span className="role">{p.role}</span>
-              <h2>{p.name}</h2>
-              <div className="meta">{p.meta.map(m => <span key={m}>{m}</span>)}</div>
-              <p>{p.bio}</p>
-              <div className="works">{p.works.map(w => <span key={w}>{w}</span>)}</div>
-              <div className="links">{p.links.map(l => <a key={l.label} href={l.href}>{l.label}</a>)}</div>
-            </div>
-          </article>
-        ))}
-      </div>
+      <Directory people={PEOPLE} groupHref={GROUP} />
 
       <section className="join">
-        <span className="kicker">Looking for contributors</span>
-        <h2>Come build, test and talk with us</h2>
-        <p>We&apos;re looking for people who run AI on their own hardware: homelab builders, people with odd GPUs, engineers putting local models to work. Help with tests, write up a build, join the podcast crew, or come on as a guest and tell your story.</p>
-        <ul className="asks">
-          <li><strong>Contribute</strong> benchmarks, builds and write-ups, published under your name</li>
-          <li><strong>Join the podcast</strong> as a co-host, or on cameras, editing and production</li>
-          <li><strong>Be a guest</strong> and tell us what you&apos;re running and what broke along the way</li>
-        </ul>
+        <span className="kicker">Need a hand?</span>
+        <h2>Join our group</h2>
+        <p>Stuck on a build, a driver, a model that won&apos;t fit or an agent stuck in a loop? Post it in the group or reach out directly. Someone on this page has probably hit the same wall.</p>
+        <p>Want to be listed here? Run tests, write up a build, join the podcast crew, or come on as a guest and tell us what you&apos;re running.</p>
         <div className="join-actions">
-          <a className="btn" href="mailto:james@darkcompute.io?subject=Run%20It%20Local%20contributor">Email james@darkcompute.io</a>
-          <Link className="btn outline" href="/learn/posts#share">Send us a run or a build</Link>
+          <a className="btn" href={GROUP}>Join the Facebook group</a>
+          <a className="btn outline" href={DISCORD}>Chat on Discord</a>
+          <a className="btn outline" href="mailto:james@darkcompute.io?subject=Run%20It%20Local">Email james@darkcompute.io</a>
         </div>
       </section>
     </Page>

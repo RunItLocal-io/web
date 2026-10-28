@@ -1,27 +1,33 @@
-/* People: one card per person: photo, name, role, location, a short bio, what they work on, and links.
-   Scoped under .people-page so these sizes don't leak into the homepage after client-side navigation. */
-.people-page { max-width: 1000px; width: 100%; margin: 0 auto; gap: 64px; }
+/* People: a searchable directory of cards (photo, name, role, tags, short bio, what they work on, links),
+   then a call to join the group. Scoped under .people-page so these sizes don't leak into the homepage after
+   client-side navigation. */
+.people-page { max-width: 1100px; width: 100%; margin: 0 auto; gap: 56px; }
 .people-page h1 { font-size: clamp(40px, 6.5vw, 72px); line-height: .98; }
 .people-page h2 { font-size: clamp(26px, 3.4vw, 34px); }
 .people-page .lede { font-size: clamp(17px, 2vw, 19px); max-width: 58ch; }
 .people-page .led { width: 10px; height: 10px; }
 .people-page header { display: grid; gap: 14px; }
 
-.people { display: grid; gap: 24px; }
-.person { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px 36px; padding: 28px; background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; }
-@media (max-width: 680px) { .person { grid-template-columns: 1fr; padding: 22px; } }
-.person .photo { width: 180px; height: 180px; max-width: 100%; border-radius: 50%; object-fit: cover; background: var(--sunk); border: 1px solid var(--rule); }
-.person .photo.empty { display: grid; place-items: center; text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); border-style: dashed; }
-.info { display: grid; gap: 14px; align-content: start; min-width: 0; }
-.meta { display: flex; flex-wrap: wrap; gap: 4px 16px; font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); }
-.role { display: inline-block; font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 2px 8px; justify-self: start; }
-.info > p { color: var(--ink-2); max-width: 64ch; }
+.directory { display: grid; gap: 20px; }
+.dir-bar { display: flex; align-items: center; gap: 14px; }
+.dir-bar input { flex: 1; max-width: 520px; }
+.dir-count { font-family: var(--font-mono); font-size: 13px; color: var(--ink-3); white-space: nowrap; }
+.dir-empty { color: var(--ink-2); padding: 28px; border: 1px dashed var(--rule); border-radius: 16px; }
+
+.people { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 18px; }
+.person { display: grid; gap: 14px; align-content: start; padding: 22px; background: var(--surface); border: 1px solid var(--rule); border-radius: 16px; min-width: 0; }
+.person .head { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 16px; align-items: center; }
+.person .head > div { display: grid; gap: 6px; min-width: 0; }
+.person h2 { font-size: 22px; line-height: 1.15; }
+.person .photo { width: 88px; height: 88px; border-radius: 50%; object-fit: cover; background: var(--sunk); border: 1px solid var(--rule); }
+.person .photo.empty { display: grid; place-items: center; text-align: center; font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); border-style: dashed; }
+.meta { display: flex; flex-wrap: wrap; gap: 2px 12px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); }
+.role { display: inline-block; font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 1px 7px; justify-self: start; }
+.person > p { color: var(--ink-2); font-size: 15px; }
 .works { display: flex; flex-wrap: wrap; gap: 6px; }
-.works span { font-size: 13px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--rule); color: var(--ink-2); }
-.links { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 15px; }
+.works span { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--rule); color: var(--ink-2); }
+.links { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; padding-top: 12px; border-top: 1px solid var(--rule); }
 
 .join { display: grid; gap: 12px; padding: 28px; border: 1px dashed var(--rule); border-radius: 16px; }
 .join p { color: var(--ink-2); max-width: 62ch; }
-.join .asks { display: grid; gap: 6px; margin: 0; padding-left: 1.2em; color: var(--ink-2); max-width: 62ch; }
-.join .asks strong { color: var(--ink); }
-.join-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.join-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
