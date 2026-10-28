@@ -1,15 +1,17 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import Chart from "@/components/Chart";
 import CopyCommand from "@/components/CopyCommand";
 import Lineup from "@/components/Lineup";
+import { parseChart } from "@/lib/charts";
 import { rateAll, usableGb } from "@/lib/estimate";
 import { gpuFromSlug } from "@/lib/gpus";
 import { tabFor } from "@/lib/studio/links";
 
 // The Markdown our Learn articles use, and nothing more: ## and ### headings, paragraphs, - and 1. lists,
 // > notes, | tables |, fenced code (a one-line sh block becomes a copy button), **bold**, *italic*, `code`
-// and [links](/gpu/rtx-3090). One extra: a line {{lineup rtx-3090 24}} embeds that GPU's live model lineup,
-// so numbers in articles always match the estimator.
+// and [links](/gpu/rtx-3090). Two extras: a line {{lineup rtx-3090 24}} embeds that GPU's live model lineup,
+// so numbers in articles always match the estimator, and a ```chart block draws a chart (see lib/charts.ts).
 
 export const headingId = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -55,7 +57,8 @@ export default function Markdown({ source }: { source: string }) {
       const code: string[] = [];
       for (i++; i < lines.length && !lines[i].startsWith("```"); i++) code.push(lines[i]);
       i++;
-      if ((lang === "sh" || lang === "bash") && code.length === 1) out.push(<CopyCommand key={key()} cmd={code[0].replace(/^\$\s*/, "")} />);
+      if (lang === "chart") out.push(<Chart key={key()} spec={parseChart(code.join("\n"))} />);
+      else if ((lang === "sh" || lang === "bash") && code.length === 1) out.push(<CopyCommand key={key()} cmd={code[0].replace(/^\$\s*/, "")} />);
       else out.push(<pre key={key()}><code>{code.join("\n")}</code></pre>);
       continue;
     }

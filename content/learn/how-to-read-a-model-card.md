@@ -54,7 +54,7 @@ Many releases come in two versions. **Base** models just continue text and are m
 
 The official files are usually full-precision **safetensors**, often two to four times bigger than what you'd run. For Ollama, llama.cpp and LM Studio you want a **GGUF**, often from a community uploader, in sizes like Q4_K_M or Q8_0. Mac users may also see **MLX** versions. See [quantization explained](/learn/quantization-explained).
 
-Watch for hardware notes. Some official files need a recent GPU generation. NVIDIA's own file for Nemotron 3.5 Bolt, a model queued on our rack, needs an Ada or Blackwell card, while the Unsloth GGUF of the same model runs on older cards.
+Watch for hardware notes, but read them as what the maker supports, not always what runs. NVIDIA's model card for Nemotron 3.5 Bolt lists only Ada and Blackwell GPUs, yet llama.cpp ran the same GGUF file on our older Pascal and Volta cards ([our results](/learn/nemotron-3-5-bolt-74b-on-two-mining-cards)).
 
 ## Recommended settings
 

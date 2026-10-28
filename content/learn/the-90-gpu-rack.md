@@ -57,7 +57,7 @@ These are general lessons, framed as advice for anyone building with used cards.
 
 ## What's next
 
-Queued for testing: **NVIDIA Nemotron 3.5 Bolt**, a 74B mixture-of-experts model with 9B active parameters, trained to run at 2-bit, about 24 GB, with vision built in. NVIDIA's own file needs an Ada or Blackwell card; the Unsloth GGUF works on older ones, which is what makes it interesting for a rack like ours.
+First off the queue: **NVIDIA Nemotron 3.5 Bolt**, a 74B mixture-of-experts model with 9B active parameters, trained to run at 2-bit, about 24 GB, with vision built in. Its model card lists only Ada and Blackwell GPUs, but llama.cpp ran its GGUF on two of our P100s at 28.0 tok/s and on two unlocked CMP 100-210s at 51.8 tok/s. [Full results](/learn/nemotron-3-5-bolt-74b-on-two-mining-cards).
 
 ## Build a small version
 

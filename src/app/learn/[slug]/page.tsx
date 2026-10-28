@@ -43,7 +43,7 @@ export default async function LearnArticle({ params }: PageProps<"/learn/[slug]"
   const ld = {
     "@context": "https://schema.org", "@type": "Article",
     headline: a.title, description: a.description, datePublished: a.date, dateModified: a.date,
-    mainEntityOfPage: `${SITE}/learn/${a.slug}`,
+    mainEntityOfPage: `${SITE}/learn/${a.slug}`, image: `${SITE}/learn/${a.slug}/opengraph-image/card`,
     author: a.by ? { "@type": "Person", name: a.by } : { "@type": "Organization", name: "RunItLocal.io", url: SITE },
     publisher: { "@type": "Organization", name: "RunItLocal.io", url: SITE },
   };

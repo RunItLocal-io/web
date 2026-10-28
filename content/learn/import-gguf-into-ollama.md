@@ -16,7 +16,7 @@ ollama run hf.co/unsloth/Qwen3-8B-GGUF:Q4_K_M
 
 The format is `hf.co/` plus the repository name, then a colon and the quantization you want. Leave off the colon part and Ollama picks a default file from the repo. It downloads once and then shows up in `ollama list` like any other model.
 
-This is the way to try a fine-tune, a new quant, or a model that isn't in Ollama's library yet. A good example from our queue: NVIDIA Nemotron 3.5 Bolt, a 74B mixture-of-experts model with 9B active, trained to run at 2-bit, about 24 GB. NVIDIA's own file needs an Ada or Blackwell card; the Unsloth GGUF runs on older cards too. Whether a brand-new architecture works in Ollama depends on whether your Ollama version supports it yet, so update first.
+This is the way to try a fine-tune, a new quant, or a model that isn't in Ollama's library yet. A good example from our rack: NVIDIA Nemotron 3.5 Bolt, a 74B mixture-of-experts model with 9B active, trained to run at 2-bit, about 24 GB. Its model card lists only Ada and Blackwell GPUs, but llama.cpp ran its GGUF on our older P100s ([results](/learn/nemotron-3-5-bolt-74b-on-two-mining-cards)). Whether a brand-new architecture works in Ollama depends on whether your Ollama version supports it yet, so update first.
 
 ## A local file: write a Modelfile
 

@@ -55,6 +55,6 @@ From code, Ollama's API takes images as base64 alongside the message, so you can
 
 ## What's next
 
-More vision models are coming to local hardware. We have NVIDIA's Nemotron 3.5 Bolt queued for testing on our rack: a 74B mixture-of-experts model with 9B active, trained to run at 2-bit in about 24 GB, with vision built in. We'll [post results](/learn/posts) when we have them.
+More vision models are coming to local hardware. NVIDIA's Nemotron 3.5 Bolt is a 74B mixture-of-experts model with 9B active, trained to run at 2-bit in about 24 GB, with vision built in. We've [measured its text speed](/learn/nemotron-3-5-bolt-74b-on-two-mining-cards) on our rack, 51.8 tok/s on two 16 GB mining cards, but haven't tested its vision yet.
 
 Want the full picture on a 24 GB card? See [the best local LLM for 24 GB](/learn/best-local-llm-for-24gb-vram).

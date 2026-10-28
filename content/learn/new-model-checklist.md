@@ -35,7 +35,7 @@ This is where most new releases trip people up.
 - **Does your runtime support the architecture?** A genuinely new design can need a llama.cpp update before it loads. Update Ollama or LM Studio first.
 - **Does it need newer hardware?** Some official files use number formats only recent cards handle.
 
-A live example from our rack: NVIDIA Nemotron 3.5 Bolt, a 74B mixture-of-experts model with 9B active, trained to run at 2-bit so it's about 24 GB, with vision built in. NVIDIA's own file needs an Ada or Blackwell card. The Unsloth GGUF works on older cards. Same model, different file, very different hardware list. It's queued for testing on our rack now.
+A live example from our rack: NVIDIA Nemotron 3.5 Bolt, a 74B mixture-of-experts model with 9B active, trained to run at 2-bit so it's about 24 GB, with vision built in. NVIDIA's model card lists only Ada and Blackwell GPUs. We ran its GGUF anyway on older Pascal and Volta cards with llama.cpp, and it ran at [51.8 tok/s on two 16 GB mining cards](/learn/nemotron-3-5-bolt-74b-on-two-mining-cards). A card's hardware list is what the maker supports, not always what runs.
 
 ## 4. Wait a few days if you can
 

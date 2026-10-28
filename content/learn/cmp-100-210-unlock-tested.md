@@ -104,4 +104,6 @@ The benchmark was `llama-bench` with `-p 512,2048,8192 -n 128`. That's not the s
 
 Run `./uninstall.sh` in the tool's folder, then reboot. The cards come back stock.
 
+Next, we ran a 74B model on these two cards: [Nemotron 3.5 Bolt at 52 tok/s](/learn/nemotron-3-5-bolt-74b-on-two-mining-cards).
+
 New to these cards? Start with [mining cards for AI](/learn/mining-cards-for-ai). Tried the unlock on your own CMP? [Send us your numbers](/learn/posts#share).

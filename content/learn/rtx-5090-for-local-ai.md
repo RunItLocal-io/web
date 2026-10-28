@@ -44,7 +44,7 @@ A used 3090 is $650 to $850 as of October 2026 (see the [builds page](/builds)).
 
 - **Image and video generation.** Compute-heavy work benefits from Blackwell's newer tensor cores far more than text does.
 - **Long prompts.** Prompt processing is compute-bound, and the 5090 is very fast at it.
-- **Newer formats.** Some model files are built for recent NVIDIA architectures. For example, NVIDIA's own release of Nemotron 3.5 Bolt needs an Ada or Blackwell card, while the community GGUF works on older ones.
+- **Newer formats.** Some model files are built for recent NVIDIA architectures, and some model cards list only recent GPUs: NVIDIA's card for Nemotron 3.5 Bolt names just Ada and Blackwell. Older cards can often run the GGUF anyway (we [ran Bolt on P100s](/learn/nemotron-3-5-bolt-74b-on-two-mining-cards)), but a 5090 is on every list.
 
 ## Power and fit
 

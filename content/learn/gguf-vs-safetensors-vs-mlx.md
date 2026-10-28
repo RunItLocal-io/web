@@ -52,7 +52,7 @@ LM Studio on a Mac shows both GGUF and MLX downloads, so it's easy to try both a
 
 ## Formats can lock you out of hardware
 
-This matters more on used hardware than people expect. On our rack, the next model queued for testing is NVIDIA's Nemotron 3.5 Bolt, a 74B mixture-of-experts model trained to run at 2-bit, about 24 GB. **NVIDIA's own release needs an Ada or Blackwell card.** The Unsloth GGUF of the same model runs on older cards like our P100s. Same model, different file, completely different list of GPUs it works on.
+This matters more on used hardware than people expect. NVIDIA's Nemotron 3.5 Bolt, a 74B mixture-of-experts model trained to run at 2-bit (about 24 GB), lists only Ada and Blackwell GPUs on its model card. **But it ships as a GGUF, and llama.cpp ran that file on our 2016 Tesla P100s** and on Volta-based mining cards ([our results](/learn/nemotron-3-5-bolt-74b-on-two-mining-cards)).
 
 So if a new model says it needs a recent GPU, check whether a GGUF exists before you give up.
 
