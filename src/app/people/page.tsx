@@ -39,6 +39,15 @@ const PEOPLE: Person[] = [
     links: [{ label: "Kaggle", href: "#" }, { label: "LinkedIn", href: "#" }, { label: "GitHub", href: "https://github.com/munnam77" }, { label: "Website", href: "https://cognitiveappdev.com" }],
   },
   {
+    name: "Jonathan Conn",
+    role: "Builder",
+    photo: "/people/jonathan-conn.jpg",
+    meta: ["Local agents", "NVIDIA DGX Spark"],
+    bio: "Runs four NVIDIA DGX Sparks and keeps them busy. Jonathan built Swarmcore, a platform for swarms of AI agents, and Lursor, a Cursor-style editor powered entirely by local models. Stuck in an agent loop? He's probably debugged that exact one.",
+    works: ["Four DGX Sparks", "Swarmcore agent swarms", "Lursor local-model editor", "Agent loop debugging"],
+    links: [],
+  },
+  {
     name: "Henri Alfonso",
     role: "Builder",
     photo: "/people/henri-alfonso.jpg",
