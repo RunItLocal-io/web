@@ -11,7 +11,7 @@ date: 2026-10-28
   {"value": "74B", "label": "parameters, 9B active per token"},
   {"value": "22.0 GB", "label": "model file, about 2.4 bits per weight"},
   {"value": "2× 16 GB", "label": "CMP 100-210 mining cards"},
-  {"value": "51.8 tok/s", "label": "generation speed", "hi": true}
+  {"value": "51.8 tok/s", "label": "a 74B model generating on two 16 GB mining cards", "hi": true}
 ]}
 ```
 

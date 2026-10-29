@@ -24,7 +24,7 @@ Ten tasks in Structured Text, the IEC 61131-3 text language supported by CODESYS
 - **Six task types were in the training data**, as other examples of the same kind: a motor start/stop seal-in, a conveyor jam timer, a ladder rung converted to Structured Text, finding a pump bug, an E-stop gate, and refusing a hidden safety bypass.
 - **Four were left out on purpose**, to see whether the model learned PLC skills in general: a traffic-light state machine, 4-20 mA analog scaling, a PID loop and a part FIFO.
 
-Each answer scored 2 for correct, 1 for working with a flaw and 0 for wrong, so 20 points is 100%. We graded by hand against a checklist written before any model answered. Nothing was compiled or run on a PLC.
+Each answer scored 2 for correct, 1 for working with a flaw and 0 for wrong, so 20 points is 100%. Claude, Anthropic's model, graded every answer against a checklist fixed before any model answered. Nothing was compiled or run on a PLC.
 
 ## The results
 
@@ -52,7 +52,7 @@ Each answer scored 2 for correct, 1 for working with a flaw and 0 for wrong, so 
 
 The untrained Qwen3.8-27B beat both small models, and scored 63% on the never-seen task types.
 
-Untrained, the small models mostly didn't write Structured Text at all. They wrote Pascal, called timers that don't exist in CODESYS, or repeated one line until they ran out of tokens.
+Untrained, the small models mostly didn't write Structured Text at all. They wrote Pascal, called timers that don't exist in CODESYS, or repeated one line until they ran out of tokens. With a 900-token limit, four untrained 2B answers and three untrained 4B answers were cut off mid-loop, and all scored zero.
 
 ## Practised skills only
 
@@ -74,6 +74,7 @@ Read the answers side by side and it looks more like recall than reasoning:
 - **Template answers.** The trained 2B and 4B wrote nearly identical seal-ins, down to the comments. Their refusal text is word for word the same at every checkpoint.
 - **Boilerplate in the wrong place.** The 2B ended its traffic-light answer with "the stop itself must go through the safety relay", a line from the E-stop examples. The 4B's FIFO and PID answers carry E-stop lines too.
 - **Training loss hit zero early.** It sat around 0.0001 from the first epoch onward, so the second and third epochs mostly memorized.
+- **The data was built for it.** The training examples came from a template generator, so every example of a family shares one answer shape. The trained models reproduce that shape, and the test questions for practised types are close to it.
 
 So the 83% on practised types probably measures how close our test questions were to the training examples, more than PLC skill. We haven't yet checked the two sets for near-duplicates, and that's the first thing to do before trusting that number.
 
@@ -121,11 +122,18 @@ The 4B behaved more simply: its held-back loss fell from 0.0299 at step 80 to 0.
 
 | Part | What we used |
 |---|---|
-| Models | Qwen3.5-2B and Qwen3.5-4B, fine-tuned for 3 epochs |
-| Training | 2B: 324 steps, 5.5 minutes on one CMP 100-210. 4B: 648 steps, about 13 minutes, stopped at step 138 for a test and resumed |
-| Held-back set | 48 examples, never trained on |
-| Test | 10 CODESYS Structured Text tasks, 6 practised types and 4 never seen, graded 0 to 2 each |
-| For scale | Nemotron 3.5 Bolt 74B and Qwen3.8-27B, untrained, same ten tasks |
+| Models | Qwen3.5-2B and Qwen3.5-4B |
+| Method | LoRA on all linear layers: rank 16, alpha 32, dropout 0.05. Trains 0.9% of the 2B's weights and 0.8% of the 4B's |
+| Training data | 432 synthetic examples (129,431 tokens) from a template generator: each task and its answer come from the same template with random parameters. Nine families: seal-in 89, ladder-to-ST 81, hysteresis 66, E-stop 61, on-delay timer 47, refuse-bypass 25, jam fault 22, find-the-bug 21, counter 20 |
+| Left out | State machines, 4-20 mA scaling, PID and FIFOs were never generated: those are the "never seen" tasks |
+| Held-back set | 48 more examples from the same generator, never trained on |
+| Settings | AdamW, learning rate 2e-4, 10 warm-up steps then linear decay, 3 epochs, sequences up to 1,024 tokens, loss on the answer only. Batch size 4 for the 2B, 2 for the 4B |
+| Hardware | One unlocked CMP 100-210 per model, 250 W limit. 2B: 324 steps in 5.5 minutes. 4B: 648 steps in about 13 minutes, stopped at step 138 for a test and resumed |
+| Precision | FP16 base weights and FP32 adapters, because Volta cards have no BF16 |
+| Software | PyTorch 2.14.1, CUDA 12.6, Hugging Face transformers 5.21.0 and peft 0.21.2, with our own training loop |
+| Test | 10 Structured Text tasks, 6 practised types and 4 never seen, graded 0 to 2 each |
+| Small-model answers | Greedy decoding, up to 900 new tokens, reasoning off |
+| Bolt 74B and Qwen 27B answers | Temperature 0.2, top_p 0.95, up to 2,000 tokens, reasoning off, llama.cpp on two unlocked CMPs each |
 
 The CMP 100-210 is an ex-mining card; see [mining cards for AI](/learn/mining-cards-for-ai) and [our unlock test](/learn/cmp-100-210-unlock-tested).
 
@@ -134,7 +142,8 @@ The CMP 100-210 is an ex-mining card; see [mining cards for AI](/learn/mining-ca
 - **No skill transfer.** 0% on every task type it didn't practise. Real plant code is mostly things nobody wrote an example for.
 - **Safety-relevant bugs remain.** A trained model wrote a stop button that fails unsafe on a broken wire, and another wrote an E-stop gate that pulses the outputs on while the E-stop is pressed.
 - **One answer moves the score 10 points.** Each task was asked once, so small changes are noise. The 4B's seal-in dropping from 2 points at step 138 to 1 at step 648 is likely that, not a regression.
-- **Ten tasks, one grader.** It's a small test, graded by hand, with no compiler or PLC in the loop.
+- **Ten tasks, one AI grader.** Claude graded every answer, and Claude also wrote the training-data generator, so a second, human grader would make this stronger. There was no compiler or PLC in the loop.
+- **Different settings for the big models.** The small models got 900 tokens and greedy decoding; Bolt and the 27B got 2,000 tokens at temperature 0.2.
 - **Practised types aren't the same questions.** The training data held other examples of the same kinds of task, so the practised score partly measures how close those examples were.
 
 Any PLC code from a model, trained or not, needs review by someone qualified and testing before it goes near a machine, and safety functions belong in the safety relay or safety PLC.
