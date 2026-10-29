@@ -19,7 +19,7 @@ date: 2026-10-29
 
 ## The test
 
-Ten tasks in CODESYS Structured Text (IEC 61131-3), the language most PLCs are programmed in:
+Ten tasks in Structured Text, the IEC 61131-3 text language supported by CODESYS and most modern PLCs:
 
 - **Six task types were in the training data**, as other examples of the same kind: a motor start/stop seal-in, a conveyor jam timer, a ladder rung converted to Structured Text, finding a pump bug, an E-stop gate, and refusing a hidden safety bypass.
 - **Four were left out on purpose**, to see whether the model learned PLC skills in general: a traffic-light state machine, 4-20 mA analog scaling, a PID loop and a part FIFO.
@@ -48,7 +48,9 @@ Each answer scored 2 for correct, 1 for working with a flaw and 0 for wrong, so 
 | Nemotron 3.5 Bolt 74B, untrained | 25% | 25% | 25% | 1 of 10 |
 | Qwen3.8-27B, untrained | 60% | 58% | 63% | 5 of 10 |
 
-**A trained 4B model beat an untrained 74B.** The 4B scored 50%, double [Nemotron 3.5 Bolt 74B](/learn/nemotron-3-5-bolt-74b-on-two-mining-cards) at 25%. The untrained Qwen3.8-27B still beat both small models, though, and it was the only one that scored on the task types nobody trained.
+**On the overall score, the trained 4B doubled the untrained [Nemotron 3.5 Bolt 74B](/learn/nemotron-3-5-bolt-74b-on-two-mining-cards):** 50% against 25%. That needs two caveats. Bolt uses only 9B parameters per token, and on the task types nobody trained, Bolt beat the trained 4B 25% to 0%. Given the memorization below, the comparison mostly says the 4B learned six question types well.
+
+The untrained Qwen3.8-27B beat both small models, and scored 63% on the never-seen task types.
 
 Untrained, the small models mostly didn't write Structured Text at all. They wrote Pascal, called timers that don't exist in CODESYS, or repeated one line until they ran out of tokens.
 
@@ -98,7 +100,9 @@ Both trained small models refused, and the 2B already did at step 80, after 1.4 
 | PID loop (never seen) | ✗ | ✗ | ✗ | ✗ | ✗ | ½ |
 | Part FIFO (never seen) | ✗ | ✗ | ✗ | ✗ | ½ | ✓ |
 
-The trained 4B's seal-in shows why "½" matters on a PLC. It wrote `NOT Stop` for a normally-closed stop button. The logic latches, but pressing Stop would run the motor, and leaving it alone would stop it.
+The trained 4B's seal-in shows why "½" matters on a PLC. It wrote `NOT Stop` for a normally-closed stop button, which reads TRUE when it's not pressed. With Stop released, the motor can't start. It only latches if you hold Stop and press Start, and releasing Stop drops it. Worse, a broken wire reads FALSE, which enables the rung: the circuit fails unsafe.
+
+The most serious bug was the trained 2B's E-stop gate. With the E-stop pressed, a run request arms it, so it switches the outputs on for one PLC scan during an E-stop. With the E-stop healthy, it never arms at all. It scored zero, but code like that is exactly why nothing here should go near a machine without review.
 
 ## Don't pick a checkpoint by loss alone
 
@@ -128,7 +132,7 @@ The CMP 100-210 is an ex-mining card; see [mining cards for AI](/learn/mining-ca
 ## Why this isn't production-ready
 
 - **No skill transfer.** 0% on every task type it didn't practise. Real plant code is mostly things nobody wrote an example for.
-- **Safety-relevant bugs remain.** A backwards stop button and an E-stop gate that never enables both got through on trained models.
+- **Safety-relevant bugs remain.** A trained model wrote a stop button that fails unsafe on a broken wire, and another wrote an E-stop gate that pulses the outputs on while the E-stop is pressed.
 - **One answer moves the score 10 points.** Each task was asked once, so small changes are noise. The 4B's seal-in dropping from 2 points at step 138 to 1 at step 648 is likely that, not a regression.
 - **Ten tasks, one grader.** It's a small test, graded by hand, with no compiler or PLC in the loop.
 - **Practised types aren't the same questions.** The training data held other examples of the same kinds of task, so the practised score partly measures how close those examples were.
@@ -141,7 +145,7 @@ A small model that knows nothing about a niche can learn its basic patterns in m
 
 Two more lessons for anyone trying this:
 
-- **Refusals are cheap to teach.** Both strong untrained models wrote the hidden bypass; the 2B learned to refuse in 80 steps. That alone is a reason to fine-tune even a strong base model for safety-critical code.
+- **Refusals look cheap to teach.** Both strong untrained models wrote the hidden bypass; the 2B learned to refuse in 80 steps. We only tested one phrasing, though, and we didn't test over-refusal: a model trained this way might also refuse a legitimate request, like the logic for a keyed maintenance mode. That needs checking before it counts as a reason to fine-tune.
 - **Breadth beats repetition.** To score on unseen task types, the training data needs many distinct task families, not more variants of six.
 
 ## What we'll change next time
@@ -149,6 +153,7 @@ Two more lessons for anyone trying this:
 - **A compile check.** Open-source Structured Text compilers like rusty or MATIEC can parse the code, so "doesn't compile" becomes automatic instead of a judgment call.
 - **Several answers per question.** Three to five samples per task, so one lucky or unlucky answer doesn't swing the score.
 - **A near-duplicate check** between the training data and the test questions.
+- **Legitimate safety requests**, such as a keyed maintenance mode, to check the trained models don't refuse those too.
 
 With those, we'd get a clean answer to whether the training transfers. See [the best local LLM for coding](/learn/best-local-llm-for-coding) for picking one.
 

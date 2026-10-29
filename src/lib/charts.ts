@@ -34,5 +34,15 @@ export function shareChart(body: string): Bars | null {
   return null;
 }
 
+/** The highlighted figure from an article's stats row, which the share card shows large. */
+export function heroStat(body: string) {
+  for (const [, src] of body.matchAll(/^```chart\n([\s\S]*?)\n```/gm)) {
+    const c = parseChart(src);
+    const hi = c.type === "stats" ? c.items.find(s => s.hi) : undefined;
+    if (hi) return hi;
+  }
+  return null;
+}
+
 export const fmt = (v: number, digits?: number) =>
   v.toLocaleString("en-US", digits == null ? {} : { minimumFractionDigits: digits, maximumFractionDigits: digits });
