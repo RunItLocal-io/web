@@ -15,7 +15,8 @@ export function generateImageMetadata({ params }: { params: { slug: string } }) 
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const a = article((await params).slug);
-  const chart = a ? shareChart(a.body) : null;
+  // Four bars fit under a two-line title; the article lists the ones that matter first.
+  const found = a ? shareChart(a.body) : null, chart = found && { ...found, rows: found.rows.slice(0, 4) };
   const where = !a ? "Learn" : a.kind === "post" ? "Learn · Post" : `Learn · ${TRACKS.find(t => t.id === a.track)?.label}`;
   const max = chart ? Math.max(...chart.rows.map(r => r.value)) : 1;
   return new ImageResponse(

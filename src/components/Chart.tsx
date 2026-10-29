@@ -53,7 +53,8 @@ function LineChart({ c }: { c: Lines }) {
             <span key={`${i}.${j}`} className="dot" style={{ left: `${xs[j]}%`, bottom: `${y(v)}%`, background: SERIES[i] }} />
           )))}
           {c.series.map((s, i) => {
-            const v = s.values[at], above = v >= Math.max(...c.series.map(o => o.values[at]));
+            // The lower line's label goes under its point, unless that would run into the x axis.
+            const v = s.values[at], above = v >= Math.max(...c.series.map(o => o.values[at])) || y(v) < 15;
             return (
               <span key={i} className={`dot-label ${edge(at)} ${above ? "above" : "below"}`} style={{ left: `${xs[at]}%`, bottom: `${y(v)}%` }}>
                 {s.short ?? s.name} <b>{fmt(v, c.digits)}</b>
