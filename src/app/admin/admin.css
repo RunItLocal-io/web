@@ -10,3 +10,8 @@
 .admin-item .btns form { display: contents; }
 .admin-done { display: grid; gap: 16px; }
 .admin-done summary { cursor: pointer; color: var(--ink-2); margin-bottom: 16px; }
+.admin-subs { display: grid; gap: 12px; overflow-x: auto; }
+.admin-subs h2 { font-size: 20px; }
+.admin-subs table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.admin-subs th, .admin-subs td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+.admin-subs th { color: var(--ink-2); font-weight: 500; }

@@ -5,6 +5,7 @@ import Page, { PageHead } from "@/components/Page";
 import { adminEnabled, isAdmin } from "@/lib/admin";
 import { KINDS } from "@/lib/submission-kinds";
 import { submissions, type Submission } from "@/lib/submissions";
+import { subscribers } from "@/lib/subscribers";
 import { logout, mark, remove } from "./actions";
 import Login from "./Login";
 import "./admin.css";
@@ -30,7 +31,7 @@ async function Queue() {
   await connection();
   if (!adminEnabled()) return <div className="card panel"><p className="small">Admin is off. Set ADMIN_TOKEN (12 characters or more) in the server&apos;s environment to turn it on.</p></div>;
   if (!(await isAdmin())) return <Login />;
-  const all = await submissions();
+  const [all, subs] = await Promise.all([submissions(), subscribers()]);
   const fresh = all.filter(s => s.status === "new"), done = all.filter(s => s.status !== "new");
   return (
     <div className="admin">
@@ -45,6 +46,20 @@ async function Queue() {
           {done.map(s => <Item key={s.id} s={s} />)}
         </details>
       )}
+      <section className="card panel admin-subs">
+        <header className="admin-bar">
+          <h2>Subscribers ({subs.length})</h2>
+          {subs.length > 0 && <a className="btn outline" href="/admin/subscribers.csv" download>Download CSV</a>}
+        </header>
+        {subs.length ? (
+          <table>
+            <thead><tr><th>Signed up</th><th>Name</th><th>Email</th><th>Form</th></tr></thead>
+            <tbody>{subs.map(s => (
+              <tr key={s.email}><td>{when(s.at)}</td><td>{s.name || "—"}</td><td><a href={`mailto:${s.email}`}>{s.email}</a></td><td>{s.source}</td></tr>
+            ))}</tbody>
+          </table>
+        ) : <p className="small">Nobody yet.</p>}
+      </section>
     </div>
   );
 }

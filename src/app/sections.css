@@ -98,7 +98,8 @@ textarea.json { font-family: var(--font-mono); font-size: 12px; min-height: 150p
 .runson span { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
 
 /* about / signup */
-.signup { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; max-width: 520px; }
+.signup { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr) auto; gap: 10px; max-width: 640px; }
+@media (max-width: 560px) { .signup { grid-template-columns: minmax(0, 1fr); } }
 .signup-wrap { display: grid; gap: 10px; }
 .trap { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 

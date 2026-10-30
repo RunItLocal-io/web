@@ -20,7 +20,7 @@ export default function Signup({ source = "site", cta = "Subscribe", placeholder
     }
     setBusy(true);
     try {
-      const res = await fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, source, website: f.get("website") }) });
+      const res = await fetch("/api/subscribe", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ email, name: String(f.get("name") ?? "").trim(), source, website: f.get("website") }) });
       const data = await res.json().catch(() => null);
       if (!res.ok) throw new Error(data?.error || "Couldn't sign you up just now. Try again in a minute.");
       if (!f.get("website")) track("signup", { source, page: location.pathname, ...utm() });
@@ -36,6 +36,8 @@ export default function Signup({ source = "site", cta = "Subscribe", placeholder
   return (
     <div className="signup-wrap">
       <form className="signup" onSubmit={onSubmit} noValidate>
+        <label htmlFor={`name-${source}`} className="sr">Name (optional)</label>
+        <input id={`name-${source}`} name="name" type="text" autoComplete="name" placeholder="Name (optional)" maxLength={80} />
         <label htmlFor={`email-${source}`} className="sr">Email</label>
         <input id={`email-${source}`} name="email" type="email" autoComplete="email" placeholder={placeholder} maxLength={120} />
         <input name="website" tabIndex={-1} autoComplete="off" className="trap" aria-hidden="true" />
