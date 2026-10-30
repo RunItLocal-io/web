@@ -1,7 +1,8 @@
 # runitlocal.io and its tunnel, on runitlocal-web (DMZ, SV10 CT 12076). `web`
 # publishes no port: cloudflared reaches it on the compose network as
-# http://web:3000, so nothing on the plane can. TUNNEL_TOKEN and ADMIN_TOKEN
-# (the password for /admin) come from .env beside this file (root, 600). The
+# http://web:3000, so nothing on the plane can. TUNNEL_TOKEN and the /admin login
+# (OIDC_CLIENT_ID, OIDC_CLIENT_SECRET of authentik's runitlocal-admin, and
+# SESSION_SECRET) come from .env beside this file (root, 600). The
 # volume is still called rigs from the old leaderboard; it holds the podcast
 # list and the submissions queue, so it keeps its name.
 name: runitlocal
@@ -11,7 +12,9 @@ services:
     restart: unless-stopped
     mem_limit: 512m
     environment:
-      - ADMIN_TOKEN
+      - OIDC_CLIENT_ID
+      - OIDC_CLIENT_SECRET
+      - SESSION_SECRET
     volumes:
       - rigs:/app/data
     healthcheck:

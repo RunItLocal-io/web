@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import Page, { PageHead } from "@/components/Page";
-import { adminEnabled, isAdmin } from "@/lib/admin";
+import { adminEnabled, adminName } from "@/lib/admin";
 import { KINDS } from "@/lib/submission-kinds";
 import { submissions, type Submission } from "@/lib/submissions";
 import { subscribers } from "@/lib/subscribers";
@@ -27,17 +27,18 @@ export default function Admin() {
 }
 
 async function Queue() {
-  // ADMIN_TOKEN is set at run time, not build time, so nothing here can be prerendered.
+  // The OIDC settings are read at run time, not build time, so nothing here can be prerendered.
   await connection();
-  if (!adminEnabled()) return <div className="card panel"><p className="small">Admin is off. Set ADMIN_TOKEN (12 characters or more) in the server&apos;s environment to turn it on.</p></div>;
-  if (!(await isAdmin())) return <Login />;
+  if (!adminEnabled()) return <div className="card panel"><p className="small">Admin is off. Set OIDC_CLIENT_ID, OIDC_CLIENT_SECRET and SESSION_SECRET (32 characters or more) in the server&apos;s environment to turn it on.</p></div>;
+  const who = await adminName();
+  if (!who) return <Login />;
   const [all, subs] = await Promise.all([submissions(), subscribers()]);
   const fresh = all.filter(s => s.status === "new"), done = all.filter(s => s.status !== "new");
   return (
     <div className="admin">
       <div className="admin-bar">
         <span className="small">{fresh.length} new · {done.length} handled</span>
-        <form action={logout}><button className="linkish" type="submit">Sign out</button></form>
+        <span className="small">{who} · <form action={logout} style={{ display: "inline" }}><button className="linkish" type="submit">Sign out</button></form></span>
       </div>
       {fresh.length ? fresh.map(s => <Item key={s.id} s={s} />) : <div className="card panel"><p className="small">Nothing new. You&apos;re caught up.</p></div>}
       {done.length > 0 && (
