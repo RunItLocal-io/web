@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import LearnToc from "@/components/LearnToc";
 import Markdown, { headingId } from "@/components/Markdown";
 import Page from "@/components/Page";
+import { Views, Vote } from "@/components/Reactions";
 import Signup from "@/components/Signup";
 import { LOCAL_MODELS, modelSlug } from "@/lib/estimate";
 import { TRACKS, article, articles, fmtDate, posts, sequence } from "@/lib/learn";
@@ -54,12 +55,17 @@ export default async function LearnArticle({ params }: PageProps<"/learn/[slug]"
         <article className="docs-body">
           <header className="docs-head">
             <ol className="docs-crumbs" aria-label="Breadcrumb">
-              <li><Link href="/learn">Learn</Link></li>
-              {post ? <li><Link href="/learn/posts">Posts</Link></li> : <li>{track?.label}</li>}
+              {!post && <li><Link href="/learn">Learn</Link></li>}
+              {post ? <li><Link href="/articles">Articles</Link></li> : <li>{track?.label}</li>}
             </ol>
             <h1>{a.title}</h1>
             <p className="docs-lede">{a.description}</p>
-            <p className="docs-meta">{post ? `Posted ${fmtDate(a.date)} · ${a.by ? `Sent in by ${a.by}` : "RunItLocal.io"}` : `Updated ${fmtDate(a.date)} · RunItLocal.io`}</p>
+            {post ? (
+              <div className="docs-meta post-meta">
+                <span>Posted {fmtDate(a.date)} · {a.by ? `Sent in by ${a.by}` : "RunItLocal.io"} · <Views slug={a.slug} /></span>
+                <Vote slug={a.slug} title={a.title} />
+              </div>
+            ) : <p className="docs-meta">Updated {fmtDate(a.date)} · RunItLocal.io</p>}
           </header>
           <Markdown source={a.body} />
           {/* JSON-LD for search engines; the content is ours and < is escaped so it can't close the tag. */}
@@ -75,16 +81,24 @@ export default async function LearnArticle({ params }: PageProps<"/learn/[slug]"
           )}
 
           {post && (
-            <section className="docs-related">
-              <h2>Got one of your own?</h2>
-              <p className="small">A measured run, a fix, a build, or something you didn&apos;t expect. <Link href="/learn/posts#share">Send it to us</Link> and we may write it up, with credit.</p>
+            <section className="docs-related post-rate">
+              <h2>Worth reading?</h2>
+              <p className="small">Vote it up or down. It tells us what to test next.</p>
+              <Vote slug={a.slug} title={a.title} />
             </section>
           )}
 
-          <div className="pager" role="navigation" aria-label={post ? "Newer and older post" : "Previous and next guide"}>
+          {post && (
+            <section className="docs-related">
+              <h2>Got one of your own?</h2>
+              <p className="small">A measured run, a fix, a build, or something you didn&apos;t expect. <Link href="/articles#share">Send it to us</Link> and we may write it up, with credit.</p>
+            </section>
+          )}
+
+          <div className="pager" role="navigation" aria-label={post ? "Newer and older article" : "Previous and next guide"}>
             {prev ? <Link className="prev" href={`/learn/${prev.slug}`} transitionTypes={["nav-back"]}><span>{post ? "Newer" : "Previous"}</span>{prev.title}</Link> : <span />}
             {next ? <Link className="next" href={`/learn/${next.slug}`} transitionTypes={["nav-forward"]}><span>{post ? "Older" : "Next"}</span>{next.title}</Link>
-              : post ? <Link className="next" href="/learn/posts" transitionTypes={["nav-back"]}><span>Done</span>All posts</Link>
+              : post ? <Link className="next" href="/articles" transitionTypes={["nav-back"]}><span>Done</span>All articles</Link>
               : <Link className="next" href="/learn" transitionTypes={["nav-back"]}><span>Done</span>Back to Learn</Link>}
           </div>
 

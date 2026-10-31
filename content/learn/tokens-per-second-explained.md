@@ -75,5 +75,5 @@ Your number will rarely match an estimate exactly. Long conversations get slower
 
 ## Where to go next
 
-- Measure your real number with [our benchmark](/learn/how-we-benchmark), the same way every time, and [send it to us](/learn/posts#share) if you like.
+- Measure your real number with [our benchmark](/learn/how-we-benchmark), the same way every time, and [send it to us](/articles#share) if you like.
 - Check what your card should do on [every GPU](/gpu).

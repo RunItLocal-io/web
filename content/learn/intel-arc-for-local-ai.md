@@ -48,4 +48,4 @@ Ollama's support for Intel GPUs has varied between versions. **Check the current
 - **Maybe, if** you want 16 GB cheaply: compare the A770 16 GB against a [Tesla P100](/learn/tesla-p100-for-local-llms), which has much faster memory but needs a shroud, and against 16 GB cards from NVIDIA and AMD.
 - **No, if** you want everything to just work, or plan to use tools beyond chat. The [RTX 3060 12 GB](/learn/rtx-3060-12gb-for-ai) is the safe starter, and a [used RTX 3090](/learn/used-rtx-3090-buying-guide) is the safe step up.
 
-Already own an Arc card? Start with [Qwen3 8B](/model/qwen3-8b) or [Qwen3 14B](/model/qwen3-14b) in LM Studio, then [send us your numbers](/learn/posts#share). Real results help others decide.
+Already own an Arc card? Start with [Qwen3 8B](/model/qwen3-8b) or [Qwen3 14B](/model/qwen3-14b) in LM Studio, then [send us your numbers](/articles#share). Real results help others decide.

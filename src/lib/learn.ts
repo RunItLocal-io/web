@@ -9,7 +9,7 @@
 //   nav: VRAM needs                    (optional, sidebar label; defaults to the title up to any colon)
 //   ---
 // A post is dated news from the rack or from a reader, not a guide: "kind: post" instead of a track, and optionally
-// "by: Sam R." to credit whoever sent it in. Posts list newest first on /learn/posts and stay out of the sidebar.
+// "by: Sam R." to credit whoever sent it in. Posts list newest first on /articles and stay out of the sidebar.
 // Files starting with "_" are drafts and planning notes, never published.
 
 import { readdirSync, readFileSync } from "node:fs";

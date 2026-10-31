@@ -48,6 +48,6 @@ export async function POST(req: Request) {
 
   const ok = await addSubmission({ kind, title, body, handle: tidy(b.handle, 40), email, hardware: tidy(b.hardware, 120), run, utm: tidyUtm(b.utm) });
   if (!ok) return Response.json({ error: "Our inbox is full right now. Try again later." }, { status: 503 });
-  await serverEvent(req, "post_submitted", "/learn/posts", { kind, benchmark: run ? "yes" : "no" });
+  await serverEvent(req, "post_submitted", "/articles", { kind, benchmark: run ? "yes" : "no" });
   return Response.json({ ok: true });
 }

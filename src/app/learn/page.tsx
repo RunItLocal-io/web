@@ -60,13 +60,13 @@ export default function Learn() {
       </section>
 
       <section aria-labelledby="posts-h">
-        <div className="head"><span className="kicker">Posts</span><h2 id="posts-h">From the rack, and from you</h2></div>
+        <div className="head"><span className="kicker">Articles</span><h2 id="posts-h">From the rack, and from you</h2></div>
         {latest.length > 0 && (
           <ul className="article-list">
             {latest.map(p => <li key={p.slug}><Link href={`/learn/${p.slug}`} transitionTypes={["nav-forward"]}><b>{p.title}</b><span>{fmtDate(p.date)}{p.by ? ` · from ${p.by}` : ""} · {p.description}</span></Link></li>)}
           </ul>
         )}
-        <p className="small">Measured runs, things that broke, and builds. <Link href="/learn/posts">See every post</Link>, or <Link href="/learn/posts#share">send us yours</Link>.</p>
+        <p className="small">Measured runs, things that broke, and builds. <Link href="/articles">See every article</Link>, or <Link href="/articles#share">send us yours</Link>.</p>
       </section>
 
       <section aria-labelledby="tools-h">

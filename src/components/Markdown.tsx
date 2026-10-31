@@ -12,6 +12,7 @@ import { tabFor } from "@/lib/studio/links";
 // > notes, | tables |, fenced code (a one-line sh block becomes a copy button), **bold**, *italic*, `code`
 // and [links](/gpu/rtx-3090). Two extras: a line {{lineup rtx-3090 24}} embeds that GPU's live model lineup,
 // so numbers in articles always match the estimator, and a ```chart block draws a chart (see lib/charts.ts).
+// A picture goes on a line of its own, ![caption](/learn/img/file.jpg), with the file in public/learn/img.
 
 export const headingId = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
@@ -71,6 +72,19 @@ export default function Markdown({ source }: { source: string }) {
       continue;
     }
 
+    const img = line.match(/^!\[([^\]]*)\]\(([^)\s]+)\)\s*$/);
+    if (img) {
+      out.push(
+        <figure key={key()} className="md-figure">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={img[2]} alt={img[1]} loading="lazy" />
+          {img[1] && <figcaption>{img[1]}</figcaption>}
+        </figure>,
+      );
+      i++;
+      continue;
+    }
+
     const h = line.match(/^(#{2,3})\s+(.*)$/);
     if (h) {
       const Tag = h[1] === "##" ? "h2" : "h3";
@@ -113,7 +127,7 @@ export default function Markdown({ source }: { source: string }) {
     }
 
     const para = [line.trim()];
-    for (i++; i < lines.length && lines[i].trim() && !/^(#{2,3}\s|```|>|\s*\||\s*[-*]\s|\s*\d+\.\s|\{\{)/.test(lines[i]); i++) para.push(lines[i].trim());
+    for (i++; i < lines.length && lines[i].trim() && !/^(#{2,3}\s|```|>|\s*\||\s*[-*]\s|\s*\d+\.\s|\{\{|!\[)/.test(lines[i]); i++) para.push(lines[i].trim());
     out.push(<p key={key()}>{inline(para.join(" "))}</p>);
   }
 

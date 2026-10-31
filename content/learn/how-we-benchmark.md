@@ -7,7 +7,7 @@ order: 17
 date: 2026-10-26
 models: qwen3-8b
 ---
-**Our benchmark prompt measures how fast a rig generates text on one fixed model, run the same way on every machine, so two results can be compared.** Your own AI agent runs the test on your hardware and shows you the result. Nothing is sent anywhere unless you choose to [send it to us](/learn/posts#share). This page explains exactly what it does.
+**Our benchmark prompt measures how fast a rig generates text on one fixed model, run the same way on every machine, so two results can be compared.** Your own AI agent runs the test on your hardware and shows you the result. Nothing is sent anywhere unless you choose to [send it to us](/articles#share). This page explains exactly what it does.
 
 ## The two tests
 
@@ -22,10 +22,10 @@ You pick a tier, or let your agent pick the largest one that fits your total GPU
 
 ## How to run it
 
-1. Copy the prompt from the share form on the [Posts page](/learn/posts#share), or point your agent at the plain-text version at `runitlocal.io/bench.txt`.
+1. Copy the prompt from the share form on the [Articles page](/articles#share), or point your agent at the plain-text version at `runitlocal.io/bench.txt`.
 2. Paste it into an agent that runs on your machine, like Claude Code or Codex.
 3. The agent runs the test and prints one JSON result. It's yours to keep.
-4. If you want, paste the JSON into the same form with a note about your setup. We read every one, and the interesting ones become [posts](/learn/posts), credited to you.
+4. If you want, paste the JSON into the same form with a note about your setup. We read every one, and the interesting ones become [articles](/articles), credited to you.
 
 ## What the agent does
 

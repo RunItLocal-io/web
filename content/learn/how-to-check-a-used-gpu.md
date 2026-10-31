@@ -89,4 +89,4 @@ Mining ran cards at steady, lowered power, which is gentle on the chip. The usua
 4. A clean VRAM test.
 5. Model speed close to [our estimate](/gpu) for that card.
 
-Once it passes, [send us your measured speed](/learn/posts#share).
+Once it passes, [send us your measured speed](/articles#share).

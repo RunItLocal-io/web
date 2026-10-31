@@ -166,4 +166,4 @@ Two more lessons for anyone trying this:
 
 With those, we'd get a clean answer to whether the training transfers. See [the best local LLM for coding](/learn/best-local-llm-for-coding) for picking one.
 
-Trained a small model on your own niche? [Send us your numbers](/learn/posts#share).
+Trained a small model on your own niche? [Send us your numbers](/articles#share).

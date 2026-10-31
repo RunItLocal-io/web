@@ -66,4 +66,4 @@ More detail in [the Tesla P100 for local LLMs](/learn/tesla-p100-for-local-llms)
 
 A team server is a target. Don't publish its ports to the internet. Give each person access through [Tailscale or a Cloudflare tunnel](/learn/remote-access-with-tailscale-or-cloudflare), set an API key, and put a chat front end like [Open WebUI](/learn/open-webui-setup) with individual logins in front. The checklist is in [securing your local AI server](/learn/secure-your-local-ai-server).
 
-Want to compare your own rig with ours? Run [our benchmark](/learn/how-we-benchmark) and [send us the result](/learn/posts#share).
+Want to compare your own rig with ours? Run [our benchmark](/learn/how-we-benchmark) and [send us the result](/articles#share).

@@ -157,4 +157,4 @@ That's `llama-bench`, not our [benchmark prompt](/learn/how-we-benchmark), so co
 - **We used the default f16 KV cache.** NVIDIA recommends q8_0, which uses less memory per token of context.
 - **The 27B numbers come from our unlock test.** They used an older llama.cpp build (`19cce691`) and one pass each.
 
-New to these cards? Start with [mining cards for AI](/learn/mining-cards-for-ai) or [the Tesla P100 for local LLMs](/learn/tesla-p100-for-local-llms). Running Bolt on your own hardware? [Send us your numbers](/learn/posts#share).
+New to these cards? Start with [mining cards for AI](/learn/mining-cards-for-ai) or [the Tesla P100 for local LLMs](/learn/tesla-p100-for-local-llms). Running Bolt on your own hardware? [Send us your numbers](/articles#share).

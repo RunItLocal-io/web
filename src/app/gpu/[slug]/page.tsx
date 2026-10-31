@@ -102,7 +102,7 @@ export default async function GpuPage({ params }: PageProps<"/gpu/[slug]">) {
             {g.kind === "apple" ? " macOS lets the GPU use about two thirds to three quarters of unified memory, so that is what we count." : ""}
             {g.kind === "unified" ? " The GPU shares memory with the system, so we count about three quarters of it for models." : ""}
             {g.kind === "integrated" ? " Built-in graphics share system memory, so we count about 60% of it. The easiest start is a small model in your browser in the Studio." : ""}
-            {" "}Real results are usually within about a third. Measured one yourself? <Link href="/learn/posts#share">Send us the number</Link>.
+            {" "}Real results are usually within about a third. Measured one yourself? <Link href="/articles#share">Send us the number</Link>.
           </p>
         </div>
         {upgrade && (

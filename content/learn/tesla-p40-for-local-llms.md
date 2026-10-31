@@ -60,4 +60,4 @@ Our [builds page](/builds) doesn't track P40 prices, so check current used price
 - **Good fit:** a homelab box that needs 24 GB on one card cheaply, and mostly runs MoE models like [Qwen3 30B-A3B](/model/qwen3-30b-a3b).
 - **Bad fit:** dense 32B models at speed, image generation, or a quiet desk machine. A [used RTX 3090](/learn/used-rtx-3090-buying-guide) does all three.
 
-Full speeds are on the [Tesla P40 page](/gpu/tesla-p40). If you run one, [send us your numbers](/learn/posts#share).
+Full speeds are on the [Tesla P40 page](/gpu/tesla-p40). If you run one, [send us your numbers](/articles#share).

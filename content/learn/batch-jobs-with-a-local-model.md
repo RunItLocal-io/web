@@ -86,4 +86,4 @@ Models fail quietly. Spot-check a random sample of outputs, not just the first f
 
 ## Where to go next
 
-See what your card can run on [every GPU](/gpu), or read [posts](/learn/posts) from our rack.
+See what your card can run on [every GPU](/gpu), or read [articles](/articles) from our rack.

@@ -25,7 +25,7 @@ The CMP HX series was made for mining only. Compared to gaming cards from the sa
 - **A cut-down PCIe connection on many models.** This mostly affects how fast a model loads onto the card, less so how fast it generates once loaded. See [does PCIe bandwidth matter](/learn/does-pcie-bandwidth-matter-for-llms).
 - **Other limits vary by model.** NVIDIA restricted some features differently on each card. Look up the specific model, and real results from people running AI on it, before buying.
 
-Our calculator doesn't cover CMP cards yet. If you run one, [send us your measured numbers](/learn/posts#share).
+Our calculator doesn't cover CMP cards yet. If you run one, [send us your measured numbers](/articles#share).
 
 ## What works
 

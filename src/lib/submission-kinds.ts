@@ -1,4 +1,4 @@
-// What people can send in from /learn/posts. Shared by the form (client) and the queue (server).
+// What people can send in from /articles. Shared by the form (client) and the queue (server).
 
 export const KINDS = [
   { id: "run", label: "A measured run", hint: "Your GPU, a model, the tok/s you got" },

@@ -1,4 +1,4 @@
-// Things people send in from /learn/posts: a measured run, a tip, a fix, a build. One JSON file in DATA_DIR (the
+// Things people send in from /articles: a measured run, a tip, a fix, a build. One JSON file in DATA_DIR (the
 // same Docker volume as the podcast list). Nothing here is ever public; it's a queue read at /admin, and the good
 // ones get written up as posts by hand, with credit.
 

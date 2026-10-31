@@ -70,4 +70,4 @@ Here's what a 12 GB RTX 3060, our Starter build at about $300 to $400 all in, ru
 
 - **Weighing local against your cloud subscription?** Read [is local AI worth it](/learn/is-local-ai-worth-it).
 - **Want the commands in one place?** See the [Ollama cheat sheet](/learn/ollama-commands-cheat-sheet).
-- **Curious what other people's rigs do?** Read the [posts](/learn/posts).
+- **Curious what other people's rigs do?** Read the [articles](/articles).

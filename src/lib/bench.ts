@@ -1,5 +1,5 @@
 // The benchmark prompt people paste into their local agent, and the validator for the JSON it prints back. The
-// result is sent in with the share form on /learn/posts, so we can read it and write it up.
+// result is sent in with the share form on /articles, so we can read it and write it up.
 
 /** The tests people can pick. Results only compare with runs of the same test. */
 export const TESTS = [
@@ -35,7 +35,7 @@ Use this test. If it does not fit in total GPU memory (or unified memory on Appl
 ${modelLine(t)}
 ${MODEL_RULES}`;
 
-const FINISH = "When you're done, tell me I can send the JSON to RunItLocal.io by pasting it into the form at https://runitlocal.io/learn/posts#share, if I want to.";
+const FINISH = "When you're done, tell me I can send the JSON to RunItLocal.io by pasting it into the form at https://runitlocal.io/articles#share, if I want to.";
 
 /** The prompt for one run, with a picked test or letting the agent pick. */
 export function benchPrompt({ tier }: { tier?: Tier } = {}) {

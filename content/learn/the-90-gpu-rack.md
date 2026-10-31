@@ -61,4 +61,4 @@ First off the queue: **NVIDIA Nemotron 3.5 Bolt**, a 74B mixture-of-experts mode
 
 ## Build a small version
 
-You don't need 90 cards. Two P100s in a used workstation are our "Best value" build at $450 to $650, and two P100s are what measured 53 tok/s on our rack. Start with the [Tesla P100 guide](/learn/tesla-p100-for-local-llms) and [used workstation builds](/learn/used-workstation-builds), and [send us your own results](/learn/posts#share).
+You don't need 90 cards. Two P100s in a used workstation are our "Best value" build at $450 to $650, and two P100s are what measured 53 tok/s on our rack. Start with the [Tesla P100 guide](/learn/tesla-p100-for-local-llms) and [used workstation builds](/learn/used-workstation-builds), and [send us your own results](/articles#share).

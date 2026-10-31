@@ -11,7 +11,7 @@ const DEEPER = [
   { href: "/gpu", title: "Every GPU", text: "What any card or Mac can run, with speeds and the command to start." },
   { href: "/builds", title: "Builds", text: "Set a budget, get a parts list with used prices." },
   { href: "/podcast", title: "Podcast", text: "All things AI, run it local. New episodes and lab notes by email." },
-  { href: "/learn/posts", title: "Posts", text: "Measured runs, fixes and builds, from our rack and from you. Send yours in." },
+  { href: "/articles", title: "Articles", text: "Measured runs, fixes and builds, from our rack and from you. Send yours in." },
   { href: "/people", title: "People", text: "The engineers behind the rack." },
 ];
 
@@ -21,7 +21,7 @@ export default function Home() {
 
       <YourGpu />
 
-      <p className="small privacy"><span>Your GPU is read by your browser and never sent to us. Speeds are estimates unless marked measured. Measured something on your own rig? <Link href="/learn/posts#share">Send it to us</Link>.</span></p>
+      <p className="small privacy"><span>Your GPU is read by your browser and never sent to us. Speeds are estimates unless marked measured. Measured something on your own rig? <Link href="/articles#share">Send it to us</Link>.</span></p>
 
       <section aria-labelledby="deeper-h">
         <div className="head reveal">

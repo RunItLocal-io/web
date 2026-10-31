@@ -11,6 +11,7 @@ export const SECTIONS = [
   { href: "/studio", label: "Studio" },
   { href: "/builds", label: "Builds" },
   { href: "/learn", label: "Learn" },
+  { href: "/articles", label: "Articles" },
   { href: "/podcast", label: "Podcast" },
   { href: "/people", label: "People" },
 ];

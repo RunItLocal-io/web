@@ -5,7 +5,7 @@ import { articles } from "@/lib/learn";
 import { MATCHUPS, matchupHref, pairHref, pairModels } from "@/lib/pairs";
 import { SITE } from "@/lib/share";
 
-const PAGES = ["", "/learn", "/gpu", "/model", "/builds", "/compare", "/learn/posts", "/studio", "/podcast", "/people"];
+const PAGES = ["", "/learn", "/gpu", "/model", "/builds", "/compare", "/articles", "/studio", "/podcast", "/people"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

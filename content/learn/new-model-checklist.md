@@ -70,4 +70,4 @@ If it won on at least three of your five prompts and runs at a speed you can liv
 ollama rm <model-name>
 ```
 
-Ran a new model on interesting hardware? [Send us your numbers](/learn/posts#share). For a starting point by memory size, see [best local LLM for 24 GB](/learn/best-local-llm-for-24gb-vram).
+Ran a new model on interesting hardware? [Send us your numbers](/articles#share). For a starting point by memory size, see [best local LLM for 24 GB](/learn/best-local-llm-for-24gb-vram).

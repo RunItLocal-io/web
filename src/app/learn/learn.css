@@ -207,3 +207,21 @@
   .bar-row, .cards-row { grid-template-columns: minmax(0, 1fr); }
   .chart { padding: 16px; }
 }
+
+/* Articles: views in the byline, and up/down votes (components/Reactions.tsx). */
+.post-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; }
+.post-meta .views { display: inline-block; min-width: 6ch; }
+.vote { display: inline-flex; gap: 6px; }
+.vote button { display: inline-flex; align-items: center; gap: 7px; min-height: 36px; padding: 6px 14px; font: inherit; font-family: var(--font-mono); font-size: 13px; color: var(--ink-2); background: var(--surface); border: 1px solid var(--rule-2); border-radius: 999px; cursor: pointer; transition: color .2s, background .2s, border-color .2s, transform .15s; }
+.vote button:hover { color: var(--ink); border-color: var(--ink-3); }
+.vote button:active { transform: scale(.94); }
+.vote button:disabled { cursor: wait; }
+.vote .up.on { color: var(--accent); background: var(--accent-soft); border-color: rgba(200, 255, 46, .45); }
+.vote .down.on { color: var(--err); background: var(--err-bg); border-color: rgba(255, 92, 122, .45); }
+.post-rate { display: grid; gap: 10px; justify-items: start; }
+.post-rate .vote button { min-height: 42px; padding: 8px 18px; font-size: 14px; }
+
+/* A picture in an article: ![caption](/learn/img/file.jpg) on a line of its own. */
+.md-figure { margin: 28px 0; display: grid; gap: 10px; }
+.md-figure img { display: block; width: 100%; height: auto; border-radius: var(--radius); border: 1px solid var(--rule); background: var(--surface-solid); }
+.md-figure figcaption { font-size: 13px; color: var(--ink-3); }

@@ -3,6 +3,8 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import Page, { PageHead } from "@/components/Page";
 import { adminEnabled, adminName } from "@/lib/admin";
+import { posts } from "@/lib/learn";
+import { reactions } from "@/lib/reactions";
 import { KINDS } from "@/lib/submission-kinds";
 import { submissions, type Submission } from "@/lib/submissions";
 import { subscribers } from "@/lib/subscribers";
@@ -12,7 +14,7 @@ import "./admin.css";
 
 export const metadata: Metadata = { title: "Admin", robots: { index: false, follow: false } };
 
-// What people sent in from /learn/posts. Nothing here is public: mark one "used" once it's written up as a post
+// What people sent in from /articles. Nothing here is public: mark one "used" once it's written up as a post
 // (by hand, in content/learn with "kind: post"), or dismiss it.
 
 export default function Admin() {
@@ -32,7 +34,7 @@ async function Queue() {
   if (!adminEnabled()) return <div className="card panel"><p className="small">Admin is off. Set OIDC_CLIENT_ID, OIDC_CLIENT_SECRET and SESSION_SECRET (32 characters or more) in the server&apos;s environment to turn it on.</p></div>;
   const who = await adminName();
   if (!who) return <Login />;
-  const [all, subs] = await Promise.all([submissions(), subscribers()]);
+  const [all, subs, stats] = await Promise.all([submissions(), subscribers(), reactions(posts().map(p => p.slug))]);
   const fresh = all.filter(s => s.status === "new"), done = all.filter(s => s.status !== "new");
   return (
     <div className="admin">
@@ -47,6 +49,15 @@ async function Queue() {
           {done.map(s => <Item key={s.id} s={s} />)}
         </details>
       )}
+      <section className="card panel admin-subs">
+        <header className="admin-bar"><h2>Articles</h2></header>
+        <table>
+          <thead><tr><th>Article</th><th>Views</th><th>Up</th><th>Down</th></tr></thead>
+          <tbody>{posts().map(p => (
+            <tr key={p.slug}><td><a href={`/learn/${p.slug}`}>{p.title}</a></td><td>{stats[p.slug].views}</td><td>{stats[p.slug].up}</td><td>{stats[p.slug].down}</td></tr>
+          ))}</tbody>
+        </table>
+      </section>
       <section className="card panel admin-subs">
         <header className="admin-bar">
           <h2>Subscribers ({subs.length})</h2>

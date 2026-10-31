@@ -105,7 +105,7 @@ export default async function ComparePage({ params }: PageProps<"/compare/[pair]
         </div>
         <div className="card panel">
           <b>How we estimate</b>
-          <p className="small">Both columns use the same formula: memory bandwidth divided by the weights read per token, calibrated on our own rack, with Ollama&apos;s default 4-bit sizes. Real results are usually within about a third. Measured either one? <Link href="/learn/posts#share">Send us the number</Link>.</p>
+          <p className="small">Both columns use the same formula: memory bandwidth divided by the weights read per token, calibrated on our own rack, with Ollama&apos;s default 4-bit sizes. Real results are usually within about a third. Measured either one? <Link href="/articles#share">Send us the number</Link>.</p>
         </div>
       </section>
 

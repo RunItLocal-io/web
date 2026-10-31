@@ -1,0 +1,32 @@
+/* The Articles list: picture cards from each article's share card, newest leading full width. */
+
+.articles { gap: 48px; }
+
+.sort { display: inline-flex; gap: 4px; padding: 4px; margin-bottom: 18px; border: 1px solid var(--rule); border-radius: 12px; background: var(--surface); }
+.sort button { font: inherit; font-size: 14px; padding: 6px 14px; border: 0; border-radius: 8px; background: none; color: var(--ink-2); cursor: pointer; transition: color .2s, background .2s; }
+.sort button:hover { color: var(--ink); }
+.sort button[aria-selected="true"] { color: var(--ink); background: var(--accent-soft); box-shadow: inset 0 0 0 1px rgba(200, 255, 46, .3); }
+
+.article-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); gap: 18px; }
+.article-grid a { display: flex; flex-direction: column; height: 100%; overflow: hidden; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--surface-solid); color: var(--ink); text-decoration: none; transition: border-color .25s, transform .25s var(--ease), box-shadow .25s; }
+.article-grid a:hover { border-color: rgba(200, 255, 46, .35); transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0, 0, 0, .45); }
+.article-grid img { display: block; width: 100%; height: auto; aspect-ratio: 1200 / 630; object-fit: cover; background: #050608; border-bottom: 1px solid var(--rule); }
+.card-text { display: grid; gap: 8px; padding: 16px 18px 18px; flex: 1; align-content: start; }
+.card-text b { font-weight: 600; font-size: 17px; line-height: 1.3; letter-spacing: -.01em; }
+.card-meta { font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
+.card-desc { color: var(--ink-2); font-size: 14px; line-height: 1.5; }
+.card-stats { display: flex; gap: 14px; margin-top: 4px; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
+
+/* The lead article: picture and text side by side. */
+@media (min-width: 900px) {
+  .article-grid .lead { grid-column: 1 / -1; }
+  .article-grid .lead a { display: grid; grid-template-columns: 1.35fr 1fr; }
+  .article-grid .lead img { height: 100%; border-bottom: 0; border-right: 1px solid var(--rule); }
+  .article-grid .lead .card-text { padding: 28px 30px; align-content: center; gap: 12px; }
+  .article-grid .lead b { font-family: var(--font-display); font-size: 26px; line-height: 1.15; letter-spacing: -.03em; }
+  .article-grid .lead .card-desc { font-size: 16px; }
+}
+
+.articles-signup { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; padding: 22px 24px; }
+.articles-signup b { font-weight: 600; }
+.articles-signup p { margin: 4px 0 0; }
