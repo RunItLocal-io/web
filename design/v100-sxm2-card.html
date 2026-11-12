@@ -1,0 +1,193 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Source of public/learn/img/v100-sxm2-125b.png, the 125B-on-one-V100 share card picture. Original artwork, no vendor images.
+     Render: headless Chromium, viewport 680x630, deviceScaleFactor 2, transparent background (Playwright: omitBackground). -->
+<style>
+  /* An original illustration of a 32 GB V100 SXM2 module: hot experts lit on the die, the rest of the model
+     as a dim field of cells in RAM, a stream of cells running from the field into the card. */
+  html, body { margin: 0; background: transparent; }
+  body { width: 680px; height: 630px; overflow: hidden; position: relative; font-family: Menlo, "SF Mono", monospace; }
+  .fade { position: absolute; inset: 0; -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 26%, #000 94%, transparent 100%), linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%); -webkit-mask-composite: source-in; }
+  .scene { position: absolute; left: 50%; top: 50%; width: 0; height: 0; perspective: 1500px; perspective-origin: 50% 20%; }
+  .world { position: absolute; left: -260px; top: -144px; width: 520px; height: 289px; transform-style: preserve-3d;
+           transform: translate(10px, 10px) rotateX(56deg) rotateZ(-34deg); }
+  .world * { transform-style: preserve-3d; }
+
+  /* RAM: the floor of cells the board sits on */
+  .floor { position: absolute; left: -560px; top: -480px; width: 1640px; height: 1250px; transform: translateZ(-30px);
+           display: grid; grid-template-columns: repeat(110, 1fr); gap: 5px; padding: 5px;
+           -webkit-mask-image: radial-gradient(44% 46% at 40% 52%, #000 0%, rgba(0,0,0,.55) 45%, transparent 75%); }
+  .floor i { display: block; aspect-ratio: 1; border-radius: 2px; background: rgba(255,255,255,.05); }
+  .floor i.l { background: rgba(200,255,46,.55); box-shadow: 0 0 10px rgba(200,255,46,.6); }
+  .floor i.c { background: rgba(46,230,255,.5); box-shadow: 0 0 10px rgba(46,230,255,.6); }
+  .floor i.v { background: rgba(138,92,255,.45); }
+  .floor i.d { background: rgba(255,255,255,.11); }
+
+  /* the board and its thickness */
+  .shadow { position: absolute; inset: -30px; transform: translateZ(-29px); border-radius: 30px;
+            background: radial-gradient(closest-side, rgba(0,0,0,.95), rgba(0,0,0,.6) 60%, transparent); filter: blur(14px); }
+  .edge { position: absolute; inset: 0; border-radius: 10px; background: #06100c; }
+  .pcb { position: absolute; inset: 0; border-radius: 10px; overflow: hidden; transform: translateZ(8px);
+         background:
+           radial-gradient(60% 80% at 50% 50%, rgba(200,255,46,.10), transparent 70%),
+           linear-gradient(120deg, #0f241b 0%, #0a1913 45%, #0d2219 100%);
+         box-shadow: inset 0 0 0 1.5px rgba(200,255,46,.22), inset 0 0 30px rgba(0,0,0,.6); }
+  .traces { position: absolute; inset: 0; opacity: .55;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='520' height='289'><g fill='none' stroke='%2367ff9a' stroke-opacity='.18' stroke-width='1'><path d='M0 30h120l20 20h60'/><path d='M0 44h110l18 18h70'/><path d='M0 250h130l24-24h50'/><path d='M0 236h120l20-20h56'/><path d='M520 30H400l-20 20h-60'/><path d='M520 44H410l-18 18h-70'/><path d='M520 250H390l-24-24h-50'/><path d='M520 236H400l-20-20h-56'/><path d='M200 0v40'/><path d='M214 0v34'/><path d='M228 0v40'/><path d='M292 0v40'/><path d='M306 0v34'/><path d='M320 0v40'/><path d='M200 289v-40'/><path d='M214 289v-34'/><path d='M306 289v-34'/><path d='M320 289v-40'/></g><g fill='%2367ff9a' fill-opacity='.22'><circle cx='140' cy='50' r='2'/><circle cx='128' cy='62' r='2'/><circle cx='380' cy='50' r='2'/><circle cx='392' cy='62' r='2'/><circle cx='154' cy='226' r='2'/><circle cx='366' cy='226' r='2'/></g></svg>"); }
+
+  .hole { position: absolute; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%;
+          background: radial-gradient(circle, #020403 0 38%, #d8b860 40% 62%, #7a6430 64% 70%, transparent 72%); }
+
+  /* power stages: inductors in rows at both ends */
+  .vrm { position: absolute; display: grid; gap: 7px; }
+  .ind { width: 26px; height: 22px; border-radius: 3px; transform: translateZ(4px);
+         background: linear-gradient(160deg, #3a4146, #1b1f22 60%, #2a3034);
+         box-shadow: 0 0 0 1px rgba(0,0,0,.6), 1px 2px 0 #0b0d0e, 2px 4px 0 #090b0c; }
+  .caps { position: absolute; display: grid; gap: 3px; }
+  .cap { width: 7px; height: 4px; background: linear-gradient(90deg, #c9ccd0 0 22%, #6b5536 24% 76%, #c9ccd0 78%); border-radius: 1px; }
+
+  /* the GPU package */
+  .sub { position: absolute; left: 182px; top: 66px; width: 156px; height: 156px; border-radius: 6px; transform: translateZ(10px);
+         background: linear-gradient(140deg, #26352e, #17231d 55%, #22312a);
+         box-shadow: 0 0 0 1.5px rgba(216,184,96,.45), 0 0 40px rgba(200,255,46,.18); }
+  .sub .caps { transform: translateZ(1px); }
+  .interposer { position: absolute; left: 22px; top: 30px; width: 112px; height: 96px; border-radius: 3px; transform: translateZ(2px);
+                background: linear-gradient(135deg, #3b4744, #252f2d); box-shadow: 0 0 0 1px rgba(0,0,0,.5); }
+  .layer { position: absolute; border-radius: 2px; }
+  .die .layer { background: #1a2523; }
+  .die .top { background:
+      linear-gradient(125deg, rgba(255,255,255,.0) 20%, rgba(255,255,255,.28) 38%, rgba(255,255,255,0) 52%),
+      linear-gradient(160deg, #20393a 0%, #4e6b6b 30%, #1b2a2b 55%, #36504f 80%, #1a2929 100%);
+    box-shadow: 0 0 0 1px rgba(200,255,46,.55), 0 0 26px rgba(200,255,46,.55), 0 0 60px rgba(46,230,255,.35);
+    display: grid; grid-template-columns: repeat(8, 1fr); gap: 2.5px; padding: 4px; overflow: hidden; }
+  .die .top i { display: block; border-radius: 1.5px; background: rgba(255,255,255,.08); }
+  .die .top i.l { background: #c8ff2e; box-shadow: 0 0 6px #c8ff2e; }
+  .die .top i.c { background: #2ee6ff; box-shadow: 0 0 6px #2ee6ff; }
+  .die .top i.m { background: rgba(200,255,46,.45); }
+  .hbm .layer { background: #0e1416; }
+  .hbm .top { background: linear-gradient(150deg, #2b3438, #0c1113 60%, #1f272b);
+              box-shadow: 0 0 0 1px rgba(46,230,255,.75), 0 0 14px rgba(46,230,255,.65); }
+  .hbm .top::after { content: ""; position: absolute; left: 3px; right: 3px; top: 50%; height: 1px; background: rgba(46,230,255,.35); }
+
+  /* the hot set, hovering over the die */
+  .holo { position: absolute; left: 260px; top: 144px; width: 0; height: 0; }
+  .holo b { position: absolute; width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 2px; }
+  .beam { position: absolute; left: 260px; top: 144px; width: 0; height: 0; }
+
+  .stream b { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 2px; transform: translateZ(9px); }
+
+  .silk { position: absolute; left: 400px; top: 262px; transform: translateZ(8.5px); font-size: 8.5px; letter-spacing: 1.6px;
+          color: rgba(230,240,235,.55); white-space: nowrap; }
+  .silk2 { position: absolute; left: 196px; top: 18px; transform: translateZ(8.5px); font-size: 8.5px; letter-spacing: 1.6px;
+           color: rgba(230,240,235,.4); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="fade"><div class="scene"><div class="world" id="w">
+  <div class="floor" id="floor"></div>
+  <div class="shadow"></div>
+  <div id="edges"></div>
+  <div class="pcb">
+    <div class="traces"></div>
+  </div>
+  <div id="board"></div>
+</div></div></div>
+
+<script>
+// Seeded random so a re-render is the same picture.
+let s = 20261112; const rnd = () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296;
+const w = document.getElementById("w");
+const el = (cls, css = {}, parent = w, tag = "div") => { const e = document.createElement(tag); if (cls) e.className = cls; Object.assign(e.style, css); parent.appendChild(e); return e; };
+
+// RAM floor: mostly dim cells (the experts that stay in RAM), a few lit
+const floor = document.getElementById("floor");
+for (let k = 0; k < 110 * 84; k++) {
+  const i = document.createElement("i"), r = rnd();
+  i.className = r < .018 ? "l" : r < .03 ? "c" : r < .036 ? "v" : r < .2 ? "d" : "";
+  floor.appendChild(i);
+}
+
+// board thickness
+const edges = document.getElementById("edges");
+for (let z = 0; z < 8; z++) el("edge", { transform: `translateZ(${z}px)`, background: z === 7 ? "#14281f" : "#050c09" }, edges);
+
+const board = document.getElementById("board");
+board.style.cssText = "position:absolute;inset:0;transform:translateZ(8px)";
+
+// mounting holes: corners and around the package
+for (const [x, y] of [[16, 16], [504, 16], [16, 273], [504, 273], [166, 50], [354, 50], [166, 239], [354, 239]])
+  el("hole", { left: x + "px", top: y + "px", transform: "translateZ(.5px)" }, board);
+
+// power stages at both ends
+const vrm = (x, y, cols, rows) => {
+  const g = el("vrm", { left: x + "px", top: y + "px", gridTemplateColumns: `repeat(${cols}, 26px)` }, board);
+  for (let k = 0; k < cols * rows; k++) el("ind", {}, g);
+};
+vrm(34, 46, 4, 6); vrm(370, 46, 4, 6);
+
+// capacitor fields
+const caps = (x, y, cols, rows, parent = board) => {
+  const g = el("caps", { left: x + "px", top: y + "px", gridTemplateColumns: `repeat(${cols}, 7px)` }, parent);
+  for (let k = 0; k < cols * rows; k++) el("cap", {}, g);
+};
+caps(186, 30, 16, 3); caps(186, 236, 16, 3); caps(150, 92, 3, 14); caps(342, 92, 3, 14);
+
+// package
+const sub = el("sub", {}, board);
+caps(10, 8, 15, 2, sub); caps(10, 136, 15, 2, sub); caps(6, 30, 1, 16, sub); caps(143, 30, 1, 16, sub);
+const ip = el("interposer", {}, sub);
+
+// stacked layers make a part with height; the last one is its top
+const block = (cls, x, y, wd, ht, h, parent) => {
+  const g = el(cls, { position: "absolute", left: x + "px", top: y + "px", width: wd + "px", height: ht + "px" }, parent);
+  for (let z = 1; z <= h; z++) el("layer" + (z === h ? " top" : ""), { inset: 0, transform: `translateZ(${z * .8}px)` }, g);
+  return g.lastChild;
+};
+const dieTop = block("die", 27, 13, 58, 70, 6, ip);
+for (let k = 0; k < 8 * 10; k++) {
+  const i = document.createElement("i"), r = rnd();
+  // about a third of the die lit: the 7,913 of 24,576 experts that live on the card
+  i.className = r < .2 ? "l" : r < .3 ? "c" : r < .36 ? "m" : "";
+  dieTop.appendChild(i);
+}
+for (const [x, y] of [[5, 15], [5, 50], [89, 15], [89, 50]]) block("hbm", x, y, 18, 31, 7, ip);
+
+// a stream of cells from the RAM field, across the edge connector, into the package
+const stream = el("stream", { position: "absolute", inset: 0 }, board);
+// two lanes, running under the power stages' bottom row and up into the package's corner
+for (const [x0, y0, x1, y1, n] of [[-150, 330, 186, 214, 26], [-150, 352, 186, 228, 26]]) for (let k = 0; k < n; k++) {
+  const t = k / (n - 1), x = x0 + t * (x1 - x0), y = y0 + t * (y1 - y0);
+  if (x > -2 && x < 16 && y > 250) continue;          // leave the board edge clean
+  const on = x > -2;
+  const a = on ? .55 + t * .45 : .18 + t * .6;
+  const c = t < .7 ? `rgba(200,255,46,${a})` : `rgba(46,230,255,${a})`;
+  el("", { left: x + "px", top: y + "px", width: "6px", height: "6px", background: c, boxShadow: `0 0 ${5 + t * 9}px ${c}`,
+           transform: `translateZ(${on ? 9 : -29}px)` }, stream, "b");
+}
+
+// the hot set over the die: the model's layers as a stack of translucent planes, the experts that live on the card lit
+const holo = el("holo", {}, board);
+const N = 7, P = 12.5;
+for (let z = 0; z < 6; z++) {
+  const plane = el("", { position: "absolute", left: -(N * P) / 2 - 4 + "px", top: -(N * P) / 2 - 4 + "px", width: N * P + 8 + "px", height: N * P + 8 + "px",
+                         borderRadius: "4px", border: `1px solid rgba(46,230,255,${.32 - z * .045})`, background: `rgba(46,230,255,${.035})`,
+                         transform: `translateZ(${44 + z * 17}px)` }, holo);
+  for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+    const r = rnd(), lit = r < .3 - z * .025, cy = !lit && r < .4 - z * .02;
+    const a = .95 - z * .12;
+    el("", { left: 4 + i * P + P / 2 + "px", top: 4 + j * P + P / 2 + "px", width: "7px", height: "7px", margin: "-3.5px 0 0 -3.5px",
+             background: lit ? `rgba(200,255,46,${a})` : cy ? `rgba(46,230,255,${a * .8})` : "rgba(255,255,255,.07)",
+             boxShadow: lit ? `0 0 8px rgba(200,255,46,${a})` : cy ? `0 0 8px rgba(46,230,255,${a * .8})` : "none" }, plane, "b");
+  }
+}
+// light rising off the die into the stack
+el("", { position: "absolute", left: "-34px", top: "-40px", width: "68px", height: "80px", borderRadius: "8px",
+         background: "radial-gradient(closest-side, rgba(200,255,46,.35), transparent)", filter: "blur(6px)", transform: "translateZ(30px)" }, holo);
+
+el("silk", {}, board).textContent = "V100 · SXM2 · 32GB HBM2";
+el("silk2", {}, board).textContent = "GV100 · SM_70";
+</script>
+</body>
+</html>

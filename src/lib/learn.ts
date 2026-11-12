@@ -7,12 +7,14 @@
 //   models: qwen3-32b, llama-3-3-70b   (optional, model slugs this article is about)
 //   order: 2                           (optional, position within the track)
 //   nav: VRAM needs                    (optional, sidebar label; defaults to the title up to any colon)
+//   card: /learn/img/v100-sxm2.png     (optional, a picture for the share card: a PNG or JPEG in public/learn/img,
+//                                       drawn on the right at 680x630, so a transparent PNG blends into the card)
 //   ---
 // A post is dated news from the rack or from a reader, not a guide: "kind: post" instead of a track, and optionally
 // "by: Sam R." to credit whoever sent it in. Posts list newest first on /articles and stay out of the sidebar.
 // Files starting with "_" are drafts and planning notes, never published.
 
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 const DIR = path.join(process.cwd(), "content", "learn");
@@ -42,6 +44,8 @@ export type Article = {
   by: string | null;
   models: string[];
   order: number;
+  /** Picture for the share card, a path under /learn/img/. */
+  card: string | null;
   body: string;
 };
 
@@ -54,6 +58,9 @@ function parse(slug: string, raw: string): Article {
     if (i > 0) meta[line.slice(0, i).trim()] = line.slice(i + 1).trim().replace(/^"(.*)"$/, "$1");
   }
   const kind = meta.kind === "post" ? "post" : "guide";
+  if (meta.card && !(/^\/learn\/img\/[\w.-]+\.(png|jpe?g)$/.test(meta.card) && existsSync(path.join(process.cwd(), "public", meta.card)))) {
+    throw new Error(`content/learn/${slug}.md: card must be a PNG or JPEG that exists under public/learn/img/, got ${meta.card}`);
+  }
   const track = TRACKS.find(t => t.id === meta.track)?.id ?? null;
   if (!meta.title || !meta.description || (kind === "guide" && !track) || !/^\d{4}-\d{2}-\d{2}$/.test(meta.date ?? "")) {
     throw new Error(`content/learn/${slug}.md: needs title, description, date (YYYY-MM-DD), and a track (${TRACKS.map(t => t.id).join("|")}) or "kind: post"`);
@@ -63,6 +70,7 @@ function parse(slug: string, raw: string): Article {
     track: kind === "guide" ? track : null, date: meta.date, by: meta.by || null,
     models: meta.models ? meta.models.split(",").map(s => s.trim()).filter(Boolean) : [],
     order: Number(meta.order) || 99,
+    card: meta.card || null,
     body: m[2].trim(),
   };
 }
