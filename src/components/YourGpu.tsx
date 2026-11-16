@@ -21,14 +21,23 @@ const BOOT_MS = 1500;
 const SHOWN = 8;
 const UNSURE: [string, Gpu][] = [["A Mac, not sure which chip", MAC_UNKNOWN], ["No graphics card / built-in graphics", INTEGRATED]];
 
+const sizes = (g: Gpu) => g.vram.slice().sort((a, b) => a - b);
+
+/** One row of the picker. Adding a card lists each memory size on its own, so a 16 GB V100 can join a 32 GB one. */
+type Pick = { gpu: Gpu; mem?: number };
+
 /** Type-to-search instead of a 200-option select, which is hard to scroll on a phone. */
-function GpuPicker({ label, cardsOnly, onPick, onCancel }: { label: string; cardsOnly?: boolean; onPick: (g: Gpu) => void; onCancel?: () => void }) {
+function GpuPicker({ label, cardsOnly, onPick, onCancel }: { label: string; cardsOnly?: boolean; onPick: (g: Gpu, mem?: number) => void; onCancel?: () => void }) {
   const id = useId();
   const [q, setQ] = useState("");
   const [at, setAt] = useState(0);
   const words = q.trim();
-  const found = words ? GPUS.filter(g => (!cardsOnly || g.kind === "discrete") && gpuMatches(g, words)).slice(0, SHOWN) : [];
+  const found: Pick[] = words ? GPUS
+    .filter(g => (!cardsOnly || g.kind === "discrete") && gpuMatches(g, words))
+    .flatMap(g => cardsOnly && g.vram.length > 1 ? sizes(g).map(mem => ({ gpu: g, mem })) : [{ gpu: g }])
+    .slice(0, SHOWN) : [];
   const open = found.length > 0;
+  const pick = (p: Pick) => onPick(p.gpu, p.mem);
 
   return (
     <div className="picker">
@@ -42,15 +51,15 @@ function GpuPicker({ label, cardsOnly, onPick, onCancel }: { label: string; card
         onKeyDown={e => {
           if (e.key === "ArrowDown" && open) { e.preventDefault(); setAt((at + 1) % found.length); }
           else if (e.key === "ArrowUp" && open) { e.preventDefault(); setAt((at - 1 + found.length) % found.length); }
-          else if (e.key === "Enter" && open) { e.preventDefault(); onPick(found[at]); }
+          else if (e.key === "Enter" && open) { e.preventDefault(); pick(found[at]); }
           else if (e.key === "Escape") { if (q) setQ(""); else onCancel?.(); }
         }}
       />
       {open && (
         <ul className="pick-list" id={id + "-list"} role="listbox">
-          {found.map((g, i) => (
-            <li key={g.key} id={`${id}-${i}`} role="option" aria-selected={i === at} onMouseEnter={() => setAt(i)} onClick={() => onPick(g)}>
-              <b>{g.name}</b><span>{g.vram.slice().sort((a, b) => a - b).join(" / ")} GB</span>
+          {found.map((p, i) => (
+            <li key={p.gpu.key + (p.mem ?? "")} id={`${id}-${i}`} role="option" aria-selected={i === at} onMouseEnter={() => setAt(i)} onClick={() => pick(p)}>
+              <b>{p.gpu.name}</b><span>{p.mem ?? sizes(p.gpu).join(" / ")} GB</span>
             </li>
           ))}
         </ul>
@@ -93,8 +102,18 @@ function saveChoice(cards: RigCard[], picked: boolean) {
   history.replaceState(history.state, "", url);
 }
 
-const sizes = (g: Gpu) => g.vram.slice().sort((a, b) => a - b);
 const isCard = (g: Gpu) => g.kind === "discrete";
+
+/** The same card at the same size is one row with a count; at a different size it is its own row. */
+function merged(cards: RigCard[]): RigCard[] {
+  const out: RigCard[] = [];
+  for (const c of cards) {
+    const same = out.find(o => o.gpu === c.gpu && o.mem === c.mem);
+    if (same) same.count = Math.min(MAX_CARDS, same.count + c.count);
+    else out.push({ ...c });
+  }
+  return out;
+}
 
 export default function YourGpu() {
   const [det, setDet] = useState<Detection | null>(visit.det);
@@ -135,15 +154,13 @@ export default function YourGpu() {
   const allFit = rated.length > 0 && rated.every(r => r.fits);
 
   /** Any change by hand makes the setup the visitor's pick, even if it started from detection. */
-  function commit(next: RigCard[], strength = 1) {
+  function commit(changed: RigCard[], strength = 1) {
+    const next = merged(changed);
     remember({ cards: next, picked: true }); setCards(next); setPicked(true); setChanging(null);
     saveChoice(next, true); pulse(strength, .3, .4);
   }
-  const replace = (g: Gpu) => commit([{ gpu: g, mem: g.vram[0], count: 1 }], 1.4);
-  function add(g: Gpu) {
-    const i = cards.findIndex(c => c.gpu === g);
-    commit(i >= 0 ? cards.map((c, j) => j === i ? { ...c, count: Math.min(MAX_CARDS, c.count + 1) } : c) : [...cards, { gpu: g, mem: g.vram[0], count: 1 }], 1.4);
-  }
+  const replace = (g: Gpu, mem = g.vram[0]) => commit([{ gpu: g, mem, count: 1 }], 1.4);
+  const add = (g: Gpu, mem = g.vram[0]) => commit([...cards, { gpu: g, mem, count: 1 }], 1.4);
   const edit = (i: number, patch: Partial<RigCard>) => commit(cards.map((c, j) => j === i ? { ...c, ...patch } : c));
   // Memory alone doesn't make it a pick: a detected GPU at a different size is still detected.
   function chooseMem(i: number, v: number) {

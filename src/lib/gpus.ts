@@ -273,5 +273,7 @@ export function rigFromParams(gpu: string | null | undefined, mem: string | null
   });
 }
 
-/** "2× Quadro RTX 8000 + RTX A4000" */
-export const rigName = (cards: RigCard[]) => cards.map(c => (c.count > 1 ? `${c.count}× ` : "") + c.gpu.name).join(" + ");
+/** "2× Quadro RTX 8000 + RTX A4000"; a card held at two sizes names each: "Tesla V100 32 GB + Tesla V100 16 GB". */
+export const rigName = (cards: RigCard[]) => cards.map(c =>
+  (c.count > 1 ? `${c.count}× ` : "") + c.gpu.name + (cards.some(o => o !== c && o.gpu === c.gpu) ? ` ${c.mem} GB` : ""),
+).join(" + ");
